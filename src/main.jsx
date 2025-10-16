@@ -1,12 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing.jsx";
-import Home from "./pages/Home.jsx";
-import CTGScan from "./pages/CTGScan";
-import "./index.css";
-import Diagnosis from "./pages/Diagnosis";
-import Result from "./pages/Result";
+import Landing from "./pages/userpages/Landing.jsx";
+import Home from "./pages/userpages/Home.jsx";
+import CTGScan from "./pages/userpages/CTGScan.jsx";
+import Diagnosis from "./pages/userpages/Diagnosis.jsx";
+import Result from "./pages/userpages/Result.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>

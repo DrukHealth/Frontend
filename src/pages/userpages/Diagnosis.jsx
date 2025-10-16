@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import "./Diagnosis.css";
+import "./css/Diagnosis.css";
 
 export default function Diagnosis() {
   const location = useLocation();

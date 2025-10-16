@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./Result.css";
+import "./css/Result.css";
 
 export default function Result() {
   const location = useLocation();
