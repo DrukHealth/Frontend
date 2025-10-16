@@ -1,0 +1,138 @@
+/* General Page */
+.home-container {
+  background-color: white;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+  color: #0d52bd;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centers the title */
+  background-color: #e2edfb;
+  padding: 25px 30px; /* taller navbar */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-bottom-left-radius: 16px; /* subtle, like service-card */
+  border-bottom-right-radius: 16px;
+  position: relative;
+}
+
+/* Left Logo */
+.nav-left {
+  position: absolute;
+  left: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  height: 55px;
+  width: auto;
+}
+
+/* Center Title */
+.nav-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #0d52bd;
+  text-align: center;
+}
+
+/* Druk eHealth Styling */
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.e-letter {
+  color: #f8e71c; /* yellow */
+  transform: rotate(-12deg);
+  display: inline-block;
+}
+
+
+/* Services Section */
+.services {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.services-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+  color: #0d52bd;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+  justify-items: center;
+  padding: 0 20px;
+}
+
+/* Service Cards */
+.service-card {
+  background-color: #e2edfb;
+  border-radius: 16px;
+  padding: 30px 20px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.service-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: #0d52bd;
+}
+
+.service-card p {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .nav-title {
+    font-size: 1.2rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .services-title {
+    font-size: 1.6rem;
+  }
+
+  .service-card {
+    padding: 20px;
+  }
+}
+
+/* Footer */
+.footer {
+  position: fixed;        /* stays fixed like navbar */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #e2edfb;
+  color: #0d52bd;
+  text-align: center;
+  padding: 18px 10px;
+  font-size: 0.95rem;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+}

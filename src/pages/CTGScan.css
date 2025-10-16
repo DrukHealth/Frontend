@@ -1,0 +1,158 @@
+.ctgscan-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #e2edfb;
+  text-align: center;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e2edfb;
+  height: 100px; /* make navbar taller */
+  padding: 0 50px;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Logo stays on the left */
+.nav-left .nav-logo {
+  width: 65px;
+  height: 65px;
+}
+
+/* Center title perfectly */
+.nav-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0d52bd;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+
+.title {
+  font-weight: bold;
+}
+
+.e-letter {
+  color: #f8e71c;
+  transform: rotate(-10deg);
+  display: inline-block;
+}
+
+/* Main Section */
+.ctgscan-body {
+  flex: 1;
+  padding: 30px 20px;
+}
+
+h2 {
+  color: #0d52bd;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* Upload Buttons */
+.upload-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.upload-btn,
+.capture-btn,
+.proceed-btn,
+.cancel-btn {
+  background-color: #0d52bd;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.upload-btn:hover,
+.capture-btn:hover,
+.proceed-btn:hover {
+  background-color: #083a8c;
+  transform: scale(1.05);
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+}
+
+.cancel-btn:hover {
+  background-color: #b52d3a;
+}
+
+/* Camera View */
+.camera-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.camera-view {
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+}
+
+/* Image Preview */
+.preview {
+  margin-top: 20px;
+}
+
+.preview-img {
+  width: 90%;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+.footer {
+  background-color: #e2edfb;
+  padding: 15px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #0d52bd;
+}
+
+/* Same as before... keep all styles */
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.return-btn {
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.return-btn:hover {
+  background-color: #565e64;
+  transform: scale(1.05);
+}
