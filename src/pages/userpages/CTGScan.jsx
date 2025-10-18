@@ -1,15 +1,20 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./css/CTGScan.css";
+import image1 from "../../assets/image1.svg";
 
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [capturing, setCapturing] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
-  // Upload Image
+  useEffect(() => {
+    document.body.style.backgroundColor = darkMode ? "#1E1E1E" : "#F5F5F5";
+    document.body.style.color = darkMode ? "#FFFFFF" : "#000000";
+  }, [darkMode]);
+
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -18,7 +23,6 @@ export default function CTGScan() {
     }
   };
 
-  // Open Camera
   const handleCapture = async () => {
     setCapturing(true);
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -28,7 +32,6 @@ export default function CTGScan() {
     }
   };
 
-  // Take Photo
   const takePhoto = () => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -43,7 +46,6 @@ export default function CTGScan() {
     }, "image/png");
   };
 
-  // Stop Camera
   const stopCamera = () => {
     setCapturing(false);
     if (videoRef.current?.srcObject) {
@@ -51,13 +53,11 @@ export default function CTGScan() {
     }
   };
 
-  // Proceed to Diagnosis
   const handleProceed = () => {
     if (!imageFile) return alert("Please upload or capture an image first.");
     navigate("/result", { state: { imageFile } });
   };
 
-  // Reset and go back to initial state
   const handleReturn = () => {
     setImageFile(null);
     setImagePreview(null);
@@ -65,78 +65,224 @@ export default function CTGScan() {
   };
 
   return (
-    <div className="ctgscan-container">
-      {/* Navbar */}
- <nav className="navbar">
-  <div
-    className="nav-left"
-    onClick={() => navigate("/home")}
-    style={{ cursor: "pointer" }}
-  >
-    <img src="/logo.png" alt="Druk eHealth Logo" className="nav-logo" />
-  </div>
+    <div
+      style={{
+        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+        color: darkMode ? "#EAEAEA" : "#0d52bd",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* NAVBAR */}
+      <nav
+        className="navbar"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 20px",
+          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          height: "92px",
+        }}
+      >
+        {/* Left: Logo */}
+        <div
+          onClick={() => navigate("/home")}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+        >
+          <img
+            src="/logo.png"
+            alt="Druk eHealth Logo"
+            style={{ height: "70px" }}
+          />
+        </div>
 
-  <div className="nav-title">CTG Scan</div>
-</nav>
+        {/* Center: Title */}
+        <div
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            flex: 1,
+          }}
+        >
+          CTG Scan
+        </div>
 
-      {/* Main Section */}
-      <div className="ctgscan-body">
-        <h2>CTG Scan</h2>
+        {/* Right: Dark Mode Button */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              backgroundColor: darkMode ? "#444" : "#679ADC",
+              color: "white",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "600",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) =>
+              (e.target.style.backgroundColor = darkMode ? "#555" : "#5A88C0")
+            }
+            onMouseOut={(e) =>
+              (e.target.style.backgroundColor = darkMode ? "#444" : "#679ADC")
+            }
+          >
+            {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+          </button>
+        </div>
+      </nav>
 
-        {/* Camera Section */}
+      {/* BODY */}
+      <div style={{ flex: 1, textAlign: "center", paddingTop: "2rem" }}>
         {capturing && (
-          <div className="camera-section">
-            <video ref={videoRef} className="camera-view" />
-            <button onClick={takePhoto} className="capture-btn">
-              Capture Photo
-            </button>
-            <button onClick={stopCamera} className="cancel-btn">
-              Cancel
-            </button>
+          <div>
+            <video ref={videoRef} />
+            <div style={{ marginTop: "1rem" }}>
+              <button
+                onClick={takePhoto}
+                style={{
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  marginRight: "1rem",
+                }}
+              >
+                Capture Photo
+              </button>
+              <button
+                onClick={stopCamera}
+                style={{
+                  backgroundColor: "#E74C3C",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Image Preview */}
         {imagePreview && (
-          <div className="preview">
-            <img src={imagePreview} alt="Preview" className="preview-img" />
-          </div>
-        )}
-
-        {/* Upload or Capture (when no image) */}
-        {!imagePreview && !capturing && (
-          <div className="upload-options">
-            <label htmlFor="upload" className="upload-btn">
-              Upload Photo
-            </label>
-            <input
-              id="upload"
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handleUpload}
+          <div>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              style={{
+                width: "400px",
+                height: "auto",
+                borderRadius: "10px",
+                boxShadow: darkMode
+                  ? "0 0 10px rgba(255,255,255,0.2)"
+                  : "0 0 10px rgba(0,0,0,0.2)",
+              }}
             />
-            <button onClick={handleCapture} className="capture-btn">
-              Take Photo
+          </div>
+        )}
+
+        {!imagePreview && !capturing && (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              gap: "1rem",
+              marginTop: "2rem",
+            }}
+          >
+            <img
+              src={image1}
+              alt="Scan Icon"
+              style={{ width: "400px", height: "400px" }}
+            />
+            <button
+              onClick={handleCapture}
+              style={{
+                backgroundColor: darkMode ? "#4C8BE8" : "#679ADC",
+                color: "white",
+                padding: "12px 24px",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "600",
+                border: "none",
+                transition: "background 0.3s",
+              }}
+              onMouseOver={(e) =>
+                (e.target.style.backgroundColor = darkMode ? "#3C7BD6" : "#5A88C0")
+              }
+              onMouseOut={(e) =>
+                (e.target.style.backgroundColor = darkMode ? "#4C8BE8" : "#679ADC")
+              }
+            >
+              Scan CTG Record Image
             </button>
           </div>
         )}
 
-        {/* Diagnose & Return (when image selected) */}
         {imagePreview && (
-          <div className="action-buttons">
-            <button onClick={handleProceed} className="return-btn">
+          <div
+            style={{
+              marginTop: "2rem",
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+            }}
+          >
+            <button
+              onClick={handleProceed}
+              style={{
+                backgroundColor: "#4CAF50",
+                color: "white",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
               Diagnose
             </button>
-            <button onClick={handleReturn} className="return-btn">
+            <button
+              onClick={handleReturn}
+              style={{
+                backgroundColor: "#E74C3C",
+                color: "white",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
               Return
             </button>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="footer">
+      {/* FOOTER */}
+      <footer
+        style={{
+          padding: "1rem",
+          textAlign: "center",
+          backgroundColor: darkMode ? "#222" : "#E8EEF5",
+          color: darkMode ? "#AAA" : "#000",
+        }}
+      >
         <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
       </footer>
     </div>
