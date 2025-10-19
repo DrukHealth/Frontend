@@ -9,6 +9,7 @@ export default function Result() {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [prediction, setPrediction] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     if (!imageFile) return;
@@ -37,7 +38,18 @@ export default function Result() {
 
   if (!imageFile) {
     return (
-      <div className="no-image">
+      <div
+        className="no-image"
+        style={{
+          backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <p>No image provided. Go back to scan page.</p>
         <button onClick={() => navigate("/ctg-scan")} className="return-btn">
           Return to CTG Scan
@@ -47,19 +59,50 @@ export default function Result() {
   }
 
   return (
-    <div className="result-container">
+    <div
+      className="result-container"
+      style={{
+        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+        color: darkMode ? "#EAEAEA" : "#0d52bd",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {/* Navbar */}
-      <nav className="navbar">
+      <nav
+        className="navbar"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 20px",
+          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          height: "92px",
+        }}
+      >
+        {/* Left: Logo */}
         <div
-          className="nav-left"
           onClick={() => navigate("/home")}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
         >
-          <img src="/logo.png" alt="Druk eHealth Logo" className="nav-logo" />
+          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
         </div>
 
-        <div className="nav-title">CTG Diagnosis Result</div>
+        {/* Center: Title */}
+        <div
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            flex: 1,
+          }}
+        >
+          CTG Diagnosis Result
+        </div>
 
+        {/* Right: Dark Mode Toggle */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
