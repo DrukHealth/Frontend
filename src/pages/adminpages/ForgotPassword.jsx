@@ -4,13 +4,35 @@ import "./css/ForgotPassword.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();  // ✅ must be added
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Email submitted:", email);
-    // ✅ navigate to next screen
-    navigate("/forgot-password-verify");
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5001/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Failed to send OTP");
+      } else {
+        alert("✅ OTP sent to your email!");
+        navigate("/forgot-password-verify", { state: { email } });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error. Try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,16 +47,9 @@ export default function ForgotPassword() {
       <div className="right-panel">
         <div className="form-container">
           <h1 className="title">Forgot Password</h1>
-
-          <p className="subtitle">
-            Enter the email address associated with your account.
-          </p>
+          <p className="subtitle">Enter the email address associated with your account.</p>
 
           <div className="input-wrapper">
-            <svg className="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="#666" strokeWidth="1.5" fill="none"/>
-              <path d="M18 5l-8 5-8-5" stroke="#666" strokeWidth="1.5" fill="none"/>
-            </svg>
             <input
               type="email"
               placeholder="Enter email address"
@@ -44,8 +59,10 @@ export default function ForgotPassword() {
             />
           </div>
 
-          <button onClick={handleSubmit} className="submit-btn">
-            Submit
+          {error && <p className="error-message">{error}</p>}
+
+          <button onClick={handleSubmit} className="submit-btn" disabled={loading}>
+            {loading ? "Sending..." : "Submit"}
           </button>
         </div>
       </div>

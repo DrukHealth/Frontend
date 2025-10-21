@@ -1,0 +1,28 @@
+.success-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f8ff;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.success-container h1 {
+  color: green;
+  margin-bottom: 20px;
+}
+
+.logout-btn {
+  padding: 10px 20px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #ff1a1a;
+}

@@ -1,70 +1,68 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './css/PasswordVerify.css';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./css/ForgotPassword.css";
 
 export default function ForgotPasswordVerify() {
-  const [otp, setOtp] = useState(['', '', '', '', '']);
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email || "";
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return false;
+  const handleVerify = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5001/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
 
-    setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
-
-    // Focus next input
-    if (element.value !== '' && element.nextSibling) {
-      element.nextSibling.focus();
+      if (!res.ok) {
+        setError(data.message || "Invalid OTP");
+      } else {
+        alert("✅ OTP verified!");
+        navigate("/change-password", { state: { email, otp } });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error. Try again later.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleKeyDown = (e, index) => {
-    // Focus previous input on backspace
-    if (e.key === 'Backspace' && !otp[index] && e.target.previousSibling) {
-      e.target.previousSibling.focus();
-    }
-  };
-
-  const handleVerify = () => {
-    console.log('OTP entered:', otp.join(''));
-    navigate('/change-password');
   };
 
   return (
-    <div className="verify-container">
-      <div className="verify-left-panel">
-        <div className="verify-logo-container">
-          <img src="/2.png" alt="Druk Health Logo" className="verify-logo" />
-          <div className="verify-brand-name">DRUK HEALTH</div>
+    <div className="container">
+      <div className="left-panel">
+        <div className="logo-container">
+          <img src="/2.png" alt="Druk Health Logo" className="logo" />
+          <div className="brand-name">DRUK HEALTH</div>
         </div>
       </div>
-      
-      <div className="verify-right-panel">
-        <div className="verify-form-container">
-          <h1 className="verify-title">Forgot Password</h1>
-          
-          <p className="verify-subtitle">
-            Enter the verification code sent you in your email.
-          </p>
-          
-          <div className="otp-wrapper">
-            {otp.map((data, index) => {
-              return (
-                <input
-                  className="otp-input"
-                  type="text"
-                  maxLength="1"
-                  key={index}
-                  value={data}
-                  onChange={e => handleChange(e.target, index)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  onFocus={e => e.target.select()}
-                />
-              );
-            })}
+
+      <div className="right-panel">
+        <div className="form-container">
+          <h1 className="title">Verify OTP</h1>
+          <p className="subtitle">Enter the OTP sent to your email.</p>
+
+          <div className="input-wrapper">
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="email-input"
+            />
           </div>
-          
-          <button onClick={handleVerify} className="verify-btn">
-            Verify
+
+          {error && <p className="error-message">{error}</p>}
+
+          <button onClick={handleVerify} className="submit-btn" disabled={loading}>
+            {loading ? "Verifying..." : "Verify OTP"}
           </button>
         </div>
       </div>
