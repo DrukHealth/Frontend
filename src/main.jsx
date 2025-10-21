@@ -6,6 +6,10 @@ import Home from "./pages/userpages/Home.jsx";
 import CTGScan from "./pages/userpages/CTGScan.jsx";
 import Diagnosis from "./pages/userpages/Diagnosis.jsx";
 import Result from "./pages/userpages/Result.jsx";
+import LoginPage from "./pages/adminpages/LoginPage.jsx";
+import ForgotPassword from "./pages/adminpages/ForgotPassword.jsx";
+import ForgotPasswordVerify from "./pages/adminpages/PasswordVerify.jsx";
+import ChangePassword from "./pages/adminpages/ChangePassword.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -15,9 +19,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/ctg-scan" element={<CTGScan />} />
       <Route path="/diagnosis" element={<Diagnosis />} />
       <Route path="/result" element={<Result />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/forgot-password-verify" element={<ForgotPasswordVerify />} />
+      <Route path="/change-password" element={<ChangePassword />} />
     </Routes>
   </BrowserRouter>
 );
-
-
