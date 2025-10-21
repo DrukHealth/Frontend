@@ -1,0 +1,91 @@
+/* ===== Dashboard Layout ===== */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  background-color: #e6f0fa; /* light blue background */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 250px;
+  background-color: #4b9be0;
+  color: white;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 40px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-circle {
+  background-color: white;
+  border-radius: 50%;
+  padding: 8px;
+}
+
+.logo-img {
+  width: 35px;
+  height: 35px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ===== Navigation ===== */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #dbeafe;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  flex: 1;
+  padding: 32px;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* ===== Placeholder Section ===== */
+.placeholder {
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  margin-top: 100px;
+}
