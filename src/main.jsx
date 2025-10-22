@@ -7,7 +7,7 @@ import Home from "./pages/userpages/Home.jsx";
 import CTGScan from "./pages/userpages/CTGScan.jsx";
 import Diagnosis from "./pages/userpages/Diagnosis.jsx";
 import Result from "./pages/userpages/Result.jsx";
-
+import RecordUI from "./pages/adminpages/RecordUI.jsx"; 
 import LoginPage from "./pages/adminpages/LoginPage.jsx";
 import LoginSuccess from "./pages/adminpages/LoginSuccess.jsx";
 import ForgotPassword from "./pages/adminpages/ForgotPassword.jsx";
@@ -22,12 +22,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/ctg-scan" element={<CTGScan />} />
       <Route path="/diagnosis" element={<Diagnosis />} />
       <Route path="/result" element={<Result />} />
+
+      
       {/* Admin Pages */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/success" element={<LoginSuccess />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/forgot-password-verify" element={<ForgotPasswordVerify />} />
       <Route path="/change-password" element={<ChangePassword />} />
+      <Route path="/record" element={<RecordUI />} /> 
     </Routes>
   </BrowserRouter>
 );
