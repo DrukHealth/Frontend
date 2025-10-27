@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Home, FileText, Settings, FileSearch, User, Plus, Edit, Trash2, X } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // ADD THIS IMPORT
 import "./management.css";
 
 export default function Dashboard() {
@@ -10,6 +11,9 @@ export default function Dashboard() {
     email: "",
     password: ""
   });
+
+    // ADD THIS: Initialize navigate hook
+  const navigate = useNavigate();
 
   // Fetch admins on component mount
   useEffect(() => {
@@ -127,7 +131,7 @@ export default function Dashboard() {
         </div>
 
         <nav className="nav-menu">
-          <div className="nav-item ">
+          <div className="nav-item " onClick={()=> navigate("/dashboard")}>
             <Home size={18} /> <span>Home</span>
           </div>
           <div className="nav-item">
@@ -263,3 +267,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
