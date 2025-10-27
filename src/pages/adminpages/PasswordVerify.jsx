@@ -16,7 +16,6 @@ export default function ForgotPasswordVerify() {
       element.nextSibling.focus();
     }
   };
-
   const handleKeyDown = (e, index) => {
     // Focus previous input on backspace
     if (e.key === 'Backspace' && !otp[index] && e.target.previousSibling) {
