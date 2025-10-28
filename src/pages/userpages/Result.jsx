@@ -9,6 +9,8 @@ export default function Result() {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [prediction, setPrediction] = useState(null);
+  const [label, setLabel] = useState("");
+  const [features, setFeatures] = useState({});
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,8 @@ export default function Result() {
         });
         const data = await res.json();
         setPrediction(data.prediction);
+        setLabel(data.label);
+        setFeatures(data.features || {});
       } catch (err) {
         console.error(err);
         alert("Prediction failed!");
@@ -58,6 +62,16 @@ export default function Result() {
     );
   }
 
+  // Determine dynamic class for prediction
+  const resultClass =
+    label.toLowerCase() === "normal"
+      ? "normal"
+      : label.toLowerCase() === "suspect"
+      ? "suspicious"
+      : label.toLowerCase() === "pathologic"
+      ? "pathological"
+      : "";
+
   return (
     <div
       className="result-container"
@@ -82,7 +96,6 @@ export default function Result() {
           height: "92px",
         }}
       >
-        {/* Left: Logo */}
         <div
           onClick={() => navigate("/home")}
           style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
@@ -90,7 +103,6 @@ export default function Result() {
           <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
         </div>
 
-        {/* Center: Title */}
         <div
           style={{
             fontSize: "2.5rem",
@@ -102,7 +114,6 @@ export default function Result() {
           CTG Diagnosis Result
         </div>
 
-        {/* Right: Dark Mode Toggle */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
@@ -159,13 +170,31 @@ export default function Result() {
         {loading ? (
           <p className="analyzing-text">🔍 Analyzing image...</p>
         ) : (
-          <div
-            className={`prediction-result ${
-              prediction >= 0.5 ? "normal" : "abnormal"
-            }`}
-          >
+          <div className={`prediction-result ${resultClass}`}>
             <h3>Prediction Result:</h3>
-            <p>{prediction >= 0.5 ? "Normal" : "Abnormal"}</p>
+            <p>{label}</p>
+          </div>
+        )}
+
+        {!loading && (
+          <div className="feature-section">
+            <h3>Extracted Features</h3>
+            <table className="feature-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(features).map(([key, value]) => (
+                  <tr key={key}>
+                    <td>{key}</td>
+                    <td>{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
@@ -176,7 +205,6 @@ export default function Result() {
         )}
       </div>
 
-      {/* Footer */}
       <footer className="footer">
         <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
       </footer>
