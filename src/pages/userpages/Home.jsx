@@ -1,23 +1,101 @@
-import "./css/Home.css";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import "./css/Home.css";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="home-container">
+    <div
+      style={{
+        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+        color: darkMode ? "#EAEAEA" : "#0d52bd",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+      className="home-container"
+    >
       {/* Navigation Bar */}
-      <nav className="navbar">
-        <div className="nav-left">
-          <img src="/logo.png" alt="Druk eHealth Logo" className="nav-logo" />
+      <nav
+        className="navbar"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 20px",
+          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          height: "92px",
+        }}
+      >
+        {/* Left: Logo */}
+        <div
+          onClick={() => navigate("/home")}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+        >
+          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
         </div>
 
-        <div className="nav-title">
+        {/* Center: Title */}
+        <div
+          style={{
+            fontSize: "2.5rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            flex: 1,
+          }}
+        >
           Welcome to{" "}
           <span className="title">
             Druk <span className="e-letter">e</span>Health
           </span>
+        </div>
+
+        {/* Right: Dark Mode Toggle */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label
+            style={{
+              position: "relative",
+              display: "inline-block",
+              width: "50px",
+              height: "26px",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={() => setDarkMode(!darkMode)}
+              style={{ opacity: 0, width: 0, height: 0 }}
+            />
+            <span
+              style={{
+                position: "absolute",
+                cursor: "pointer",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: darkMode ? "#444" : "#ccc",
+                transition: "0.4s",
+                borderRadius: "34px",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  height: "18px",
+                  width: "18px",
+                  left: darkMode ? "26px" : "4px",
+                  bottom: "4px",
+                  backgroundColor: "white",
+                  transition: "0.4s",
+                  borderRadius: "50%",
+                }}
+              ></span>
+            </span>
+          </label>
         </div>
       </nav>
 
