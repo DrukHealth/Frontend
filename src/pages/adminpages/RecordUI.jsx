@@ -1,149 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import './css/RecordUI.css';
-import { FaHome, FaFileAlt, FaCog, FaSignOutAlt, FaUserCircle, FaListUl } from 'react-icons/fa';
+import React, { useState } from "react";
+import { Home, FileText, Settings, FileSearch, User, LogOut } from "lucide-react";
+import "./css/RecordUI.css";
 
-const RecordsUI = () => {
-  const [sortBy, setSortBy] = useState('newest');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsData, setRecordsData] = useState([]);
-
+const RecordUI = () => {
   const initialRecords = [
-    { id: 1, date: '2025-09-11', hr: 150, uc: 13, acceleration: 8, deceleration: 6, variability: 15.3, classification: 'Normal' },
-    { id: 2, date: '2025-09-11', hr: 140, uc: 10, acceleration: 6, deceleration: 4, variability: 12.3, classification: 'Normal' },
-    { id: 3, date: '2025-09-10', hr: 160, uc: 15, acceleration: 9, deceleration: 7, variability: 18.1, classification: 'Normal' },
-    { id: 4, date: '2025-09-09', hr: 155, uc: 12, acceleration: 7, deceleration: 5, variability: 14.5, classification: 'Normal' },
-    { id: 5, date: '2025-09-08', hr: 148, uc: 11, acceleration: 8, deceleration: 6, variability: 13.2, classification: 'Normal' },
-    { id: 6, date: '2025-09-07', hr: 152, uc: 14, acceleration: 7, deceleration: 5, variability: 16.0, classification: 'Normal' },
-    { id: 7, date: '2025-09-06', hr: 147, uc: 12, acceleration: 6, deceleration: 4, variability: 12.9, classification: 'Normal' },
-    { id: 8, date: '2025-09-05', hr: 149, uc: 13, acceleration: 8, deceleration: 6, variability: 14.8, classification: 'Normal' },
+    { id: 1, date: "2024-11-10", fhr: "140 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "Moderate", classification: "Normal" },
+    { id: 2, date: "2024-11-08", fhr: "135 bpm", uc: "Mild", acc: "No", dec: "Yes", var: "Low", classification: "Suspect" },
+    { id: 3, date: "2024-10-23", fhr: "148 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "High", classification: "Normal" },
+    { id: 4, date: "2024-10-01", fhr: "130 bpm", uc: "Low", acc: "No", dec: "Yes", var: "Low", classification: "Pathological" },
+    { id: 5, date: "2024-11-12", fhr: "145 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "Moderate", classification: "Normal" },
+    { id: 6, date: "2024-11-13", fhr: "138 bpm", uc: "Mild", acc: "No", dec: "Yes", var: "Low", classification: "Normal" },
+    { id: 7, date: "2024-11-14", fhr: "142 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "High", classification: "Normal" },
   ];
 
-  useEffect(() => {
-    setRecordsData(initialRecords);
-  }, []);
+  const [records, setRecords] = useState(initialRecords);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("newest");
+  const recordsPerPage = 3;
 
-  const sortRecords = (records, sortType) => {
-    const sorted = [...records];
-    switch (sortType) {
-      case 'newest':
-        return sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
-      case 'oldest':
-        return sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
-      case 'hrHigh':
-        return sorted.sort((a, b) => b.hr - a.hr);
-      case 'hrLow':
-        return sorted.sort((a, b) => a.hr - b.hr);
-      default:
-        return sorted;
-    }
-  };
+  const sortedRecords = [...records].sort((a, b) =>
+    sortOrder === "newest" ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)
+  );
 
-  const recordsPerPage = 4;
-  const sortedRecords = sortRecords(recordsData, sortBy);
-  const indexOfLast = currentPage * recordsPerPage;
-  const indexOfFirst = indexOfLast - recordsPerPage;
-  const currentRecords = sortedRecords.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(recordsData.length / recordsPerPage);
+  const totalPages = Math.ceil(sortedRecords.length / recordsPerPage);
+
+  const currentRecords = sortedRecords.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
 
   const handleDelete = (id) => {
-    setRecordsData(prev => prev.filter(record => record.id !== id));
-    if ((currentPage - 1) * recordsPerPage >= recordsData.length - 1) {
-      setCurrentPage(prev => Math.max(prev - 1, 1));
+    if (window.confirm("Are you sure you want to delete this record?")) {
+      const newRecords = records.filter(rec => rec.id !== id);
+      setRecords(newRecords);
+      const newTotalPages = Math.ceil(newRecords.length / recordsPerPage);
+      if (currentPage > newTotalPages) setCurrentPage(newTotalPages || 1);
     }
   };
 
   return (
-    <div className="records-container-full">
+    <div className="dashboard-container">
       {/* Sidebar */}
       <aside className="sidebar">
-        <div className="sidebar-logo">
-          <img src="/2.png" alt="App Logo" />
+        <div className="logo-section">
+          <div className="logo-circle">
+               <img src="./logo.png" alt="YOLO Logo" className="logo-img" />
+          </div>
         </div>
-
-        <nav className="nav">
-          <button className="nav-item"><FaHome /><span>Home</span></button>
-          <button className="nav-item active"><FaFileAlt /><span>Records</span></button>
-          <button className="nav-item"><FaCog /><span>Management</span></button>
-          <button className="nav-item"><FaListUl /><span>Record Log</span></button>
+        <nav className="nav-menu">
+          <div className="nav-item"><Home size={20} /> Home</div>
+          <div className="nav-item"><FileText size={20} /> Records</div>
+          <div className="nav-item"><FileSearch size={20} /> Search</div>
+          <div className="nav-item"><User size={20} /> Profile</div>
+          <div className="nav-item"><Settings size={20} /> Settings</div>
         </nav>
-
-        <div className="logout-container">
-          <button className="logout-btn"><FaSignOutAlt /><span>Log Out</span></button>
+        <div className="logout-section">
+          <LogOut size={20} /> Logout
         </div>
       </aside>
 
-      {/* Main Section */}
-      <main className="main-section">
-        <header className="header">
-          <div className="admin-area">
-            <span className="admin-text">Admin</span>
-            <div className="admin-avatar"><FaUserCircle /></div>
-          </div>
-        </header>
-
-        <section className="records-section">
+      {/* Main Content */}
+      <main className="main-content">
+        <div className="records-container">
           <div className="records-header">
-            <h2>Records</h2>
-            <div className="sort-section">
-              <span>Sort by:</span>
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="hrHigh">HR (High → Low)</option>
-                <option value="hrLow">HR (Low → High)</option>
-              </select>
-            </div>
+            <h3>Patient Records</h3>
+            <select
+              className="sort-dropdown"
+              value={sortOrder}
+              onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="newest">Sort by Newest</option>
+              <option value="oldest">Sort by Oldest</option>
+            </select>
           </div>
 
-          <div className="table-wrapper">
-            <table className="records-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>HR</th>
-                  <th>UC</th>
-                  <th>Acceleration</th>
-                  <th>Deceleration</th>
-                  <th>Variability</th>
-                  <th>Classification</th>
-                  <th>Action</th>
+          <table className="records-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Scanned Date</th>
+                <th>FHR</th>
+                <th>UC</th>
+                <th>Acceleration</th>
+                <th>Deceleration</th>
+                <th>Variability</th>
+                <th>Classification</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentRecords.map((rec) => (
+                <tr key={rec.id}>
+                  <td>{rec.id}</td>
+                  <td>{rec.date}</td>
+                  <td>{rec.fhr}</td>
+                  <td>{rec.uc}</td>
+                  <td>{rec.acc}</td>
+                  <td>{rec.dec}</td>
+                  <td>{rec.var}</td>
+                  <td>{rec.classification}</td>
+                  <td>
+                    <button className="delete-btn" onClick={() => handleDelete(rec.id)}>Delete</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.date}</td>
-                    <td>{record.hr}</td>
-                    <td>{record.uc}</td>
-                    <td>{record.acceleration}</td>
-                    <td>{record.deceleration}</td>
-                    <td>{record.variability}</td>
-                    <td>{record.classification}</td>
-                    <td>
-                      <button onClick={() => handleDelete(record.id)} className="delete-btn">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="pagination">
-            <span>Showing {indexOfFirst + 1}-{Math.min(indexOfLast, recordsData.length)} of {recordsData.length}</span>
-            <div className="page-buttons">
-              <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>&lt;</button>
-              {[...Array(totalPages)].map((_, i) => (
-                <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
               ))}
-              <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>&gt;</button>
-            </div>
+            </tbody>
+          </table>
+
+          {/* Pagination with arrows */}
+          <div className="pagination">
+            <button
+              className="page-btn"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
+              &laquo; Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+              <button
+                key={num}
+                className={`page-btn ${num === currentPage ? "active" : ""}`}
+                onClick={() => setCurrentPage(num)}
+              >
+                {num}
+              </button>
+            ))}
+
+            <button
+              className="page-btn"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
+              Next &raquo;
+            </button>
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );
 };
 
-export default RecordsUI;
+export default RecordUI;

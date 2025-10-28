@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./css/CTGScan.css";
+import "./css/CTGScan.css";
 
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
