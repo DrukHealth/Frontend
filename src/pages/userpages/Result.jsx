@@ -12,6 +12,7 @@ export default function Result() {
   const [label, setLabel] = useState("");
   const [features, setFeatures] = useState({});
   const [darkMode, setDarkMode] = useState(false);
+  const [isNonCTG, setIsNonCTG] = useState(false);
 
   useEffect(() => {
     if (!imageFile) return;
@@ -29,6 +30,13 @@ export default function Result() {
         setPrediction(data.prediction);
         setLabel(data.label);
         setFeatures(data.features || {});
+
+        // Check if backend says it is non-CTG
+        if (data.label.includes("Non CTG")) {
+          setIsNonCTG(true);
+        } else {
+          setIsNonCTG(false);
+        }
       } catch (err) {
         console.error(err);
         alert("Prediction failed!");
@@ -42,18 +50,7 @@ export default function Result() {
 
   if (!imageFile) {
     return (
-      <div
-        className="no-image"
-        style={{
-          backgroundColor: darkMode ? "#121212" : "#FFFFFF",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <div className={`no-image ${darkMode ? "dark-mode" : ""}`}>
         <p>No image provided. Go back to scan page.</p>
         <button onClick={() => navigate("/ctg-scan")} className="return-btn">
           Return to CTG Scan
@@ -62,99 +59,25 @@ export default function Result() {
     );
   }
 
-  // Determine dynamic class for prediction
-  const resultClass =
-    label.toLowerCase() === "normal"
-      ? "normal"
-      : label.toLowerCase() === "suspect"
-      ? "suspicious"
-      : label.toLowerCase() === "pathologic"
-      ? "pathological"
-      : "";
-
   return (
-    <div
-      className="result-container"
-      style={{
-        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
-        color: darkMode ? "#EAEAEA" : "#0d52bd",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className={`result-container ${darkMode ? "dark-mode" : ""}`}>
       {/* Navbar */}
-      <nav
-        className="navbar"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#E2EDFB",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "92px",
-        }}
-      >
+      <nav className="navbar">
         <div
           onClick={() => navigate("/home")}
           style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
         >
-          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
+          <img src="/logo.png" alt="Druk eHealth Logo" className="nav-logo" />
         </div>
-
-        <div
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            textAlign: "center",
-            flex: 1,
-          }}
-        >
-          CTG Diagnosis Result
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
+        <div className="nav-title">CTG Diagnosis Result</div>
+        <div className="dark-mode-toggle">
+          <label className="switch">
             <input
               type="checkbox"
               checked={darkMode}
               onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
             />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
-                borderRadius: "34px",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  transition: "0.4s",
-                  borderRadius: "50%",
-                }}
-              ></span>
-            </span>
+            <span className="slider round"></span>
           </label>
         </div>
       </nav>
@@ -170,13 +93,24 @@ export default function Result() {
         {loading ? (
           <p className="analyzing-text">🔍 Analyzing image...</p>
         ) : (
-          <div className={`prediction-result ${resultClass}`}>
+          <div
+            className={`prediction-result ${
+              label === "Normal"
+                ? "normal"
+                : label === "Suspect"
+                ? "suspect"
+                : label === "Pathologic"
+                ? "pathologic"
+                : "non-ctg"
+            }`}
+          >
             <h3>Prediction Result:</h3>
             <p>{label}</p>
           </div>
         )}
 
-        {!loading && (
+        {/* Show features only if it's a CTG image */}
+        {!loading && !isNonCTG && (
           <div className="feature-section">
             <h3>Extracted Features</h3>
             <table className="feature-table">
