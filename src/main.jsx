@@ -11,6 +11,7 @@ import ForgotPassword from "./pages/adminpages/ForgotPassword.jsx";
 import ForgotPasswordVerify from "./pages/adminpages/PasswordVerify.jsx";
 import ChangePassword from "./pages/adminpages/ChangePassword.jsx";
 import Dashboard from "./pages/adminpages/Dashboard.jsx";
+import Analysis from "./pages/adminpages/Analysis.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -25,6 +26,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/forgot-password-verify" element={<ForgotPasswordVerify />} />
       <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/analysis" element={<Analysis />} />
     </Routes>
   </BrowserRouter>
 );
