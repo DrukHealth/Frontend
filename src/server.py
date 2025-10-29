@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -84,7 +83,6 @@ def compute_model_features(fhr_signal, uc_signal, time_axis):
                  'Histogram tendency (-1=left asymmetric; 0=symmetric; 1=right asymmetric)' ]:
         features[col] = 0
     return features
-
 
 @app.post("/predict/")
 async def predict_ctg(file: UploadFile = File(...)):

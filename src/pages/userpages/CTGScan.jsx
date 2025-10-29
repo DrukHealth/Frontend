@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import image1 from "../../assets/image1.svg";
 
 export default function CTGScan() {
@@ -7,8 +10,11 @@ export default function CTGScan() {
   const [imagePreview, setImagePreview] = useState(null);
   const [capturing, setCapturing] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
   const navigate = useNavigate();
+
+  const BASE_URL = "http://localhost:5000/api"; // Node backend
 
   useEffect(() => {
     document.body.style.backgroundColor = darkMode ? "#1E1E1E" : "#F5F5F5";
@@ -24,11 +30,16 @@ export default function CTGScan() {
   };
 
   const handleCapture = async () => {
-    setCapturing(true);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-      videoRef.current.play();
+    try {
+      setCapturing(true);
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      toast.error("Unable to access the camera. Please allow permission.");
+      console.error(err);
     }
   };
 
@@ -53,9 +64,33 @@ export default function CTGScan() {
     }
   };
 
-  const handleProceed = () => {
-    if (!imageFile) return alert("Please upload or capture an image first.");
-    navigate("/result", { state: { imageFile } });
+  // ✅ Upload to Node and then navigate to Result page (Python handles model)
+  const handleProceed = async () => {
+    if (!imageFile)
+      return toast.warn("Please upload or capture an image first.");
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("ctgImage", imageFile);
+
+      await axios.post(`${BASE_URL}/postCTG`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Image uploaded successfully!");
+
+      setTimeout(() => {
+        navigate("/result", {
+          state: { imageFile, imagePreview }, // 👈 pass actual file & preview
+        });
+      }, 1200);
+    } catch (err) {
+      console.error("❌ Error uploading CTG image:", err);
+      toast.error("Unable to connect to the backend. Please check server logs.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReturn = () => {
@@ -74,9 +109,10 @@ export default function CTGScan() {
         flexDirection: "column",
       }}
     >
-      {/* NAVBAR */}
+      <ToastContainer position="top-center" autoClose={2000} theme={darkMode ? "dark" : "light"} />
+
+      {/* Navbar */}
       <nav
-        className="navbar"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -87,254 +123,100 @@ export default function CTGScan() {
           height: "92px",
         }}
       >
-        {/* Left: Logo */}
-        <div
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-        > 
-          <img
-            src="/logo.png"
-            alt="Druk eHealth Logo"
-            style={{ height: "70px" }}
-          />
+        <div onClick={() => navigate("/home")} style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
+          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
         </div>
 
-        {/* Center: Title */}
-        <div
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            textAlign: "center",
-            flex: 1,
-          }}
-        >
-          CTG Scan
-        </div>
+        <div style={{ fontSize: "2.5rem", fontWeight: "bold", flex: 1, textAlign: "center" }}>CTG Scan</div>
 
         <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
-                borderRadius: "34px",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  transition: "0.4s",
-                  borderRadius: "50%",
-                }}
-              ></span>
+          <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px" }}>
+            <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)}
+              style={{ opacity: 0, width: 0, height: 0 }} />
+            <span style={{
+              position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: darkMode ? "#444" : "#ccc", transition: "0.4s", borderRadius: "34px"
+            }}>
+              <span style={{
+                position: "absolute", height: "18px", width: "18px",
+                left: darkMode ? "26px" : "4px", bottom: "4px", backgroundColor: "white",
+                transition: "0.4s", borderRadius: "50%"
+              }}></span>
             </span>
           </label>
         </div>
-
       </nav>
 
-      {/* Body  */}
+      {/* Body */}
       <div style={{ flex: 1, textAlign: "center", paddingTop: "2rem" }}>
-      {capturing && (
-      <div>
-        <video ref={videoRef} />
-        <div style={{ marginTop: "1rem" }}>
-          <button
-            onClick={takePhoto}
-            style={{
-              backgroundColor: "#4CAF50",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              marginRight: "1rem",
-            }}
-          >
-            Capture Photo
-          </button>
-          <button
-            onClick={stopCamera}
-            style={{
-              backgroundColor: "#E74C3C",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            Cancel
-          </button>
-        </div>
+        {capturing && (
+          <div>
+            <video ref={videoRef} />
+            <div style={{ marginTop: "1rem" }}>
+              <button onClick={takePhoto} style={buttonStyle("#4CAF50")}>Capture Photo</button>
+              <button onClick={stopCamera} style={buttonStyle("#E74C3C")}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {imagePreview && (
+          <div>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              style={{
+                width: "400px",
+                height: "auto",
+                borderRadius: "10px",
+                boxShadow: darkMode
+                  ? "0 0 10px rgba(255,255,255,0.2)"
+                  : "0 0 10px rgba(0,0,0,0.2)",
+              }}
+            />
+          </div>
+        )}
+
+        {!imagePreview && !capturing && (
+          <div style={emptyStateContainer}>
+            <img src={image1} alt="Scan Icon" style={{ width: "400px", height: "400px" }} />
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+              <button onClick={handleCapture} style={primaryButtonStyle(darkMode)}>
+                Scan CTG Record Image
+              </button>
+              <label htmlFor="fileUpload" style={primaryButtonStyle(darkMode)}>
+                Upload CTG Record
+              </label>
+              <input
+                type="file"
+                id="fileUpload"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleUpload}
+              />
+            </div>
+          </div>
+        )}
+
+        {imagePreview && (
+          <div style={actionButtonsContainer}>
+            <button
+              onClick={handleProceed}
+              disabled={loading}
+              style={{
+                ...buttonStyle(loading ? "#888" : "#4CAF50"),
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+            >
+              {loading ? "Diagnosing..." : "Diagnose"}
+            </button>
+            <button onClick={handleReturn} style={buttonStyle("#E74C3C")}>
+              Return
+            </button>
+          </div>
+        )}
       </div>
-    )}
 
-    {imagePreview && (
-      <div>
-        <img
-          src={imagePreview}
-          alt="Preview"
-          style={{
-            width: "400px",
-            height: "auto",
-            borderRadius: "10px",
-            boxShadow: darkMode
-              ? "0 0 10px rgba(255,255,255,0.2)"
-              : "0 0 10px rgba(0,0,0,0.2)",
-          }}
-        />
-      </div>
-    )}
-
-    {!imagePreview && !capturing && (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          gap: "1rem",
-          marginTop: "2rem",
-        }}
-      >
-        <img src={image1} alt="Scan Icon" style={{ width: "400px", height: "400px" }} />
-
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          {/* Scan Button */}
-          <button
-            onClick={handleCapture}
-            style={{
-              backgroundColor: darkMode ? "#4C8BE8" : "#679ADC",
-              color: "white",
-              padding: "12px 24px",
-              borderRadius: "10px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-              border: "none",
-              transition: "background 0.3s",
-            }}
-            onMouseOver={(e) =>
-              (e.target.style.backgroundColor = darkMode ? "#3C7BD6" : "#5A88C0")
-            }
-            onMouseOut={(e) =>
-              (e.target.style.backgroundColor = darkMode ? "#4C8BE8" : "#679ADC")
-            }
-          >
-            Scan CTG Record Image
-          </button>
-
-          {/* Upload Button */}
-          <label
-            htmlFor="fileUpload"
-            style={{
-              backgroundColor: darkMode ? "#4C8BE8" : "#679ADC",
-              color: "white",
-              padding: "12px 24px",
-              borderRadius: "10px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-              border: "none",
-              transition: "background 0.3s",
-            }}
-            onMouseOver={(e) =>
-              (e.target.style.backgroundColor = darkMode ? "#3C7BD6" : "#5A88C0")
-            }
-            onMouseOut={(e) =>
-              (e.target.style.backgroundColor = darkMode ? "#4C8BE8" : "#679ADC")
-            }
-          >
-            Upload CTG Record
-          </label>
-          <input
-            type="file"
-            id="fileUpload"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => setImagePreview(reader.result);
-                reader.readAsDataURL(file);
-                setImageFile(file);
-              }
-            }}
-          />
-        </div>
-      </div>
-    )}
-
-    {imagePreview && (
-      <div
-        style={{
-          marginTop: "2rem",
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "center",
-        }}
-      >
-        <button
-          onClick={handleProceed}
-          style={{
-            backgroundColor: "#4CAF50",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          Diagnose
-        </button>
-        <button
-          onClick={handleReturn}
-          style={{
-            backgroundColor: "#E74C3C",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          Return
-        </button>
-      </div>
-    )}
-  </div>
-
-
-      {/* FOOTER */}
+      {/* Footer */}
       <footer
         style={{
           padding: "1rem",
@@ -348,3 +230,41 @@ export default function CTGScan() {
     </div>
   );
 }
+
+const buttonStyle = (bg) => ({
+  backgroundColor: bg,
+  color: "white",
+  padding: "10px 20px",
+  border: "none",
+  borderRadius: "8px",
+  fontWeight: "600",
+});
+
+const primaryButtonStyle = (darkMode) => ({
+  backgroundColor: darkMode ? "#4C8BE8" : "#679ADC",
+  color: "white",
+  padding: "12px 24px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "600",
+  border: "none",
+  transition: "background 0.3s",
+});
+
+const emptyStateContainer = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  gap: "1rem",
+  marginTop: "2rem",
+};
+
+const actionButtonsContainer = {
+  marginTop: "2rem",
+  display: "flex",
+  gap: "1rem",
+  justifyContent: "center",
+};

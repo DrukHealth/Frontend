@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Home, FileText, Settings, FileSearch, User } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // ✅ Import navigate
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./css/dashboard.css";
 
 export default function Dashboard() {
-  const navigate = useNavigate(); // ✅ initialize navigate
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ daily: 0, weekly: 0, monthly: 0, yearly: 0 });
 
-  const [stats, setStats] = useState({
-    daily: 0,
-    weekly: 0,
-    monthly: 0,
-    yearly: 0,
-  });
-
-  // Fetch data from backend (replace with your actual API route)
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/stats/scans");
-        const data = await response.json();
-        setStats(data);
+        const res = await axios.get("http://localhost:5000/api/scans/stats");
+        setStats(res.data);
       } catch (err) {
         console.error("Error fetching stats:", err);
       }
@@ -63,7 +56,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Dashboard Stats Section */}
+        {/* Stats */}
         <section className="stats-section">
           <div className="stat-card">
             <h3>Today’s Scans</h3>
