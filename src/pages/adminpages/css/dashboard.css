@@ -100,7 +100,15 @@
   color: #dbeafe;
 }
 #Logout {
-  margin-top: 25rem; /*push logout to bottom*/
+  /* margin-top: 0rem; push logout to bottom */
+    margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.4);
 }
 /* ===== Main Content ===== */
 .main-content {
@@ -217,6 +225,9 @@
   align-items: center;
   z-index: 1000;
 }
+
+
+
 
 .modal-content {
   background: white;
