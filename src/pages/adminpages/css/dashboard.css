@@ -1,8 +1,11 @@
+body {
+  background-color: #E2EDFB;
+}
 /* ===== Dashboard Layout ===== */
 .dashboard-container {
   display: flex;
   height: 100vh;
-  background-color: #e6f0fa; /* light blue background */
+  background-color: #e6f0fa; /*light blue background */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -86,7 +89,7 @@
   gap: 16px; /* increased space between icon and text */
   cursor: pointer;
   font-size: 18px;
-  font-weight: bold;
+  /* font-weight: bold; */
   justify-content: flex-start; /* shift items left */
   width: 100%;
   padding-left: 10px; /* small left padding */
@@ -164,7 +167,7 @@
 
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -174,7 +177,13 @@
   border-radius: 12px;
   text-align: center;
   padding: 2rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.01);
+
+  display: flex;           /* Flex layout inside card */
+  flex-direction: column;  /* Stack h4 and p vertically */
+  justify-content: center; /* Center content vertically */
+  min-height: 120px;       /* Ensures all cards are at least same height */
+
 }
 
 .card h4 {
@@ -291,9 +300,9 @@
   border: #000;
 }
 .admin-profile:hover {
-  background-color: #3b5fcc; /* slightly darker on hover */
+  background-color: #4d79ff; /* slightly darker on hover */
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  color: #fff;
+  color: #ffcc00;
 }
 
 .admin-profile-page {
@@ -447,4 +456,118 @@
 
 .reset-password-btn:hover {
   background-color: #e6b800;
+}
+
+
+.sidebar {
+  width: 220px;
+  transition: all 0.3s ease;
+}
+
+.sidebar.closed {
+  width: 0;
+  overflow: hidden;
+}
+.sidebar.collapsed {
+  width: 60px; /* icons only */
+}
+
+/* .sidebar .nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+}
+
+.sidebar.closed .nav-text {
+  display: none; /* hide text when closed */
+/* } */ */
+.nav-item span {
+  transition: opacity 0.3s;
+}
+
+.sidebar.collapsed .nav-item span {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* Hamburger styling */
+.hamburger {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  display: none; /* hidden by default */
+}
+
+/* Show hamburger on small screens */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+  .sidebar.open {
+    width: 220px;
+  }
+  .sidebar.closed {
+    width: 0;
+  }
+}
+
+/* Logo text */
+.logo-section .logo-text {
+  transition: opacity 0.3s;
+}
+
+.sidebar.collapsed .logo-text {
+  opacity: 0;
+}
+
+/* Hamburger menu */
+.hamburger-menu {
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* Responsive: always collapse sidebar on small screens */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar .logo-text,
+  .sidebar .nav-item span {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.charts-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* space between charts */
+  justify-content: space-between;
+}
+
+.chart-section {
+  flex: 1 1 48%; /* ~half width for side-by-side on laptops */
+  min-width: 300px; /* prevents chart from shrinking too much */
+}
+
+/* Stack vertically on smaller screens */
+@media (max-width: 900px) {
+  .chart-section {
+    flex: 1 1 100%; /* full width on smaller screens */
+  }
+}
+
+/* Responsive: 2 columns on medium screens, 1 column on small screens */
+@media (max-width: 1200px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
 }

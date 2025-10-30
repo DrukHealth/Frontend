@@ -45,7 +45,7 @@ def get_analysis():
             "S": S,
             "P": P
         })
-
+      
     total_patients = sum(d["N"] + d["S"] + d["P"] for d in predictions)
     positive_cases = sum(d["P"] for d in predictions)
     accuracy = round((1 - positive_cases / total_patients) * 100, 2)

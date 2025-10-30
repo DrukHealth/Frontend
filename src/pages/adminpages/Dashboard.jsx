@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Home, FileText, Settings, User, BarChart2, LogOutIcon } from "lucide-react";
+import { Home, FileText, Settings, User, BarChart2, LogOutIcon, Menu } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -9,8 +9,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Legend,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell
@@ -18,23 +16,21 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import ChangePassword from "./ChangePassword";
-import LoginPage from "./LoginPage";
 import "./css/dashboard.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [activePage, setActivePage] = useState("Dashboard"); // "Dashboard", "Records", "Management"
-  const [activeNav, setActiveNav] = useState("Dashboard"); // highlights sidebar
+  const [activePage, setActivePage] = useState("Dashboard");
+  const [activeNav, setActiveNav] = useState("Dashboard");
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
-
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Fetch data
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/analysis")
       .then((res) => {
@@ -70,10 +66,27 @@ export default function Dashboard() {
       });
   }, []);
 
+  // Detect screen width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsSidebarCollapsed(true); // automatically collapse on mobile
+        setIsMobile(true);
+      } else {
+        setIsSidebarCollapsed(false); // expand on larger screens
+        setIsMobile(false);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (loading) return <p>Loading analysis...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!data || !data.predictions) return <p>No data available.</p>;
 
+  // Group monthly data
   const groupByMonth = (predictions) => {
     const monthly = {};
     predictions.forEach((item) => {
@@ -85,143 +98,123 @@ export default function Dashboard() {
     });
     return Object.values(monthly);
   };
-
   const monthlyData = groupByMonth(data.predictions);
 
-  // Logout handlers
+  // Pie chart data
+  const totalCounts = { N: 0, S: 0, P: 0 };
+  monthlyData.forEach(item => {
+    totalCounts.N += item.N;
+    totalCounts.S += item.S;
+    totalCounts.P += item.P;
+  });
+
+  const pieData = [
+    { name: "Normal (N)", value: totalCounts.N },
+    { name: "Suspect (S)", value: totalCounts.S },
+    { name: "Pathological (P)", value: totalCounts.P },
+  ];
+  const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
+
+  // Handlers
   const handleLogout = () => setShowLogoutDialog(true);
   const confirmLogout = () => {
     setShowLogoutDialog(false);
-    navigate("/login"); // redirect to login page
+    navigate("/login");
   };
   const cancelLogout = () => setShowLogoutDialog(false);
 
-  // Admin handlers
   const openAdminDialog = () => setShowAdminDialog(true);
   const closeAdminDialog = () => setShowAdminDialog(false);
+
   const handleChangePassword = () => {
     setShowAdminDialog(false);
-  setActivePage("ChangePassword"); // Show change password page
-  window.history.pushState({}, "", "/changepassword"); // Update URL in browser
-  
-};
-// Prepare data for PieChart
-const totalCounts = {
-  N: 0,
-  S: 0,
-  P: 0
-};
+    setActivePage("ChangePassword");
+    window.history.pushState({}, "", "/changepassword");
+  };
 
-monthlyData.forEach(item => {
-  totalCounts.N += item.N;
-  totalCounts.S += item.S;
-  totalCounts.P += item.P;
-});
+  const toggleSidebar = () => {
+    if (!isMobile) setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
 
-const pieData = [
-  { name: "Normal (N)", value: totalCounts.N },
-  { name: "Suspect (S)", value: totalCounts.S },
-  { name: "Pathological (P)", value: totalCounts.P },
-];
-
-const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
-  // Render Dashboard content
+  // Render page content
   const renderPageContent = () => {
     if (activePage === "Dashboard") {
       return (
         <section className="data-section">
           <h2 className="section-title">
-            <BarChart2 size={22} className="mr-2" />
-            Fetal Health Data Analysis
+            <BarChart2 size={22} className="mr-2" /> Fetal Health Data Analysis
           </h2>
 
-            <div className="summary-cards">
-              <div className="card"><h4>Total Patients</h4><p>{data.patients}</p></div>
-              <div className="card"><h4>Daily Cases</h4><p>{}</p></div>
-              <div className="card"><h4>Monthly Cases</h4><p>{}</p></div>
-              <div className="card"><h4>Yearly Cases</h4><p>{}</p></div>
-            </div>
-
-          <div className="chart-section">
-            <h4>Predictions Over Time</h4>
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={data.predictions} margin={{ top: 30, right: 30, left: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="N" stroke="#4d79ff" name="Normal (N)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="S" stroke="#ffcc00" name="Suspect (S)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="P" stroke="#ff4d4d" name="Pathological (P)" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="summary-cards">
+            <div className="card"><h4>Total Patients</h4><p>{data.patients}</p></div>
+            <div className="card"><h4>Daily Cases</h4><p>{/* Fill in */}</p></div>
+            <div className="card"><h4>Monthly Cases</h4><p>{/* Fill in */}</p></div>
+            <div className="card"><h4>Yearly Cases</h4><p>{/* Fill in */}</p></div>
           </div>
 
-          {/* <div className="chart-section">
-            <h4>Scans per Month</h4>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="N" fill="#4d79ff" name="Normal (N)" />
-                <Bar dataKey="S" fill="#ffa64d" name="Suspect (S)" />
-                <Bar dataKey="P" fill="#ff4d4d" name="Pathological (P)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div> */}
+          <div className="charts-container">
+            <div className="chart-section">
+              <h4>Predictions Over Time</h4>
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={data.predictions}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="N" stroke="#4d79ff" name="Normal (N)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="S" stroke="#ffcc00" name="Suspect (S)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="P" stroke="#ff4d4d" name="Pathological (P)" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
-   <div className="chart-section">
-<h4>Overall Case Distribution</h4>
-  <ResponsiveContainer width="100%" height={350}>
-    <PieChart>
-      <Pie
-        data={pieData}
-        dataKey="value"
-        nameKey="name"
-        cx="40%"
-        cy="50%"
-        outerRadius={110}
-        label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
-        labelLine={false}
-        labelStyle={{
-          fill: "#fff",
-          fontSize: "14px",
-          fontWeight: "600",
-          textShadow: "0 1px 3px rgba(0,0,0,0.6)",
-        }}
-      >
-        {pieData.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-
-      <Tooltip />
-
-      <Legend
-        layout="vertical"
-        verticalAlign="top"
-        align="right"
-        wrapperStyle={{
-          padding: "12px 16px",
-          borderRadius: "12px",
-          background: "white",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
-          lineHeight: "26px",
-          fontWeight: "500",
-          color: "#333",
-        }}
-      />
-    </PieChart>
-  </ResponsiveContainer>
-</div>
-
+            <div className="chart-section">
+              <h4>Overall Case Distribution</h4>
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={110}
+                    label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                    labelLine={false}
+                    labelStyle={{
+                      fill: "#fff",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textShadow: "0 1px 3px rgba(0,0,0,0.6)"
+                    }}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend
+                    layout="vertical"
+                    verticalAlign="top"
+                    align="right"
+                    wrapperStyle={{
+                      padding: "12px 16px",
+                      borderRadius: "12px",
+                      background: "white",
+                      boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                      lineHeight: "26px",
+                      fontWeight: "500",
+                      color: "#333"
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </section>
-        
-
       );
+    } else if (activePage === "ChangePassword") {
+      return <ChangePassword />;
     } else {
       return (
         <section className="data-section">
@@ -234,16 +227,13 @@ const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
 
   return (
     <>
-      {/* Sidebar for Dashboard/Records/Management */}
+      {/* Sidebar */}
       {activePage !== "ChangePassword" && (
-        <aside className="sidebar">
-          <div className="sidebar-toggle" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
-  {isSidebarCollapsed ? "→" : "←"}
-</div>
-
+        <aside className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
           <div className="logo-section">
             <img src="/logo.png" alt="Logo" className="logo-img" />
-            <span className="logo-text">Druk <span className="logo-e">e</span>Health</span>
+            {!isSidebarCollapsed && <span className="logo-text">Druk <span className="logo-e">e</span>Health</span>}
+            {!isMobile && <Menu size={25} className="hamburger-menu" onClick={toggleSidebar} />}
           </div>
 
           <nav className="nav-menu">
@@ -259,7 +249,7 @@ const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
                 {item === "Dashboard" && <Home size={25} />}
                 {item === "Records" && <FileText size={25} />}
                 {item === "Management" && <Settings size={25} />}
-                <span>{item}</span>
+                {!isSidebarCollapsed && <span>{item}</span>}
               </div>
             ))}
           </nav>
@@ -284,8 +274,7 @@ const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
           </header>
         )}
 
-        {activePage !== "ChangePassword" && renderPageContent()}
-        {activePage === "ChangePassword" && <ChangePassword />}
+        {renderPageContent()}
 
         {/* Admin Dialog */}
         {showAdminDialog && (
