@@ -1,0 +1,248 @@
+/* ------------------------------
+   GLOBAL STYLES FOR ALL PAGES
+------------------------------ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body, html {
+  height: 100%;
+}
+
+/* ------------------------------
+   LEFT PANEL (LOGO)
+------------------------------ */
+.left-panel {
+  flex: 1;
+  background-color: #679ADC;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #fff;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
+.brand-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.brand-name .e-letter {
+  color: #f8e71c;
+  transform: rotate(-12deg);
+  display: inline-block;
+}
+
+/* ------------------------------
+   RIGHT PANEL (FORMS)
+------------------------------ */
+.right-panel {
+  flex: 1;
+  background-color: #E2EDFB;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* ------------------------------
+   FORM STYLING
+------------------------------ */
+.form-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #0D52BD;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.input-wrapper {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus {
+  border-color: #0D52BD;
+  box-shadow: 0 0 8px rgba(13, 82, 189, 0.3);
+}
+
+/* OTP input fields */
+.otp-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.otp-input {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.otp-input:focus {
+  border-color: #0D52BD;
+}
+
+/* BUTTONS */
+.submit-btn, .verify-btn, .change-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #0D52BD;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover, .verify-btn:hover, .change-btn:hover {
+  background-color: #679ADC;
+}
+
+/* ERROR MESSAGE */
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* ------------------------------
+   RESPONSIVE STYLING
+------------------------------ */
+@media (max-width: 1024px) {
+  .left-panel, .right-panel {
+    padding: 30px 25px;
+  }
+  .form-container { max-width: 400px; }
+}
+
+@media (max-width: 768px) {
+  .left-panel, .right-panel {
+    padding: 25px 20px;
+  }
+
+  .logo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .input-wrapper input {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .otp-input {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .submit-btn, .verify-btn, .change-btn {
+    font-size: 16px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .input-wrapper input {
+    font-size: 13px;
+    padding: 12px 12px;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .submit-btn, .verify-btn, .change-btn {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .otp-input {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .submit-btn, .verify-btn, .change-btn {
+    font-size: 14px;
+    padding: 12px;
+  }
+}

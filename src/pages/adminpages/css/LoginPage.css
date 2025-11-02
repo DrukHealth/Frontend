@@ -9,9 +9,7 @@
   --border-gray: #dcdcdc;
 }
 
-/* ------------------------------
-   BASE STYLES
------------------------------- */
+/* Base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -25,26 +23,20 @@ body, html {
   background: var(--light-gray);
 }
 
-/* ------------------------------
-   MAIN CONTAINER
------------------------------- */
+/* Main container */
 .login-container {
   display: flex;
   min-height: 100vh;
-  overflow: hidden;
 }
 
-/* ------------------------------
-   LEFT SECTION (Brand / Logo)
------------------------------- */
+/* LEFT SECTION */
 .login-left {
   flex: 1;
-  background:#679ADC;
+  background: #679adc;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  color: var(--white);
   padding: 40px;
   text-align: center;
 }
@@ -53,10 +45,6 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: white;
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .logo-box img {
@@ -67,18 +55,21 @@ body, html {
 }
 
 .logo-box h2 {
-  font-size: 15px;
+  font-size: 1.8rem;
   font-weight: bold;
-  color: #333;
-  letter-spacing: 2px;
+  color: #fff;
 }
 
-/* ------------------------------
-   RIGHT SECTION (Form)
------------------------------- */
+.e-letter {
+  color: #f8e71c;
+  transform: rotate(-12deg);
+  display: inline-block;
+}
+
+/* RIGHT SECTION */
 .login-right {
   flex: 1;
-  background: #E2EDFB;
+  background: var(--light-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,18 +77,13 @@ body, html {
 }
 
 .login-box {
-  background: white;
+  background: var(--white);
   width: 100%;
   max-width: 450px;
   padding: 50px 40px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
-  transition: all 0.3s ease;
-}
-
-.login-box:hover {
-  transform: translateY(-2px);
 }
 
 .login-box h1 {
@@ -107,9 +93,7 @@ body, html {
   font-weight: 600;
 }
 
-/* ------------------------------
-   INPUT FIELDS
------------------------------- */
+/* INPUTS */
 .input-group {
   position: relative;
   margin-bottom: 20px;
@@ -144,9 +128,7 @@ body, html {
   color: var(--primary-blue);
 }
 
-/* ------------------------------
-   PASSWORD TOGGLE (Eye Icon)
------------------------------- */
+/* PASSWORD TOGGLE */
 .toggle-password {
   position: absolute;
   right: 14px;
@@ -155,20 +137,17 @@ body, html {
   color: #666;
   cursor: pointer;
   font-size: 18px;
-  transition: color 0.2s ease;
 }
 
 .toggle-password:hover {
   color: var(--primary-blue);
 }
 
-/* ------------------------------
-   BUTTON
------------------------------- */
+/* BUTTON */
 .login-btn {
   width: 100%;
   padding: 14px;
-  background: #0D52BD;
+  background: #0d52bd;
   color: var(--white);
   border: none;
   border-radius: 8px;
@@ -179,71 +158,29 @@ body, html {
 }
 
 .login-btn:hover {
-  background: #679ADC;
+  background: #679adc;
 }
 
 .login-btn:active {
   transform: scale(0.98);
 }
 
-/* ------------------------------
-   FORGOT PASSWORD LINK
------------------------------- */
+/* FORGOT PASSWORD */
 .forgot {
   margin-top: 15px;
   font-size: 14px;
   color: var(--text-light);
   cursor: pointer;
-  transition: color 0.2s ease;
 }
 
 .forgot:hover {
   color: var(--primary-blue);
 }
 
-
-/* ------------------------------
-   RESPONSIVENESS
------------------------------- */
-
-/* Tablets (iPad, Surface, etc.) */
-@media (max-width: 1024px) {
+/* RESPONSIVE */
+@media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-  }
-
-  .login-left {
-    height: auto;
-    padding: 35px 25px;
-  }
-
-  .login-right {
-    padding: 45px 25px;
-  }
-
-  .logo-box {
-    padding: 28px 38px;
-  }
-
-  .login-box {
-    max-width: 450px;
-    padding: 45px 35px;
-  }
-}
-
-/* Large Phones (iPhone Pro, Galaxy S, Pixel 7, etc.) */
-@media (max-width: 768px) {
-  .login-left {
-    height: auto;
-    padding: 30px 20px;
-  }
-
-  .login-right {
-    padding: 40px 20px;
-  }
-
-  .logo-box {
-    padding: 25px 35px;
   }
 
   .logo-box img {
@@ -259,145 +196,20 @@ body, html {
   .login-box h1 {
     font-size: 24px;
   }
-
-  .input-group input {
-    font-size: 14px;
-    padding: 11px 42px 11px 42px;
-  }
-
-  .login-btn {
-    font-size: 15px;
-    padding: 13px;
-  }
-
-  .forgot {
-    font-size: 13px;
-  }
 }
 
-/* Small Phones (iPhone SE, older Androids) */
 @media (max-width: 480px) {
-  .login-left {
-    padding: 25px 15px;
-  }
-
-  .login-right {
-    padding: 30px 15px;
-  }
-
-  .logo-box {
-    padding: 20px 30px;
-  }
-
   .logo-box img {
     width: 100px;
     height: 100px;
-    margin-bottom: 12px;
-  }
-
-  .logo-box h2 {
-    font-size: 13px;
   }
 
   .login-box {
     padding: 30px 25px;
-    margin: 15px;
   }
 
   .login-box h1 {
     font-size: 22px;
     margin-bottom: 25px;
-  }
-
-  .input-group {
-    margin-bottom: 18px;
-  }
-
-  .input-group input {
-    font-size: 13px;
-    padding: 10px 38px;
-  }
-
-  .input-icon {
-    font-size: 15px;
-  }
-
-  .toggle-password {
-    font-size: 16px;
-  }
-
-  .login-btn {
-    padding: 12px;
-    font-size: 15px;
-  }
-
-  .forgot {
-    font-size: 12px;
-    margin-top: 12px;
-  }
-}
-
-/* Very Small / Foldables (Galaxy Fold, Surface Duo, etc.) */
-@media (max-width: 360px) {
-  .login-left {
-    padding: 20px 12px;
-  }
-
-  .login-right {
-    padding: 25px 12px;
-  }
-
-  .logo-box {
-    padding: 18px 25px;
-  }
-
-  .logo-box img {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 10px;
-  }
-
-  .logo-box h2 {
-    font-size: 12px;
-    letter-spacing: 1.5px;
-  }
-
-  .login-box {
-    padding: 25px 20px;
-    margin: 10px;
-  }
-
-  .login-box h1 {
-    font-size: 20px;
-    margin-bottom: 22px;
-  }
-
-  .input-group {
-    margin-bottom: 16px;
-  }
-
-  .input-group input {
-    font-size: 12px;
-    padding: 9px 36px;
-  }
-
-  .input-icon {
-    font-size: 14px;
-    left: 12px;
-  }
-
-  .toggle-password {
-    font-size: 15px;
-    right: 12px;
-  }
-
-  .login-btn {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .forgot {
-    font-size: 11px;
-    margin-top: 10px;
   }
 }

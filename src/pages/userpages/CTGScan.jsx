@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./css/CTGScan.css";
+import image1 from "../../assets/image1.svg";
 
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
@@ -348,3 +348,4 @@ export default function CTGScan() {
     </div>
   );
 }
+

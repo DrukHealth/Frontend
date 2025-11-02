@@ -11,7 +11,6 @@ export default function ChangePassword() {
   const location = useLocation();
 
   const email = location.state?.email || "";
-  const otp = location.state?.otp || "";
 
   const handleResetPassword = async () => {
     setError("");
@@ -23,23 +22,23 @@ export default function ChangePassword() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/auth/reset-password-confirm", {
+      const res = await fetch("http://localhost:5001/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp, newPassword }),
+        body: JSON.stringify({ email, newPassword }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Failed to reset password");
+        setError(data.message || "❌ Failed to reset password");
       } else {
         alert("✅ Password reset successfully!");
         navigate("/login");
       }
     } catch (err) {
       console.error(err);
-      setError("Server error. Try again later.");
+      setError("⚠️ Server error. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -47,22 +46,26 @@ export default function ChangePassword() {
 
   return (
     <div className="change-container">
+      {/* LEFT PANEL */}
       <div className="change-left-panel">
-        <div className="change-logo-container">
-          <img src="/2.png" alt="Druk Health Logo" className="change-logo" />
-          <div className="change-brand-name">DRUK HEALTH</div>
+        <img src="/logo2.png" alt="Druk eHealth Logo" className="change-logo" />
+        <div className="change-brand-name">
+          Druk <span className="e-letter">e</span>Health
         </div>
       </div>
 
+      {/* RIGHT PANEL */}
       <div className="change-right-panel">
         <div className="change-form-container">
           <h1 className="change-title">Change Password</h1>
-          <p className="change-subtitle">New password should not be same as previous password.</p>
+          <p className="change-subtitle">
+            Your new password should be different from your previous password.
+          </p>
 
           <div className="change-input-wrapper">
             <input
               type="password"
-              placeholder="Enter New Password"
+              placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="change-input"
@@ -81,7 +84,11 @@ export default function ChangePassword() {
 
           {error && <p className="error-message">{error}</p>}
 
-          <button onClick={handleResetPassword} className="change-btn" disabled={loading}>
+          <button
+            onClick={handleResetPassword}
+            className="change-btn"
+            disabled={loading}
+          >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
         </div>

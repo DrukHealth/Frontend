@@ -1,11 +1,13 @@
-import { useLocation, useNavigate } from "react-router-dom";
+// src/pages/userpages/Result.jsx
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/Result.css";
 
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const imageFile = location.state?.imageFile;
+
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [prediction, setPrediction] = useState(null);
@@ -15,6 +17,7 @@ export default function Result() {
 
   useEffect(() => {
     if (!imageFile) return;
+
     setImagePreview(URL.createObjectURL(imageFile));
 
     const sendForPrediction = async () => {
@@ -26,9 +29,14 @@ export default function Result() {
           body: formData,
         });
         const data = await res.json();
-        setPrediction(data.prediction);
-        setLabel(data.label);
-        setFeatures(data.features || {});
+
+        if (data.success) {
+          setPrediction(data.prediction);
+          setLabel(data.label);
+          setFeatures(data.features || {});
+        } else {
+          alert("Prediction failed!");
+        }
       } catch (err) {
         console.error(err);
         alert("Prediction failed!");
@@ -62,7 +70,6 @@ export default function Result() {
     );
   }
 
-  // Determine dynamic class for prediction
   const resultClass =
     label.toLowerCase() === "normal"
       ? "normal"
@@ -84,82 +91,18 @@ export default function Result() {
       }}
     >
       {/* Navbar */}
-      <nav
-        className="navbar"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#E2EDFB",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "92px",
-        }}
-      >
-        <div
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-        >
+      <nav className="navbar">
+        <div onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
           <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
         </div>
-
-        <div
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            textAlign: "center",
-            flex: 1,
-          }}
-        >
-          CTG Diagnosis Result
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
-                borderRadius: "34px",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  transition: "0.4s",
-                  borderRadius: "50%",
-                }}
-              ></span>
-            </span>
-          </label>
-        </div>
+        <div className="title">CTG Diagnosis Result</div>
+        <label className="darkmode-toggle">
+          <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+          <span></span>
+        </label>
       </nav>
 
-      {/* Main Body */}
+      {/* Body */}
       <div className="result-body fade-in">
         {imagePreview && (
           <div className="preview">

@@ -1,142 +1,268 @@
-import React, { useState } from "react";
-import { Home, FileText, Settings, FileSearch, User, LogOut } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import {
+  Home,
+  FileText,
+  Settings,
+  FileSearch,
+  LogOut,
+  Eye,
+  Download
+} from "lucide-react";
 import "./css/RecordUI.css";
 
 const RecordUI = () => {
-  const initialRecords = [
-    { id: 1, date: "2024-11-10", fhr: "140 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "Moderate", classification: "Normal" },
-    { id: 2, date: "2024-11-08", fhr: "135 bpm", uc: "Mild", acc: "No", dec: "Yes", var: "Low", classification: "Suspect" },
-    { id: 3, date: "2024-10-23", fhr: "148 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "High", classification: "Normal" },
-    { id: 4, date: "2024-10-01", fhr: "130 bpm", uc: "Low", acc: "No", dec: "Yes", var: "Low", classification: "Pathological" },
-    { id: 5, date: "2024-11-12", fhr: "145 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "Moderate", classification: "Normal" },
-    { id: 6, date: "2024-11-13", fhr: "138 bpm", uc: "Mild", acc: "No", dec: "Yes", var: "Low", classification: "Normal" },
-    { id: 7, date: "2024-11-14", fhr: "142 bpm", uc: "Normal", acc: "Yes", dec: "No", var: "High", classification: "Normal" },
-  ];
-
-  const [records, setRecords] = useState(initialRecords);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [records, setRecords] = useState([]);
+  const [editRowId, setEditRowId] = useState(null);
+  const [editData, setEditData] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [imageModal, setImageModal] = useState(null);
   const [sortOrder, setSortOrder] = useState("newest");
-  const recordsPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 5;
 
-  const sortedRecords = [...records].sort((a, b) =>
-    sortOrder === "newest" ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)
-  );
+  useEffect(() => {
+    async function fetchRecords() {
+      try {
+        const res = await fetch("http://localhost:8000/records/");
+        const data = await res.json();
+        if (data.success) setRecords(data.records);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRecords();
+  }, []);
 
-  const totalPages = Math.ceil(sortedRecords.length / recordsPerPage);
+  const handleEdit = (record) => {
+    setEditRowId(record._id);
+    setEditData(JSON.parse(JSON.stringify(record)));
+  };
 
-  const currentRecords = sortedRecords.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
+  const handleCancel = () => {
+    setEditRowId(null);
+    setEditData({});
+  };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this record?")) {
-      const newRecords = records.filter(rec => rec.id !== id);
-      setRecords(newRecords);
-      const newTotalPages = Math.ceil(newRecords.length / recordsPerPage);
-      if (currentPage > newTotalPages) setCurrentPage(newTotalPages || 1);
+  const handleSave = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/records/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData.features)
+      });
+      if (res.ok) {
+        setRecords((prev) => prev.map((r) => (r._id === id ? editData : r)));
+        setEditRowId(null);
+        setEditData({});
+        alert("Record updated successfully!");
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
+    try {
+      const res = await fetch(`http://localhost:8000/records/${id}`, { method: "DELETE" });
+      if (res.ok) setRecords((prev) => prev.filter((r) => r._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleChange = (key, value) => {
+    setEditData((prev) => ({
+      ...prev,
+      features: { ...prev.features, [key]: value }
+    }));
+  };
+
+  const handleDownload = (url) => {
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = url.split("/").pop();
+        link.click();
+      })
+      .catch(err => console.error("Download failed:", err));
+  };
+
+  const filteredRecords = records
+    .filter(
+      (rec) =>
+        rec._id.includes(searchTerm) ||
+        rec.scannedDate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        rec.scanTime?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const dateA = new Date(`${a.scannedDate} ${a.scanTime}`);
+      const dateB = new Date(`${b.scannedDate} ${b.scanTime}`);
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+
+  const allFeatureKeys = Array.from(
+    new Set(records.flatMap((r) => Object.keys(r.features || {})))
+  );
 
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className="sidebar">
+      <div className="sidebar">
         <div className="logo-section">
           <div className="logo-circle">
-               <img src="./logo.png" alt="YOLO Logo" className="logo-img" />
+            <img src="/logo2.png" alt="Logo" className="logo-img" />
           </div>
         </div>
-        <nav className="nav-menu">
-          <div className="nav-item"><Home size={20} /> Home</div>
-          <div className="nav-item"><FileText size={20} /> Records</div>
-          <div className="nav-item"><FileSearch size={20} /> Search</div>
-          <div className="nav-item"><User size={20} /> Profile</div>
-          <div className="nav-item"><Settings size={20} /> Settings</div>
-        </nav>
-        <div className="logout-section">
-          <LogOut size={20} /> Logout
+
+        <div className="nav-menu">
+          <div className="nav-item"><Home /> Home</div>
+          <div className="nav-item"><FileText /> Records</div>
+          <div className="nav-item"><FileSearch /> Search</div>
+          <div className="nav-item"><Settings /> Settings</div>
         </div>
-      </aside>
+
+        <div className="logout-section">
+          <LogOut /> Logout
+        </div>
+      </div>
 
       {/* Main Content */}
-      <main className="main-content">
-        <div className="records-container">
-          <div className="records-header">
-            <h3>Patient Records</h3>
-            <select
-              className="sort-dropdown"
-              value={sortOrder}
-              onChange={(e) => { setSortOrder(e.target.value); setCurrentPage(1); }}
-            >
-              <option value="newest">Sort by Newest</option>
-              <option value="oldest">Sort by Oldest</option>
-            </select>
-          </div>
+      <div className="main-content">
+        <div className="records-header">
+          <h3>CTG Records</h3>
+          <input
+            type="text"
+            placeholder="Search by ID, Date or Time..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
 
+        <div className="records-table-wrapper">
           <table className="records-table">
             <thead>
               <tr>
+                <th>S/N</th>
                 <th>ID</th>
-                <th>Scanned Date</th>
-                <th>FHR</th>
-                <th>UC</th>
-                <th>Acceleration</th>
-                <th>Deceleration</th>
-                <th>Variability</th>
+                <th>Date</th>
+                <th>Time</th>
                 <th>Classification</th>
-                <th>Action</th>
+                {allFeatureKeys.map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+                <th>Image</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {currentRecords.map((rec) => (
-                <tr key={rec.id}>
-                  <td>{rec.id}</td>
-                  <td>{rec.date}</td>
-                  <td>{rec.fhr}</td>
-                  <td>{rec.uc}</td>
-                  <td>{rec.acc}</td>
-                  <td>{rec.dec}</td>
-                  <td>{rec.var}</td>
-                  <td>{rec.classification}</td>
+              {currentRecords.length === 0 && (
+                <tr>
+                  <td colSpan={8 + allFeatureKeys.length} className="no-records-box">
+                    No records found
+                  </td>
+                </tr>
+              )}
+
+              {currentRecords.map((rec, index) => (
+                <tr key={rec._id}>
+                  {/* Serial Number */}
+                  <td>{(currentPage - 1) * recordsPerPage + index + 1}</td>
+
+                  <td>{rec._id}</td>
+                  <td>{rec.scannedDate}</td>
+                  <td>{rec.scanTime}</td>
                   <td>
-                    <button className="delete-btn" onClick={() => handleDelete(rec.id)}>Delete</button>
+                    <span className={`classification-badge ${rec.classification.toLowerCase()}`}>
+                      {rec.classification}
+                    </span>
+                  </td>
+
+                  {allFeatureKeys.map((key) => {
+                    const value = rec.features ? rec.features[key] : "";
+                    const numericValue = !isNaN(Number(value)) ? Number(value) : "";
+                    return editRowId === rec._id ? (
+                      <td key={key}>
+                        <input
+                          type="text"
+                          value={editData.features[key] ?? ""}
+                          onChange={(e) => handleChange(key, e.target.value)}
+                        />
+                      </td>
+                    ) : (
+                      <td key={key}>{numericValue}</td>
+                    );
+                  })}
+
+                  <td>
+                    {rec.imageUrl && (
+                      <div className="image-buttons">
+                        <button onClick={() => setImageModal(rec.imageUrl)} title="View">
+                          <Eye size={16} />
+                        </button>
+                        <button onClick={() => handleDownload(rec.imageUrl)} title="Download">
+                          <Download size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </td>
+
+                  <td>
+                    {editRowId === rec._id ? (
+                      <>
+                        <button className="save-btn" onClick={() => handleSave(rec._id)}>Save</button>
+                        <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="edit-btn" onClick={() => handleEdit(rec)}>Edit</button>
+                        <button className="delete-btn" onClick={() => handleDelete(rec._id)}>Delete</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* Pagination with arrows */}
+          {/* Pagination */}
           <div className="pagination">
             <button
-              className="page-btn"
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
+              onClick={() => setCurrentPage((p) => p - 1)}
             >
-              &laquo; Prev
+              Prev
             </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
-              <button
-                key={num}
-                className={`page-btn ${num === currentPage ? "active" : ""}`}
-                onClick={() => setCurrentPage(num)}
-              >
-                {num}
-              </button>
-            ))}
-
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
             <button
-              className="page-btn"
               disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
+              onClick={() => setCurrentPage((p) => p + 1)}
             >
-              Next &raquo;
+              Next
             </button>
           </div>
         </div>
-      </main>
+      </div>
+
+      {/* Image Modal */}
+      {imageModal && (
+        <div className="image-modal" onClick={() => setImageModal(null)}>
+          <img src={imageModal} alt="Record" />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,248 +1,282 @@
-/* ===== Dashboard Layout ===== */
 .dashboard-container {
   display: flex;
-  height: 100vh;
-  background-color: #e6f0fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow: hidden;
+  min-height: 100vh;
+  background-color: #E2EDFB;
+  flex-wrap: nowrap;
 }
 
-/* ===== Sidebar ===== */
+/* Sidebar */
 .sidebar {
-  width: clamp(200px, 18%, 250px); /* responsive width */
-  background-color: #4b9be0;
+  width: 280px; /* slightly wider for better spacing */
+  background-color: #679ADC;
   color: white;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  min-height: 100vh;
-  box-sizing: border-box;
+  justify-content: space-between;
+  flex-shrink: 0;
 }
 
-/* ===== Logo Section ===== */
 .logo-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  text-align: left; /* aligns logo to the left */
+  padding: 20px 15px; /* smaller padding to reduce vertical space */
+  border-top: 2px solid white; /* thinner white line above logo */
 }
 
-.logo-circle {
-  width: clamp(35px, 8vw, 50px);
-  height: clamp(35px, 8vw, 50px);
-  background-color:#4b9be0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 2px solid #4b9be0;
-}
+
 
 .logo-img {
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
+  width: 50%; /* fill the rectangle */
+  height: 50%;
+  object-fit: cover;
+  display: block;
+  margin-left: -5px; /* slightly left shift */
 }
 
-/* ===== Navigation ===== */
+
 .nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex-grow: 1;
+  padding: 25px 0;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 14px 30px; /* wider clickable area */
   cursor: pointer;
-  font-size: 14px;
-  transition: 0.3s ease;
+  transition: background 0.2s;
 }
 
 .nav-item:hover {
-  opacity: 0.85;
+  background-color: rgba(255,255,255,0.25);
 }
 
-/* ===== Logout ===== */
 .logout-section {
-  margin-top: auto;
+  padding: 25px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   cursor: pointer;
-  font-size: 14px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.4);
+  font-weight: bold;
+  position: relative; /* needed for pseudo-element */
 }
 
-.logout-section:hover {
-  opacity: 0.8;
+.logout-section::before {
+  content: "";
+  position: absolute;
+  top: 0; /* at the top of logout section */
+  left: 20px; /* adjust starting position */
+  width: 200px; /* length of the line */
+  border-top: 2px solid white;
 }
 
-/* ===== Main Content ===== */
+
+/* Main Content */
 .main-content {
-  flex: 1;
-  padding: clamp(16px, 2vw, 32px);
-  overflow-x: auto;
-  overflow-y: auto;
-}
-
-/* ===== Records Container ===== */
-.records-container {
-  background: white;
-  border-radius: 12px;
-  padding: clamp(12px, 2vw, 20px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  width: 100%;
+  flex-grow: 1;
+  padding: 25px;
   overflow-x: auto;
 }
 
-/* ===== Records Header ===== */
+/* Records Header */
 .records-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .records-header h3 {
   margin: 0;
-  font-size: clamp(16px, 1.5vw, 18px);
+  font-size: 22px;
+  font-weight: bold;
 }
 
-.sort-dropdown {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
+.records-header input,
+.records-header select {
+  padding: 6px 12px;
   font-size: 14px;
-  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
-/* ===== Table Styling ===== */
+/* Table */
+.records-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .records-table {
   width: 100%;
-  min-width: 700px; /* ensures scroll on small screens */
   border-collapse: collapse;
+  min-width: 800px;
 }
 
 .records-table th,
 .records-table td {
-  padding: clamp(6px, 1vw, 12px);
-  text-align: left;
-  font-size: clamp(12px, 1vw, 14px);
-}
-
-.records-table thead {
-  background-color: #f3f4f6;
-}
-
-.records-table tr:nth-child(even) {
-  background-color: #f9fafb;
-}
-
-.delete-btn {
-  background-color: #f87171;
-  border: none;
-  padding: 6px 12px;
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: center;
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.records-table th {
+  background-color: #679ADC;
   color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 50px;
 }
 
-.delete-btn:hover {
-  background-color: #dc2626;
+.records-table td {
+  height: 40px;
 }
 
-/* ===== Pagination ===== */
-.pagination {
-  display: flex;
-  flex-wrap: wrap; /* wrap on small screens */
-  justify-content: center;
-  gap: 6px;
-  padding-top: 16px;
-}
-
-.page-btn {
-  padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px);
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: clamp(12px, 1vw, 14px);
-}
-
-.page-btn:hover:not(:disabled) {
-  background-color: #e5e7eb;
-}
-
-.page-btn.active {
-  background-color: #4b9be0;
+/* Classification Badge */
+.classification-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
   color: white;
+  font-size: 12px;
+}
+
+.classification-badge.normal { background-color: #4CAF50; }
+.classification-badge.mild { background-color: #FF9800; }
+.classification-badge.moderate { background-color: #F44336; }
+
+/* Buttons */
+.edit-btn, .delete-btn, .save-btn, .cancel-btn {
+  margin: 2px;
+  padding: 5px 8px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
   border: none;
+  transition: transform 0.1s;
 }
 
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.edit-btn { background-color: #4CAF50; color: white; }
+.delete-btn { background-color: #F44336; color: white; }
+.save-btn { background-color: #2196F3; color: white; }
+.cancel-btn { background-color: #9E9E9E; color: white; }
+
+.edit-btn:hover, .delete-btn:hover, .save-btn:hover, .cancel-btn:hover {
+  transform: scale(1.05);
 }
 
-/* ===== Responsive Styles ===== */
+/* Image Buttons */
+.image-buttons button {
+  margin: 0 3px;
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 
-/* Tablets */
-@media (max-width: 900px) {
+/* Pagination */
+.pagination {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #679ADC;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #557BB0;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
+/* Modal */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-modal img {
+  max-width: 90%;
+  max-height: 90%;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
   .sidebar {
-    width: 180px;
-    padding: 16px;
+    width: 220px;
   }
+  .nav-item {
+    padding: 12px 20px;
+  }
+}
 
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+  }
+  .logo-section {
+    padding: 10px 0;
+  }
+  .nav-menu {
+    display: flex;
+    gap: 10px;
+    padding: 0;
+  }
+  .nav-item {
+    padding: 10px 8px;
+  }
+  .main-content {
+    padding: 15px;
+  }
   .records-table {
     min-width: 600px;
   }
 }
 
-/* Small tablets / large phones */
-@media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .records-container {
-    padding: 12px;
-  }
-
-  .records-header h3 {
-    font-size: 16px;
-  }
-}
-
-/* Mobile phones */
-@media (max-width: 500px) {
+@media (max-width: 480px) {
   .records-header {
     flex-direction: column;
     gap: 10px;
   }
-
-  .sort-dropdown {
+  .records-header input,
+  .records-header select {
     width: 100%;
   }
-
-  .records-table th,
-  .records-table td {
-    padding: 6px;
+  .records-table {
+    min-width: 500px;
     font-size: 12px;
+  }
+  .nav-item {
+    font-size: 12px;
+    gap: 6px;
   }
 }

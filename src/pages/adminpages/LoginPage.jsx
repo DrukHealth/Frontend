@@ -12,7 +12,6 @@ const LoginPage = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const handleForgotPassword = () => navigate("/forgot-password");
 
-  // Handle login
   const handleLogin = async () => {
     try {
       const response = await fetch("http://localhost:5001/auth/login", {
@@ -24,7 +23,6 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Navigate to success page after login
         navigate("/success");
       } else {
         alert(data.message || "Login failed");
@@ -40,8 +38,10 @@ const LoginPage = () => {
       {/* LEFT SECTION */}
       <div className="login-left">
         <div className="logo-box">
-          <img src="/2.png" alt="logo" />
-          <h2>DRUK HEALTH</h2>
+          <img src="/logo2.png" alt="logo" />
+          <h2>
+            Druk <span className="e-letter">e</span>Health
+          </h2>
         </div>
       </div>
 
