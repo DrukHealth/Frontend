@@ -1,171 +1,54 @@
-# from fastapi import FastAPI, File, UploadFile
-# from fastapi.middleware.cors import CORSMiddleware
-# import uvicorn
-# import pandas as pd
-# import numpy as np
-# import cv2, io
-# from scipy.signal import find_peaks
-# from PIL import Image
-# import joblib
-# import tempfile
-
-# app = FastAPI()
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# # Load Decision Tree model
-# model = joblib.load("decision_tree_all_cardio_features.pkl")
-
-# # --- CTG signal extraction ---
-# def extract_ctg_signals(image_path, fhr_top_ratio=0.55, bpm_per_cm=30, toco_per_cm=25,
-#                         paper_speed_cm_min=2, fhr_min_line=50):
-#     img = cv2.imread(image_path)
-#     if img is None:
-#         raise ValueError("Failed to read image")
-
-#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#     if np.mean(gray) > 127:
-#         gray = cv2.bitwise_not(gray)
-#     height, width = gray.shape
-#     fhr_img = gray[0:int(fhr_top_ratio * height), :]
-#     uc_img = gray[int(fhr_top_ratio * height):, :]
-
-#     def extract_signal(trace_img):
-#         _, thresh = cv2.threshold(trace_img, 50, 255, cv2.THRESH_BINARY)
-#         h, w = thresh.shape
-#         signal = []
-#         for x in range(w):
-#             y_pixels = np.where(thresh[:, x] > 0)[0]
-#             y = np.median(y_pixels) if len(y_pixels) > 0 else np.nan
-#             signal.append(y)
-#         signal = pd.Series(signal).interpolate(limit_direction='both').values
-#         return h - signal
-
-#     fhr_signal = extract_signal(fhr_img)
-#     uc_signal = extract_signal(uc_img)
-
-#     px_per_cm = height / 10.0
-#     bpm_per_px = bpm_per_cm / px_per_cm
-#     toco_per_px = toco_per_cm / px_per_cm
-#     fhr_signal = fhr_min_line + fhr_signal * bpm_per_px
-#     uc_signal = uc_signal * toco_per_px
-#     px_per_sec = (paper_speed_cm_min / 60.0) * px_per_cm
-#     time_axis = np.arange(len(fhr_signal)) / px_per_sec
-#     return fhr_signal, uc_signal, time_axis
-
-
-# def compute_model_features(fhr_signal, uc_signal, time_axis):
-#     features = {}
-#     duration = time_axis[-1] - time_axis[0]
-#     baseline = np.mean(fhr_signal)
-#     features['Baseline value (SisPorto)'] = round(float(baseline), 2)
-#     fhr_diff = np.diff(fhr_signal)
-#     features['Mean value of long-term variability (SisPorto)'] = round(np.std(fhr_signal), 2)
-#     features['Mean value of short-term variability (SisPorto)'] = round(np.mean(np.abs(fhr_diff)), 2)
-#     features['Percentage time with abnormal short-term variability (SisPorto)'] = round(np.sum(np.abs(fhr_diff) > 25) / len(fhr_diff), 2)
-#     features['Percentage time with abnormal long-term variability (SisPorto)'] = round(np.sum(np.abs(fhr_signal - baseline) > 20) / len(fhr_signal), 2)
-#     features['Accelerations (SisPorto)'] = 0
-#     features['Uterine contractions (SisPorto)'] = 0
-#     features['Fetal movements (SisPorto)'] = 0
-#     features['Light decelerations (raw)'] = 0
-#     features['Severe decelerations (raw)'] = 0
-#     features['Prolonged decelerations (raw)'] = 0
-#     features['Repetitive decelerations (raw)'] = 0
-#     # placeholder histogram features
-#     for col in [ 'Histogram width','Histogram minimum frequency','Histogram maximum frequency',
-#                  'Number of histogram peaks','Number of histogram zeros','Histogram mode',
-#                  'Histogram mean','Histogram median','Histogram variance',
-#                  'Histogram tendency (-1=left asymmetric; 0=symmetric; 1=right asymmetric)' ]:
-#         features[col] = 0
-#     return features
-
-# @app.post("/predict/")
-# async def predict_ctg(file: UploadFile = File(...)):
-#     contents = await file.read()
-#     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-#         tmp.write(contents)
-#         tmp_path = tmp.name
-
-#     fhr, uc, t = extract_ctg_signals(tmp_path)
-#     features = compute_model_features(fhr, uc, t)
-#     df = pd.DataFrame([features])
-
-#     # align with model columns
-#     for col in model.feature_names_in_:
-#         if col not in df.columns:
-#             df[col] = 0
-#     df = df[model.feature_names_in_]
-
-#     pred = model.predict(df)[0]
-#     label = {1: "Normal", 2: "Suspect", 3: "Pathologic"}[pred]
-#     return {"prediction": int(pred), "label": label}
-
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+from fastapi.responses import JSONResponse
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import cv2, tempfile
 import joblib
+import os
+from pymongo import MongoClient
 
+
+# ------------------------------
+# FastAPI app
+# ------------------------------
 app = FastAPI()
 
-# Enable CORS for frontend connection
+# Allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # in production: ["http://localhost:5173"]
+    allow_origins=["http://localhost:5173"],  # React frontend
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Load trained Decision Tree model ---
+# ------------------------------
+# Load your trained model once
+# ------------------------------
 model = joblib.load("decision_tree_all_cardio_features.pkl")
 
-# --- CTG Signal Extraction ---
-def extract_ctg_signals(
-    image_path,
-    fhr_top_ratio=0.55,
-    bpm_per_cm=30,
-    toco_per_cm=25,
-    paper_speed_cm_min=2,
-    fhr_min_line=50,
-):
+# ------------------------------
+# Helper functions for CTG signals
+# ------------------------------
+def extract_ctg_signals(image_path, fhr_top_ratio=0.55, bpm_per_cm=30, toco_per_cm=25,
+                        paper_speed_cm_min=2, fhr_min_line=50):
     img = cv2.imread(image_path)
     if img is None:
         raise ValueError("Failed to read image")
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Compute region for FHR waveform
     fhr_img = gray[0:int(fhr_top_ratio * gray.shape[0]), :]
+    if np.std(fhr_img) < 15 or np.mean(fhr_img) > 200:
+        return None, None, None, False  # Not a CTG image
 
-    # --- CTG detection check (relaxed version) ---
-    fhr_mean = np.mean(fhr_img)
-    fhr_std = np.std(fhr_img)
-    print(f"[DEBUG] FHR mean={fhr_mean:.2f}, std={fhr_std:.2f}")
-
-    # Relaxed threshold: only reject if image is very flat or extremely bright
-    if fhr_std < 5 or fhr_mean > 140:
-        print("[INFO] Rejected image as non-CTG (too bright or flat waveform region).")
-        return None, None, None, False
-
-    # Invert grayscale if background is bright
     if np.mean(gray) > 127:
         gray = cv2.bitwise_not(gray)
 
     height, width = gray.shape
     uc_img = gray[int(fhr_top_ratio * height):, :]
 
-    # --- Extract signal traces ---
     def extract_signal(trace_img):
         _, thresh = cv2.threshold(trace_img, 50, 255, cv2.THRESH_BINARY)
         h, w = thresh.shape
@@ -174,13 +57,12 @@ def extract_ctg_signals(
             y_pixels = np.where(thresh[:, x] > 0)[0]
             y = np.median(y_pixels) if len(y_pixels) > 0 else np.nan
             signal.append(y)
-        signal = pd.Series(signal).interpolate(limit_direction="both").values
+        signal = pd.Series(signal).interpolate(limit_direction='both').values
         return h - signal
 
     fhr_signal = extract_signal(fhr_img)
     uc_signal = extract_signal(uc_img)
 
-    # --- Scale conversion ---
     px_per_cm = height / 10.0
     bpm_per_px = bpm_per_cm / px_per_cm
     toco_per_px = toco_per_cm / px_per_cm
@@ -189,52 +71,72 @@ def extract_ctg_signals(
     px_per_sec = (paper_speed_cm_min / 60.0) * px_per_cm
     time_axis = np.arange(len(fhr_signal)) / px_per_sec
 
-    print("[INFO] CTG signal extraction completed successfully.")
-    return fhr_signal, uc_signal, time_axis, True
+    return fhr_signal, uc_signal, time_axis, True  # True = valid CTG
 
-
-# --- Compute SisPorto Features ---
 def compute_model_features(fhr_signal, uc_signal, time_axis):
     features = {}
-
     baseline = np.mean(fhr_signal)
     fhr_diff = np.diff(fhr_signal)
-
-    features["Baseline value (SisPorto)"] = round(float(baseline), 2)
-    features["Mean value of long-term variability (SisPorto)"] = round(np.std(fhr_signal), 2)
-    features["Mean value of short-term variability (SisPorto)"] = round(np.mean(np.abs(fhr_diff)), 2)
-    features["Percentage time with abnormal short-term variability (SisPorto)"] = round(
-        np.sum(np.abs(fhr_diff) > 25) / len(fhr_diff), 2
-    )
-    features["Percentage time with abnormal long-term variability (SisPorto)"] = round(
-        np.sum(np.abs(fhr_signal - baseline) > 20) / len(fhr_signal), 2
-    )
-
-    # Fill placeholder columns for unused SisPorto metrics
-    for col in [
-        "Accelerations (SisPorto)",
-        "Uterine contractions (SisPorto)",
-        "Fetal movements (SisPorto)",
-        "Light decelerations (raw)",
-        "Severe decelerations (raw)",
-        "Prolonged decelerations (raw)",
-        "Repetitive decelerations (raw)",
-        "Histogram width",
-        "Histogram minimum frequency",
-        "Histogram maximum frequency",
-        "Number of histogram peaks",
-        "Number of histogram zeros",
-        "Histogram mode",
-        "Histogram mean",
-        "Histogram median",
-        "Histogram variance",
-        "Histogram tendency (-1=left asymmetric; 0=symmetric; 1=right asymmetric)",
-    ]:
-        features[col] = 0
+    features['Baseline value (SisPorto)'] = round(float(baseline), 2)
+    features['Mean value of long-term variability (SisPorto)'] = round(np.std(fhr_signal), 2)
+    features['Mean value of short-term variability (SisPorto)'] = round(np.mean(np.abs(fhr_diff)), 2)
+    features['Percentage time with abnormal short-term variability (SisPorto)'] = round(np.sum(np.abs(fhr_diff) > 25) / len(fhr_diff), 2)
+    features['Percentage time with abnormal long-term variability (SisPorto)'] = round(np.sum(np.abs(fhr_signal - baseline) > 20) / len(fhr_signal), 2)
+    
+    # Fill other features as 0 if required by model
+    for col in model.feature_names_in_:
+        if col not in features:
+            features[col] = 0
 
     return features
 
-# --- Prediction Endpoint ---
+# ------------------------------
+# Existing API endpoints
+# ------------------------------
+@app.get("/api/scans/stats")
+def get_scan_stats():
+    return {
+        "daily": 15,
+        "weekly": 80,
+        "monthly": 310,
+        "yearly": 3700,
+        "nspStats": {"Normal": 120, "Suspect": 50, "Pathological": 20}
+    }
+
+@app.get("/api/analysis")
+def get_analysis():
+    start_date = datetime(2024, 1, 1)
+    end_date = datetime.today()
+    months = []
+    current = start_date
+    while current <= end_date:
+        months.append(current.strftime("%Y-%m"))
+        if current.month == 12:
+            current = datetime(current.year + 1, 1, 1)
+        else:
+            current = datetime(current.year, current.month + 1, 1)
+
+    predictions = []
+    for month in months:
+        N = np.random.randint(10, 100)
+        S = np.random.randint(5, 40)
+        P = np.random.randint(1, 20)
+        predictions.append({"date": month, "N": N, "S": S, "P": P})
+
+    total_patients = sum(d["N"] + d["S"] + d["P"] for d in predictions)
+    positive_cases = sum(d["P"] for d in predictions)
+    accuracy = round((1 - positive_cases / total_patients) * 100, 2)
+
+    return {
+        "patients": total_patients,
+        "positive_cases": positive_cases,
+        "accuracy": accuracy,
+        "predictions": predictions
+    }
+
+# ------------------------------
+# Prediction endpoint using AI model
+# ------------------------------
 @app.post("/predict/")
 async def predict_ctg(file: UploadFile = File(...)):
     contents = await file.read()
@@ -244,37 +146,54 @@ async def predict_ctg(file: UploadFile = File(...)):
 
     try:
         fhr, uc, t, is_ctg = extract_ctg_signals(tmp_path)
-    except Exception as e:
-        print("[ERROR] Failed to extract CTG:", str(e))
-        return {"prediction": 0, "label": "Error: Failed to process image", "features": {}}
+        if not is_ctg:
+            return {"prediction": 0, "label": "Error: Non CTG image", "features": {}}
 
-    # Handle non-CTG detection
-    if not is_ctg:
-        return {
-            "prediction": 0,
-            "label": "Error: Non CTG image detected",
-            "features": {},
+        features = compute_model_features(fhr, uc, t)
+        df = pd.DataFrame([features])
+        df = df[model.feature_names_in_]  # align with model
+
+        pred = model.predict(df)[0]
+        label = {1: "Normal", 2: "Suspect", 3: "Pathologic"}.get(pred, "Unknown")
+
+        # ✅ Define record and insert
+        record = {
+            "timestamp": datetime.utcnow(),
+            "label": label,
+            "features": features
         }
+        ctg_collection.insert_one(record)
 
-    # Compute features
-    features = compute_model_features(fhr, uc, t)
-    df = pd.DataFrame([features])
+        return {"prediction": int(pred), "label": label, "features": features}
 
-    # Align DataFrame with model features
-    for col in model.feature_names_in_:
-        if col not in df.columns:
-            df[col] = 0
-    df = df[model.feature_names_in_]
-
-    # Make prediction
-    pred = model.predict(df)[0]
-    label = {1: "Normal", 2: "Suspect", 3: "Pathologic"}.get(pred, "Unknown")
-
-    print(f"[INFO] Prediction complete → {label}")
-
-    return {"prediction": int(pred), "label": label, "features": features}
+    finally:
+        os.remove(tmp_path)
 
 
-# --- Run Server ---
+
+# MongoDB client
+client = MongoClient("mongodb://localhost:27017")
+db = client["ctg_db"]
+ctg_collection = db["ctg_records"]
+
+# record = {
+#     "timestamp": datetime.utcnow(),
+#     "label": label,
+#     "features": features,
+# }
+
+# ctg_collection.insert_one(record)
+
+# Fetch CTG records
+@app.get("/records")
+def get_records():
+    records = list(ctg_collection.find({}, {"_id": 0}).sort("timestamp", -1))
+    return {"records": records}
+
+
+# ------------------------------
+# Run server
+# ------------------------------
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,11 @@
+{
+  "patients": 150,
+  "positive_cases": 45,
+  "negative_cases": 105,
+  "accuracy": 0.87,
+  "predictions": [
+    {"date": "2025-10-01", "positive": 5, "negative": 12},
+    {"date": "2025-10-02", "positive": 8, "negative": 10},
+    {"date": "2025-10-03", "positive": 6, "negative": 14}
+  ]
+}

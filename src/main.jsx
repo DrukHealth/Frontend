@@ -16,7 +16,7 @@ import ForgotPasswordVerify from "./pages/adminpages/PasswordVerify.jsx";
 import ChangePassword from "./pages/adminpages/ChangePassword.jsx";
 import Dashboard from "./pages/adminpages/Dashboard.jsx";
 import Management from "./pages/adminpages/Management.jsx"; // ✅ Capital M
-
+import Records from "./pages/adminpages/Records.jsx"
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
@@ -34,6 +34,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/management" element={<Management />} />
+      <Route path="/records"element={<Records/>}/>
     </Routes>
   </BrowserRouter>
 );
