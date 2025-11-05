@@ -12,9 +12,10 @@ export default function Result() {
   const [label, setLabel] = useState("");
   const [features, setFeatures] = useState({});
   const [darkMode, setDarkMode] = useState(false);
-  const [isNonCTG, setIsNonCTG] = useState(false);
 
-  // --- Send file to backend for prediction ---
+  // -----------------------------------------------------
+  // 🧠 Send uploaded CTG image to FastAPI for analysis
+  // -----------------------------------------------------
   useEffect(() => {
     if (!imageFile) return;
     if (!imagePreview) setImagePreview(URL.createObjectURL(imageFile));
@@ -31,19 +32,13 @@ export default function Result() {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        console.log("📡 Backend response:", data);
 
         setLabel(data.label || "Unknown");
         setFeatures(data.features || {});
-
-        // detect if backend reported non-CTG image
-        if (data.label?.toLowerCase().includes("non ctg")) {
-          setIsNonCTG(true);
-        } else {
-          setIsNonCTG(false);
-        }
       } catch (err) {
         console.error("❌ Prediction failed:", err);
-        alert("Prediction failed. Check Python server logs.");
+        alert("Prediction failed. Check backend logs.");
       } finally {
         setLoading(false);
       }
@@ -52,7 +47,9 @@ export default function Result() {
     sendToPython();
   }, [imageFile]);
 
-  // --- Handle case: no image passed from scan page ---
+  // -----------------------------------------------------
+  // Handle case when no image was passed
+  // -----------------------------------------------------
   if (!imageFile) {
     return (
       <div
@@ -85,14 +82,17 @@ export default function Result() {
     );
   }
 
-  // --- Color logic for result card ---
-  const labelColor = isNonCTG
-    ? { bg: "#f8d7da", text: "#721c24" }
-    : label.toLowerCase() === "normal"
-    ? { bg: "#d4edda", text: "#155724" }
-    : label.toLowerCase() === "suspect"
-    ? { bg: "#fff3cd", text: "#856404" }
-    : { bg: "#f8d7da", text: "#721c24" };
+  // -----------------------------------------------------
+  // 🎨 Color logic for result card
+  // -----------------------------------------------------
+  const labelColor =
+    label.toLowerCase() === "normal"
+      ? { bg: "#d4edda", text: "#155724" }
+      : label.toLowerCase() === "suspect"
+      ? { bg: "#fff3cd", text: "#856404" }
+      : label.toLowerCase() === "pathologic"
+      ? { bg: "#f8d7da", text: "#721c24" }
+      : { bg: "#e2e3e5", text: "#383d41" };
 
   return (
     <div
@@ -104,7 +104,9 @@ export default function Result() {
         flexDirection: "column",
       }}
     >
-      {/* Navbar */}
+      {/* -----------------------------------------------------
+         🧭 Navbar 
+      ------------------------------------------------------*/}
       <nav
         style={{
           display: "flex",
@@ -177,7 +179,9 @@ export default function Result() {
         </div>
       </nav>
 
-      {/* Body */}
+      {/* -----------------------------------------------------
+         🩺 Main Result Section 
+      ------------------------------------------------------*/}
       <div style={{ flex: 1, textAlign: "center", padding: "2rem" }}>
         {imagePreview && (
           <img
@@ -193,36 +197,65 @@ export default function Result() {
           />
         )}
 
-       {loading ? (
-  <div className="loading-section">
-    <div className="loader"></div>
-    <p className="loading-text">🔍 Analyzing CTG image...</p>
-  </div>
-) : (
-  <div className="result-card fade-in">
-    <h3>Prediction Result</h3>
-    <p>{label}</p>
-  </div>
-)}
+        {loading ? (
+          <div className="loading-section">
+            <div className="loader"></div>
+            <p className="loading-text">🔍 Analyzing CTG image...</p>
+          </div>
+        ) : (
+          <div
+            className="result-card fade-in"
+            style={{
+              margin: "2rem auto",
+              width: "fit-content",
+              backgroundColor: labelColor.bg,
+              color: labelColor.text,
+              borderRadius: "10px",
+              padding: "1.5rem 2rem",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
+            <h3 style={{ marginBottom: "0.5rem" }}>Prediction Result</h3>
+            <p
+              style={{
+                fontSize: "1.8rem",
+                fontWeight: "bold",
+                textTransform: "capitalize",
+              }}
+            >
+              {label}
+            </p>
+          </div>
+        )}
 
-        {/* Show features only if it's a valid CTG image */}
-        {!loading && !isNonCTG && Object.keys(features).length > 0 && (
+        {/* -----------------------------------------------------
+           📊 Feature Table (only for valid CTG predictions)
+        ------------------------------------------------------*/}
+        {!loading && Object.keys(features).length > 0 && (
           <div
             style={{
               marginTop: "2rem",
+              overflowX: "auto",
               display: "flex",
               justifyContent: "center",
             }}
           >
             <table
               style={{
-                width: "80%",
+                width: "90%",
+                maxWidth: "800px",
                 borderCollapse: "collapse",
                 borderRadius: "8px",
                 boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                backgroundColor: darkMode ? "#1e1e1e" : "#fff",
               }}
             >
-              <thead style={{ backgroundColor: "#E2EDFB" }}>
+              <thead
+                style={{
+                  backgroundColor: darkMode ? "#333" : "#E2EDFB",
+                  color: darkMode ? "#EAEAEA" : "#0d52bd",
+                }}
+              >
                 <tr>
                   <th style={{ padding: "10px" }}>Feature</th>
                   <th style={{ padding: "10px" }}>Value</th>
@@ -235,6 +268,7 @@ export default function Result() {
                       style={{
                         padding: "8px 10px",
                         borderBottom: "1px solid #ddd",
+                        textAlign: "left",
                       }}
                     >
                       {key}
@@ -243,6 +277,7 @@ export default function Result() {
                       style={{
                         padding: "8px 10px",
                         borderBottom: "1px solid #ddd",
+                        textAlign: "right",
                       }}
                     >
                       {val}
@@ -273,7 +308,9 @@ export default function Result() {
         )}
       </div>
 
-      {/* Footer */}
+      {/* -----------------------------------------------------
+         ⚙️ Footer 
+      ------------------------------------------------------*/}
       <footer
         style={{
           padding: "1rem",

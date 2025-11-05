@@ -131,6 +131,8 @@ input:checked + .slider::before {
   font-weight: 600;
 }
 
+
+
 /* ===============================
    💬 Prediction Result Card
 ================================ */

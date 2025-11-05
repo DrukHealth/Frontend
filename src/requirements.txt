@@ -5,3 +5,9 @@ numpy
 pillow
 tensorflow
 python-multipart
+ opencv-python 
+ scipy 
+ pillow 
+ joblib
+ imblearn
+ scikit-learn
