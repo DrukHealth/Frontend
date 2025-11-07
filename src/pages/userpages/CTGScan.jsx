@@ -17,8 +17,8 @@ export default function CTGScan() {
   const BASE_URL = "http://localhost:5000/api"; // Node backend
 
   useEffect(() => {
-    document.body.style.backgroundColor = darkMode ? "#1E1E1E" : "#F5F5F5";
-    document.body.style.color = darkMode ? "#FFFFFF" : "#000000";
+    document.body.style.backgroundColor = darkMode ? "#121212" : "#FFFFFF";
+    document.body.style.color = darkMode ? "#EAEAEA" : "#0d52bd";
   }, [darkMode]);
 
   const handleUpload = (e) => {
@@ -49,12 +49,15 @@ export default function CTGScan() {
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
     context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      const file = new File([blob], "capture.png", { type: "image/png" });
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(blob));
-      stopCamera();
-    }, "image/png");
+    canvas.toBlob(
+      (blob) => {
+        const file = new File([blob], "capture.png", { type: "image/png" });
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(blob));
+        stopCamera();
+      },
+      "image/png"
+    );
   };
 
   const stopCamera = () => {
@@ -64,10 +67,11 @@ export default function CTGScan() {
     }
   };
 
-  // ✅ Upload to Node and then navigate to Result page (Python handles model)
   const handleProceed = async () => {
-    if (!imageFile)
-      return toast.warn("Please upload or capture an image first.");
+    if (!imageFile) {
+      toast.warn("Please upload or capture an image first.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -82,7 +86,7 @@ export default function CTGScan() {
 
       setTimeout(() => {
         navigate("/result", {
-          state: { imageFile, imagePreview }, // 👈 pass actual file & preview
+          state: { imageFile, imagePreview },
         });
       }, 1200);
     } catch (err) {
@@ -107,9 +111,14 @@ export default function CTGScan() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
+        fontFamily: "Altos Sans, sans-serif", // ✅ added font family
       }}
     >
-      <ToastContainer position="top-center" autoClose={2000} theme={darkMode ? "dark" : "light"} />
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        theme={darkMode ? "dark" : "light"}
+      />
 
       {/* Navbar */}
       <nav
@@ -118,43 +127,107 @@ export default function CTGScan() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "92px",
+          borderBottomLeftRadius: "16px",
+          borderBottomRightRadius: "16px",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
         }}
       >
-        <div onClick={() => navigate("/home")} style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
-          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
+        <div
+          onClick={() => navigate("/home")}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src="/Latestlogo.png"
+            alt="Druk eHealth Logo"
+            style={{ height: "115px" }}
+          />
         </div>
 
-        <div style={{ fontSize: "2.5rem", fontWeight: "bold", flex: 1, textAlign: "center" }}>CTG Scan</div>
+        <div
+          style={{
+            fontSize: "1.8rem",
+            fontWeight: "bold",
+            flex: 1,
+            textAlign: "center",
+          }}
+        >
+          CTG Scan
+        </div>
 
         <div style={{ display: "flex", alignItems: "center" }}>
-          <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px" }}>
-            <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }} />
-            <span style={{
-              position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0,
-              backgroundColor: darkMode ? "#444" : "#ccc", transition: "0.4s", borderRadius: "34px"
-            }}>
-              <span style={{
-                position: "absolute", height: "18px", width: "18px",
-                left: darkMode ? "26px" : "4px", bottom: "4px", backgroundColor: "white",
-                transition: "0.4s", borderRadius: "50%"
-              }}></span>
+          <label
+            style={{
+              position: "relative",
+              display: "inline-block",
+              width: "50px",
+              height: "26px",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={() => setDarkMode(!darkMode)}
+              style={{ opacity: 0, width: 0, height: 0 }}
+            />
+            <span
+              style={{
+                position: "absolute",
+                cursor: "pointer",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: darkMode ? "#444" : "#ccc",
+                transition: "0.4s",
+                borderRadius: "34px",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  height: "18px",
+                  width: "18px",
+                  left: darkMode ? "26px" : "4px",
+                  bottom: "4px",
+                  backgroundColor: "white",
+                  transition: "0.4s",
+                  borderRadius: "50%",
+                }}
+              ></span>
             </span>
           </label>
         </div>
       </nav>
 
-      {/* Body */}
-      <div style={{ flex: 1, textAlign: "center", paddingTop: "2rem" }}>
+      {/* Scrollable Content */}
+      <div
+        style={{
+          flex: 1,
+          textAlign: "center",
+          paddingTop: "2rem",
+          paddingBottom: "4rem",
+          overflowY: "auto",
+        }}
+      >
         {capturing && (
           <div>
             <video ref={videoRef} />
             <div style={{ marginTop: "1rem" }}>
-              <button onClick={takePhoto} style={buttonStyle("#4CAF50")}>Capture Photo</button>
-              <button onClick={stopCamera} style={buttonStyle("#E74C3C")}>Cancel</button>
+              <button onClick={takePhoto} style={buttonStyle("#4CAF50")}>
+                Capture Photo
+              </button>
+              <button onClick={stopCamera} style={buttonStyle("#E74C3C")}>
+                Cancel
+              </button>
             </div>
           </div>
         )}
@@ -165,7 +238,8 @@ export default function CTGScan() {
               src={imagePreview}
               alt="Preview"
               style={{
-                width: "400px",
+                width: "90%",
+                maxWidth: "420px",
                 height: "auto",
                 borderRadius: "10px",
                 boxShadow: darkMode
@@ -178,10 +252,24 @@ export default function CTGScan() {
 
         {!imagePreview && !capturing && (
           <div style={emptyStateContainer}>
-            <img src={image1} alt="Scan Icon" style={{ width: "400px", height: "400px" }} />
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-              <button onClick={handleCapture} style={primaryButtonStyle(darkMode)}>
-                Scan CTG Record Image
+            <img
+              src={image1}
+              alt="Scan Icon"
+              style={{ width: "300px", height: "300px" }}
+            />
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                onClick={handleCapture}
+                style={primaryButtonStyle(darkMode)}
+              >
+                Scan CTG Record 
               </button>
               <label htmlFor="fileUpload" style={primaryButtonStyle(darkMode)}>
                 Upload CTG Record
@@ -218,14 +306,22 @@ export default function CTGScan() {
 
       {/* Footer */}
       <footer
+        className={`footer ${darkMode ? "dark" : ""}`}
         style={{
-          padding: "1rem",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
           textAlign: "center",
-          backgroundColor: darkMode ? "#222" : "#E8EEF5",
-          color: darkMode ? "#AAA" : "#000",
+          padding: "18px 10px",
+          fontSize: "0.95rem",
+          borderTopLeftRadius: "16px",
+          borderTopRightRadius: "16px",
+          boxShadow: "0 -2px 8px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} Druk{" "}
+          <span className="e-letter">e</span>Health. All rights reserved.
+        </p>
       </footer>
     </div>
   );
@@ -238,6 +334,7 @@ const buttonStyle = (bg) => ({
   border: "none",
   borderRadius: "8px",
   fontWeight: "600",
+  fontFamily: "Altos Sans, sans-serif", // ✅ consistent typography
 });
 
 const primaryButtonStyle = (darkMode) => ({
@@ -249,6 +346,7 @@ const primaryButtonStyle = (darkMode) => ({
   fontSize: "16px",
   fontWeight: "600",
   border: "none",
+  fontFamily: "Altos Sans, sans-serif",
   transition: "background 0.3s",
 });
 
@@ -265,6 +363,7 @@ const emptyStateContainer = {
 const actionButtonsContainer = {
   marginTop: "2rem",
   display: "flex",
+  flexWrap: "wrap",
   gap: "1rem",
   justifyContent: "center",
 };

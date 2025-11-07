@@ -26,7 +26,7 @@ export default function Diagnosis() {
     onClick={() => navigate("/home")}
     style={{ cursor: "pointer" }}
   >
-    <img src="/logo.png" alt="Druk eHealth Logo" className="nav-logo" />
+    <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
   </div>
 
 </nav>
@@ -49,9 +49,17 @@ export default function Diagnosis() {
       </div>
 
       {/* ===== Footer ===== */}
-      <footer className="footer">
-        <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
-      </footer>
+      <footer
+        className={`footer ${darkMode ? "dark" : ""}`}
+        style={{
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
+        }}
+      >
+        <p>
+          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.
+        </p>
+    </footer>
     </div>
   );
 }

@@ -8,6 +8,7 @@ export default function Home() {
 
   return (
     <div
+
       style={{
         backgroundColor: darkMode ? "#121212" : "#FFFFFF",
         color: darkMode ? "#EAEAEA" : "#0d52bd",
@@ -16,6 +17,7 @@ export default function Home() {
         flexDirection: "column",
       }}
       className="home-container"
+      
     >
       {/* Navigation Bar */}
       <nav
@@ -25,9 +27,9 @@ export default function Home() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "92px",
+          height: "90px",
         }}
       >
         {/* Left: Logo */}
@@ -35,20 +37,22 @@ export default function Home() {
           onClick={() => navigate("/home")}
           style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
         >
-          <img src="/logo.png" alt="Druk eHealth Logo" style={{ height: "70px" }} />
+          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
 
         {/* Center: Title */}
         <div
           style={{
-            fontSize: "2.5rem",
             fontWeight: "bold",
             textAlign: "center",
             flex: 1,
+            color: darkMode ? "#EAEAEA" : "#0d52bd",
           }}
         >
-          Welcome to{" "}
-          <span className="title">
+          <span style={{ fontSize: "1.9rem", color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
+            Welcome to{" "}
+          </span>
+          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
             Druk <span className="e-letter">e</span>Health
           </span>
         </div>
@@ -101,7 +105,12 @@ export default function Home() {
 
       {/* Services Section */}
       <section className="services">
-        <h2 className="services-title">Our Services</h2>
+      <h2
+        className="services-title"
+        style={{ color: darkMode ? "#EAEAEA" : "#0d52bd" }} // dynamic color
+      >
+        Our Services
+      </h2>
 
         <div className="services-grid">
           <div className="service-card" onClick={() => navigate("/ctg-scan")}>
@@ -122,9 +131,17 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
-      </footer>
+      <footer
+        className={`footer ${darkMode ? "dark" : ""}`}
+        style={{
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
+        }}
+      >
+        <p>
+          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.
+        </p>
+    </footer>
     </div>
   );
 }

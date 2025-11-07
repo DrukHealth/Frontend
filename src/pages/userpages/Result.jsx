@@ -1,3 +1,5 @@
+
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./css/Result.css";
@@ -5,54 +7,55 @@ import "./css/Result.css";
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const imageFile = location.state?.imageFile;
-  const [imagePreview, setImagePreview] = useState(location.state?.imagePreview || null);
+
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [label, setLabel] = useState("");
   const [features, setFeatures] = useState({});
   const [darkMode, setDarkMode] = useState(false);
+  const [isNonCTG, setIsNonCTG] = useState(false);
 
-  // -----------------------------------------------------
-  // 🧠 Send uploaded CTG image to FastAPI for analysis
-  // -----------------------------------------------------
+  // -----------------------------
+  // Send image to backend for prediction
+  // -----------------------------
   useEffect(() => {
     if (!imageFile) return;
-    if (!imagePreview) setImagePreview(URL.createObjectURL(imageFile));
 
-    const sendToPython = async () => {
+    setImagePreview(URL.createObjectURL(imageFile));
+
+    const sendForPrediction = async () => {
       try {
         const formData = new FormData();
         formData.append("file", imageFile);
 
-        const res = await fetch("http://127.0.0.1:8000/predict/", {
+        const res = await fetch("http://localhost:8000/predict/", {
           method: "POST",
           body: formData,
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log("📡 Backend response:", data);
-
         setLabel(data.label || "Unknown");
         setFeatures(data.features || {});
+        setIsNonCTG(data.label?.toLowerCase().includes("non ctg"));
       } catch (err) {
-        console.error("❌ Prediction failed:", err);
-        alert("Prediction failed. Check backend logs.");
+        console.error("Prediction failed:", err);
+        alert("Prediction failed! Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    sendToPython();
+    sendForPrediction();
   }, [imageFile]);
 
-  // -----------------------------------------------------
-  // Handle case when no image was passed
-  // -----------------------------------------------------
+  // -----------------------------
+  // If user lands here without uploading image
+  // -----------------------------
   if (!imageFile) {
     return (
       <div
+        className={`no-image ${darkMode ? "dark-mode" : ""}`}
         style={{
           backgroundColor: darkMode ? "#121212" : "#FFFFFF",
           color: darkMode ? "#EAEAEA" : "#0d52bd",
@@ -63,77 +66,61 @@ export default function Result() {
           alignItems: "center",
         }}
       >
-        <p>No image provided. Please go back to scan page.</p>
-        <button
-          onClick={() => navigate("/ctg-scan")}
-          style={{
-            marginTop: "1rem",
-            padding: "10px 20px",
-            backgroundColor: "#0d52bd",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
+        <p>No image provided. Please go back to the scan page.</p>
+        <button onClick={() => navigate("/ctg-scan")} className="return-btn">
           Return to CTG Scan
         </button>
       </div>
     );
   }
 
-  // -----------------------------------------------------
-  // 🎨 Color logic for result card
-  // -----------------------------------------------------
-  const labelColor =
-    label.toLowerCase() === "normal"
-      ? { bg: "#d4edda", text: "#155724" }
-      : label.toLowerCase() === "suspect"
-      ? { bg: "#fff3cd", text: "#856404" }
-      : label.toLowerCase() === "pathologic"
-      ? { bg: "#f8d7da", text: "#721c24" }
-      : { bg: "#e2e3e5", text: "#383d41" };
-
+  // -----------------------------
+  // Main UI
+  // -----------------------------
   return (
     <div
+      className="result-container"
       style={{
         backgroundColor: darkMode ? "#121212" : "#FFFFFF",
         color: darkMode ? "#EAEAEA" : "#0d52bd",
         minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
-      {/* -----------------------------------------------------
-         🧭 Navbar 
-      ------------------------------------------------------*/}
+      {/* Navbar */}
       <nav
+        className="navbar"
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#E2EDFB",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "92px",
+          height: "90px",
+          borderBottomLeftRadius: "16px",
+          borderBottomRightRadius: "16px",
         }}
       >
         <div
           onClick={() => navigate("/home")}
           style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
         >
-          <img src="/logo.png" alt="Logo" style={{ height: "70px" }} />
+          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
+
         <div
+          className="result-title"
           style={{
-            fontSize: "2rem",
             fontWeight: "bold",
-            flex: 1,
             textAlign: "center",
+            flex: 1,
+            fontSize: "1.7rem",
+            color: darkMode ? "#EAEAEA" : "#0d52bd",
           }}
         >
           CTG Diagnosis Result
         </div>
+
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
@@ -179,148 +166,78 @@ export default function Result() {
         </div>
       </nav>
 
-      {/* -----------------------------------------------------
-         🩺 Main Result Section 
-      ------------------------------------------------------*/}
-      <div style={{ flex: 1, textAlign: "center", padding: "2rem" }}>
+      {/* Main Body */}
+      <div className="result-body fade-in">
         {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="CTG Preview"
-            style={{
-              width: "400px",
-              borderRadius: "10px",
-              boxShadow: darkMode
-                ? "0 0 10px rgba(255,255,255,0.2)"
-                : "0 0 10px rgba(0,0,0,0.2)",
-            }}
-          />
+          <div className="preview">
+            <img src={imagePreview} alt="CTG Preview" className="preview-img" />
+          </div>
         )}
 
         {loading ? (
-          <div className="loading-section">
-            <div className="loader"></div>
-            <p className="loading-text">🔍 Analyzing CTG image...</p>
-          </div>
+          <p className="analyzing-text">🔍 Analyzing image...</p>
         ) : (
           <div
-            className="result-card fade-in"
-            style={{
-              margin: "2rem auto",
-              width: "fit-content",
-              backgroundColor: labelColor.bg,
-              color: labelColor.text,
-              borderRadius: "10px",
-              padding: "1.5rem 2rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
+            className={`prediction-result ${
+              label === "Normal"
+                ? "normal"
+                : label === "Suspect"
+                ? "suspect"
+                : label === "Pathologic"
+                ? "pathologic"
+                : "non-ctg"
+            }`}
           >
-            <h3 style={{ marginBottom: "0.5rem" }}>Prediction Result</h3>
-            <p
-              style={{
-                fontSize: "1.8rem",
-                fontWeight: "bold",
-                textTransform: "capitalize",
-              }}
-            >
-              {label}
-            </p>
+            <h3>Prediction Result</h3>
+            <p>{label}</p>
           </div>
         )}
 
-        {/* -----------------------------------------------------
-           📊 Feature Table (only for valid CTG predictions)
-        ------------------------------------------------------*/}
-        {!loading && Object.keys(features).length > 0 && (
-          <div
-            style={{
-              marginTop: "2rem",
-              overflowX: "auto",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <table
-              style={{
-                width: "90%",
-                maxWidth: "800px",
-                borderCollapse: "collapse",
-                borderRadius: "8px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-              }}
-            >
-              <thead
-                style={{
-                  backgroundColor: darkMode ? "#333" : "#E2EDFB",
-                  color: darkMode ? "#EAEAEA" : "#0d52bd",
-                }}
-              >
-                <tr>
-                  <th style={{ padding: "10px" }}>Feature</th>
-                  <th style={{ padding: "10px" }}>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(features).map(([key, val]) => (
-                  <tr key={key}>
-                    <td
-                      style={{
-                        padding: "8px 10px",
-                        borderBottom: "1px solid #ddd",
-                        textAlign: "left",
-                      }}
-                    >
-                      {key}
-                    </td>
-                    <td
-                      style={{
-                        padding: "8px 10px",
-                        borderBottom: "1px solid #ddd",
-                        textAlign: "right",
-                      }}
-                    >
-                      {val}
-                    </td>
+        {/* Feature Table */}
+        {!loading && !isNonCTG && Object.keys(features).length > 0 && (
+          <div className="feature-section">
+            <h3>Extracted Features</h3>
+            <div className="table-wrapper">
+              <table className="feature-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Value</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {Object.entries(features).map(([key, value]) => (
+                    <tr key={key}>
+                      <td>{key}</td>
+                      <td>{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {!loading && (
-          <button
-            onClick={() => navigate("/ctg-scan")}
-            style={{
-              marginTop: "2rem",
-              padding: "10px 20px",
-              backgroundColor: "#0d52bd",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "600",
-            }}
-          >
+          <button onClick={() => navigate("/ctg-scan")} className="return-btn">
             Return to CTG Scan
           </button>
         )}
       </div>
 
-      {/* -----------------------------------------------------
-         ⚙️ Footer 
-      ------------------------------------------------------*/}
+      {/* Footer */}
       <footer
+        className="footer"
         style={{
-          padding: "1rem",
-          textAlign: "center",
-          backgroundColor: darkMode ? "#222" : "#E8EEF5",
-          color: darkMode ? "#AAA" : "#000",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
         }}
       >
-        <p>© {new Date().getFullYear()} Druk eHealth. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.
+        </p>
       </footer>
     </div>
   );
 }
+

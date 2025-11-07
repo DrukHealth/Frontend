@@ -4,6 +4,7 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  font-family: "Altoss Sans", sans-serif;
 }
 
 /* Landing container */
@@ -13,7 +14,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #0d52bd;
+  background-color: #679ADC;
   display: flex;
   flex-direction: column;
   align-items: center; /* horizontal centering */
