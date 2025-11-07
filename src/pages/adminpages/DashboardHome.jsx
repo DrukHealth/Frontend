@@ -11,7 +11,8 @@ export default function Dashboard() {
   const [scanStats, setScanStats] = useState({});
   const [analysisData, setAnalysisData] = useState({ predictions: [] });
   const [weeklyNSP, setWeeklyNSP] = useState([]);
-  
+
+  // --- Compute pie data dynamically ---
   const pieData = scanStats.nspStats
     ? [
         { name: "Normal", value: scanStats.nspStats.Normal },
@@ -19,6 +20,8 @@ export default function Dashboard() {
         { name: "Pathological", value: scanStats.nspStats.Pathological },
       ]
     : [];
+
+  const totalCases = pieData.reduce((sum, item) => sum + item.value, 0);
 
   useEffect(() => {
     // Fetch scan stats
@@ -40,24 +43,43 @@ export default function Dashboard() {
       .catch(err => console.error(err));
   }, []);
 
+  // --- Custom Pie Label ---
+  const renderCustomLabel = ({ name, value, percent }) => {
+    if (totalCases === 0) return "";
+    const percentValue = (percent * 100).toFixed(1);
+    return `${name}: ${value} (${percentValue}%)`;
+  };
+
   return (
     <div className="page-content">
       <h2 className="section-title">Fetal Health Data Analysis</h2>
 
-      {/* Scan Stats */}
+      {/* --- Scan Stats --- */}
       <section className="stats-section">
         <div className="stats-grid">
-          <div className="stat-card"><h4>Today’s Scans</h4><p>{scanStats.daily}</p></div>
-          <div className="stat-card"><h4>This Week</h4><p>{scanStats.weekly}</p></div>
-          <div className="stat-card"><h4>This Month</h4><p>{scanStats.monthly}</p></div>
-          <div className="stat-card"><h4>This Year</h4><p>{scanStats.yearly}</p></div>
+          <div className="stat-card">
+            <h4>Today’s Scans</h4>
+            <p>{scanStats.daily || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h4>This Week</h4>
+            <p>{scanStats.weekly || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h4>This Month</h4>
+            <p>{scanStats.monthly || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h4>This Year</h4>
+            <p>{scanStats.yearly || 0}</p>
+          </div>
         </div>
       </section>
 
-      {/* Charts */}
+      {/* --- Charts Section --- */}
       <section className="charts-container">
 
-        {/* Line Chart */}
+        {/* --- Line Chart --- */}
         <div className="chart-section">
           <h4>Predictions Over Time</h4>
           <ResponsiveContainer width="100%" height={350}>
@@ -73,9 +95,12 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart */}
+        {/* --- Pie Chart --- */}
         <div className="chart-section">
           <h4>Overall Case Distribution</h4>
+          <p style={{ textAlign: "center", marginBottom: "8px" }}>
+            Total Classifications: <strong>{totalCases}</strong>
+          </p>
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
@@ -84,25 +109,31 @@ export default function Dashboard() {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={110}
-                label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                outerRadius={120}
+                label={renderCustomLabel}
                 labelLine={false}
               >
                 {pieData.map((entry, index) => (
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                formatter={(value, name, props) => {
+                  const percent = totalCases ? ((value / totalCases) * 100).toFixed(1) : 0;
+                  return [`${value} (${percent}%)`, name];
+                }}
+              />
               <Legend layout="vertical" verticalAlign="top" align="right" />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Weekly NSP Bar Chart */}
+        {/* --- Weekly NSP Bar Chart --- */}
         <div className="chart-section">
           <h4>Weekly NSP Distribution</h4>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={weeklyNSP}>
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
@@ -113,7 +144,6 @@ export default function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
       </section>
     </div>
   );

@@ -5,6 +5,8 @@ import {
   Settings,
   User,
   LogOutIcon,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   LineChart,
@@ -17,7 +19,7 @@ import {
   Legend,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -40,10 +42,11 @@ export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("Dashboard");
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
 
-  // Fetch Fetal Health data
+  // Fetch CTG AI analysis data
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/analysis")
       .then((res) => {
@@ -60,7 +63,7 @@ export default function Dashboard() {
       });
   }, []);
 
-  // Fetch Scan Statistics
+  // Fetch scan statistics from Node.js backend
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -73,14 +76,12 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
-  // Pie chart data
   const pieData = [
     { name: "Normal", value: scanStats.nspStats.Normal },
     { name: "Suspect", value: scanStats.nspStats.Suspect },
     { name: "Pathological", value: scanStats.nspStats.Pathological },
   ];
 
-  // Handlers
   const handleLogout = () => setShowLogoutDialog(true);
   const confirmLogout = () => {
     setShowLogoutDialog(false);
@@ -94,16 +95,32 @@ export default function Dashboard() {
     navigate("/change-password");
   };
 
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
   if (loading) return <p>Loading analysis...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
   return (
     <div className="dashboard-container">
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={toggleSidebar}></div>
+      )}
+
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="logo-section">
+      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div
+          className="logo-section"
+          onClick={() => {
+            setActiveNav("Dashboard");
+            setSidebarOpen(false);
+          }}
+          style={{ cursor: "pointer" }}
+        >
           <img src="/logo.png" alt="Logo" className="logo-img" />
-          <span className="logo-text">Druk <span className="logo-e"><br />e</span>Health</span>
+          <span className="logo-text">
+            Druk <span className="logo-e"><br />e</span>Health
+          </span>
         </div>
 
         <nav className="nav-menu">
@@ -111,7 +128,10 @@ export default function Dashboard() {
             <div
               key={item}
               className={`nav-item ${activeNav === item ? "active" : ""}`}
-              onClick={() => setActiveNav(item)}
+              onClick={() => {
+                setActiveNav(item);
+                setSidebarOpen(false);
+              }}
             >
               {item === "Dashboard" && <Home size={25} />}
               {item === "Records" && <FileText size={25} />}
@@ -121,11 +141,7 @@ export default function Dashboard() {
           ))}
         </nav>
 
-        <div
-          className={`nav-item ${activeNav === "Logout" ? "active" : ""}`}
-          onClick={handleLogout}
-          id="Logout"
-        >
+        <div className="nav-item" onClick={handleLogout} id="Logout">
           <LogOutIcon size={25} /> <span>Log Out</span>
         </div>
       </aside>
@@ -133,25 +149,42 @@ export default function Dashboard() {
       {/* Main content */}
       <main className="main-content">
         <header className="header">
+          {/* Hamburger toggle button */}
+          <button className="hamburger-btn" onClick={toggleSidebar}>
+            {sidebarOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+
           <div className="admin-profile" onClick={openAdminDialog}>
             <span>Admin</span>
             <User size={20} />
           </div>
         </header>
 
-        {/* Dynamic Page Content with Fade-in */}
+        {/* Dynamic Content */}
         <div className="page-content fade-in" key={activeNav}>
           {activeNav === "Dashboard" && (
             <>
               <h2 className="section-title">Fetal Health Data Analysis</h2>
 
-              {/* Scan Stats */}
+              {/* Stats Section */}
               <section className="stats-section">
                 <div className="stats-grid">
-                  <div className="stat-card"><h4>Today’s Scans</h4><p>{scanStats.daily}</p></div>
-                  <div className="stat-card"><h4>This Week</h4><p>{scanStats.weekly}</p></div>
-                  <div className="stat-card"><h4>This Month</h4><p>{scanStats.monthly}</p></div>
-                  <div className="stat-card"><h4>This Year</h4><p>{scanStats.yearly}</p></div>
+                  <div className="stat-card">
+                    <h4>Today’s Scans</h4>
+                    <p>{scanStats.daily}</p>
+                  </div>
+                  <div className="stat-card">
+                    <h4>This Week</h4>
+                    <p>{scanStats.weekly}</p>
+                  </div>
+                  <div className="stat-card">
+                    <h4>This Month</h4>
+                    <p>{scanStats.monthly}</p>
+                  </div>
+                  <div className="stat-card">
+                    <h4>This Year</h4>
+                    <p>{scanStats.yearly}</p>
+                  </div>
                 </div>
               </section>
 
@@ -165,9 +198,30 @@ export default function Dashboard() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Line type="monotone" dataKey="N" stroke="#4d79ff" name="Normal (N)" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="S" stroke="#ffcc00" name="Suspect (S)" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="P" stroke="#ff4d4d" name="Pathological (P)" strokeWidth={2} dot={false} />
+                      <Line
+                        type="monotone"
+                        dataKey="N"
+                        stroke="#4d79ff"
+                        name="Normal (N)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="S"
+                        stroke="#ffcc00"
+                        name="Suspect (S)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="P"
+                        stroke="#ff4d4d"
+                        name="Pathological (P)"
+                        strokeWidth={2}
+                        dot={false}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -176,11 +230,29 @@ export default function Dashboard() {
                   <h4>Overall Case Distribution</h4>
                   <ResponsiveContainer width="100%" height={350}>
                     <PieChart>
-                      <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={110} label={({ percent }) => `${(percent * 100).toFixed(1)}%`} labelLine={false}>
-                        {pieData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={110}
+                        label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                        labelLine={false}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell
+                            key={index}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
                       </Pie>
                       <Tooltip />
-                      <Legend layout="vertical" verticalAlign="top" align="right" />
+                      <Legend
+                        layout="vertical"
+                        verticalAlign="top"
+                        align="right"
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -196,11 +268,18 @@ export default function Dashboard() {
         {showAdminDialog && (
           <div className="admin-dialog-overlay">
             <div className="admin-dialog">
-              <button className="back-btn" onClick={closeAdminDialog}>×</button>
+              <button className="back-btn" onClick={closeAdminDialog}>
+                ×
+              </button>
               <User size={60} className="profile-icon" />
               <h2>Admin</h2>
               <p>admin@example.com</p>
-              <button className="reset-password-btn" onClick={handleChangePassword}>Re-set Password</button>
+              <button
+                className="reset-password-btn"
+                onClick={handleChangePassword}
+              >
+                Re-set Password
+              </button>
             </div>
           </div>
         )}
@@ -212,8 +291,12 @@ export default function Dashboard() {
               <h3>Confirm Logout</h3>
               <p>Are you sure you want to logout?</p>
               <div className="dialog-buttons">
-                <button className="confirm-btn" onClick={confirmLogout}>Yes</button>
-                <button className="cancel-btn" onClick={cancelLogout}>Cancel</button>
+                <button className="confirm-btn" onClick={confirmLogout}>
+                  Yes
+                </button>
+                <button className="cancel-btn" onClick={cancelLogout}>
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
