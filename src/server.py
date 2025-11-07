@@ -1,5 +1,5 @@
 # ==========================================
-# server.py — Druk Health CTG AI Backend (FINAL)
+# server.py — Druk Health CTG AI Backend (FINAL NO-API PREFIX)
 # ==========================================
 
 from fastapi import FastAPI, File, UploadFile
@@ -37,7 +37,6 @@ ctg_collection = db["ctg_records"]
 # ------------------------------
 model_ctg_class = joblib.load("decision_tree_all_cardio_features.pkl")
 print("✅ Loaded Decision Tree model with features:\n", model_ctg_class.feature_names_in_)
-
 
 # =======================================================
 # HELPER FUNCTIONS
@@ -165,7 +164,7 @@ def home():
     return {"message": "CTG AI Prediction API is running 🚀"}
 
 
-@app.post("/api/predict/")
+@app.post("/predict/")
 async def predict_ctg(file: UploadFile = File(...)):
     """Upload CTG image → classify → save to MongoDB"""
     contents = await file.read()
@@ -194,19 +193,16 @@ async def predict_ctg(file: UploadFile = File(...)):
             os.remove(tmp_path)
 
 
-# --- Records Endpoints ---
 @app.get("/records")
-@app.get("/api/records")
 def get_records():
-    """Return full CTG scan records"""
+    """Return all prediction records"""
     records = list(ctg_collection.find({}, {"_id": 0}).sort("timestamp", -1))
     return {"records": records}
 
 
-# --- Dashboard Analysis Endpoint ---
-@app.get("/api/analysis")
+@app.get("/analysis")
 def get_analysis():
-    """Summarized chart data for dashboard"""
+    """Return summary stats for dashboard"""
     records = list(ctg_collection.find({}, {"_id": 0}))
     if not records:
         return {"predictions": [], "nspStats": {"Normal": 0, "Suspect": 0, "Pathologic": 0}}
