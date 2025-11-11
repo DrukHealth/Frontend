@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// ✅ Set your backend base URL (adjust if you're using a different port)
-const BASE_URL = "http://localhost:3000/api";
+// ✅ Use Vite environment variable, fallback to localhost if not defined
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
