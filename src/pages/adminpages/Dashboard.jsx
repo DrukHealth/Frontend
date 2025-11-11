@@ -26,6 +26,8 @@ import axios from "axios";
 import Records from "./Records";
 import Management from "./Management";
 import "./css/dashboard.css";
+import api from "../api";
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -46,35 +48,26 @@ export default function Dashboard() {
 
   const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
 
-  // Fetch CTG AI analysis data
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/analysis")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+ // Fetch FastAPI analysis
+useEffect(() => {
+  api.get("/analysis") // this will automatically use BASE_URL from .env
+    .then(res => {
+      setData(res.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      setError(err.message);
+      setLoading(false);
+    });
+}, []);
 
-  // Fetch scan statistics from Node.js backend
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/scans/stats");
-        setScanStats(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchStats();
-  }, []);
+// Fetch scan statistics from Node.js backend
+useEffect(() => {
+  api.get("/scans/stats")
+    .then(res => setScanStats(res.data))
+    .catch(err => console.error(err));
+}, []);
+
 
   const pieData = [
     { name: "Normal", value: scanStats.nspStats.Normal },
