@@ -22,20 +22,23 @@ import {
   Cell,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Records from "./Records";
 import Management from "./Management";
 import "./css/dashboard.css";
-import { nodeAPI, fastAPI } from "../../api";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
   const [scanStats, setScanStats] = useState({
     daily: 0,
     weekly: 0,
     monthly: 0,
     yearly: 0,
-    nspStats: { Normal: 0, Suspect: 0, Pathological: 0 },
+    nspStats: { Normal: 0, Suspect: 0, Pathologic: 0 },
+  });
+  const [analysisData, setAnalysisData] = useState({
+    predictions: [],
+    nspStats: {},
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,41 +46,51 @@ export default function Dashboard() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
 
-  // ✅ Fetch CTG AI analysis data (FastAPI backend)
+  const COLORS = ["#4d79ff", "#ffcc00", "#ff4d4d"]; // Normal, Suspect, Pathologic
+
+  // Fetch analysis (from FastAPI)
   useEffect(() => {
-    const fetchAnalysis = async () => {
-      try {
-        const res = await fastAPI.get("/api/analysis"); // ✅ use FastAPI instance
-        setData(res.data);
-      } catch (err) {
-        console.error("Error fetching CTG analysis:", err);
-        setError("Failed to fetch CTG analysis");
-      } finally {
+    fetch("http://localhost:8000/api/analysis")
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then((data) => {
+        setAnalysisData(data);
+        setScanStats((prev) => ({
+          ...prev,
+          nspStats: {
+            Normal: data.nspStats?.Normal || 0,
+            Suspect: data.nspStats?.Suspect || 0,
+            Pathologic: data.nspStats?.Pathologic || 0,
+          },
+        }));
         setLoading(false);
-      }
-    };
-    fetchAnalysis();
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
-  // ✅ Fetch scan statistics (Node.js backend)
+  // Fetch scan stats (from Node backend)
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await nodeAPI.get("/scans/stats"); // ✅ use Node API instance
-        setScanStats(res.data);
+        const res = await axios.get("http://localhost:5000/api/scans/stats");
+        setScanStats((prev) => ({ ...prev, ...res.data }));
       } catch (err) {
-        console.error("Error fetching scan stats:", err);
+        console.error(err);
       }
     };
     fetchStats();
   }, []);
 
   const pieData = [
-    { name: "Normal", value: scanStats.nspStats.Normal },
-    { name: "Suspect", value: scanStats.nspStats.Suspect },
-    { name: "Pathological", value: scanStats.nspStats.Pathological },
+    { name: "Normal", value: scanStats.nspStats.Normal || 0 },
+    { name: "Suspect", value: scanStats.nspStats.Suspect || 0 },
+    { name: "Pathologic", value: scanStats.nspStats.Pathologic || 0 },
   ];
 
   const handleLogout = () => setShowLogoutDialog(true);
@@ -92,7 +105,6 @@ export default function Dashboard() {
     setShowAdminDialog(false);
     navigate("/change-password");
   };
-
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   if (loading) return <p>Loading analysis...</p>;
@@ -100,12 +112,9 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div className="sidebar-overlay" onClick={toggleSidebar}></div>
       )}
-
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div
           className="logo-section"
@@ -117,7 +126,7 @@ export default function Dashboard() {
         >
           <img src="/logo.png" alt="Logo" className="logo-img" />
           <span className="logo-text">
-            Druk <span className="logo-e"><br />e</span>Health
+            Druk <span className="logo-e">e</span>Health
           </span>
         </div>
 
@@ -144,27 +153,22 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="main-content">
         <header className="header">
-          {/* Hamburger toggle button */}
           <button className="hamburger-btn" onClick={toggleSidebar}>
             {sidebarOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
-
           <div className="admin-profile" onClick={openAdminDialog}>
             <span>Admin</span>
             <User size={20} />
           </div>
         </header>
 
-        {/* Dynamic Content */}
         <div className="page-content fade-in" key={activeNav}>
           {activeNav === "Dashboard" && (
             <>
               <h2 className="section-title">Fetal Health Data Analysis</h2>
 
-              {/* Stats Section */}
               <section className="stats-section">
                 <div className="stats-grid">
                   <div className="stat-card">
@@ -186,16 +190,16 @@ export default function Dashboard() {
                 </div>
               </section>
 
-              {/* Charts */}
               <section className="charts-container">
                 <div className="chart-section">
                   <h4>Predictions Over Time</h4>
                   <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={data?.predictions || []}>
+                    <LineChart data={analysisData.predictions}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
+                      <Legend />
                       <Line
                         type="monotone"
                         dataKey="N"
@@ -216,11 +220,10 @@ export default function Dashboard() {
                         type="monotone"
                         dataKey="P"
                         stroke="#ff4d4d"
-                        name="Pathological (P)"
+                        name="Pathologic (P)"
                         strokeWidth={2}
                         dot={false}
                       />
-                      <Legend />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -235,16 +238,26 @@ export default function Dashboard() {
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={110}
-                        label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
-                        labelLine={false}
+                        label={({ percent }) =>
+                          `${(percent * 100).toFixed(1)}%`
+                        }
+                        labelLine
                       >
                         {pieData.map((entry, index) => (
-                          <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={index}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
-                      <Tooltip />
-                      <Legend layout="vertical" verticalAlign="top" align="right" />
+                      <Tooltip
+                        formatter={(value, name) => [`${value}`, name]}
+                      />
+                      <Legend
+                        layout="vertical"
+                        verticalAlign="top"
+                        align="right"
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -256,27 +269,28 @@ export default function Dashboard() {
           {activeNav === "Management" && <Management />}
         </div>
 
-        {/* Admin Dialog */}
         {showAdminDialog && (
           <div className="admin-dialog-overlay">
             <div className="admin-dialog">
-              <button className="back-btn" onClick={closeAdminDialog}>
+              <button className="close-btn" onClick={closeAdminDialog}>
                 ×
               </button>
               <User size={60} className="profile-icon" />
               <h2>Admin</h2>
               <p>admin@example.com</p>
-              <button
-                className="reset-password-btn"
-                onClick={handleChangePassword}
-              >
-                Re-set Password
-              </button>
+
+              <div className="admin-dialog-buttons">
+                <button
+                  className="reset-password-btn"
+                  onClick={handleChangePassword}
+                >
+                  Re-set Password
+                </button>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Logout Dialog */}
         {showLogoutDialog && (
           <div className="logout-dialog-overlay">
             <div className="logout-dialog">

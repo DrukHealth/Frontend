@@ -86,7 +86,7 @@ export default function Result() {
         minHeight: "100vh",
       }}
     >
-      {/* Navbar */}
+      {/* Navigation Bar */}
       <nav
         className="navbar"
         style={{
@@ -97,30 +97,42 @@ export default function Result() {
           backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "90px",
-          borderBottomLeftRadius: "16px",
-          borderBottomRightRadius: "16px",
         }}
       >
+        {/* Left: Logo - Extreme left with no spacing */}
         <div
           onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center",
+            marginLeft: "-30px",
+          }}
         >
-          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
+          <img 
+            src="/Latestlogo.png" 
+            alt="Druk eHealth Logo" 
+            style={{ height: "115px" }} 
+          />
         </div>
 
+        {/* Center: Title */}
         <div
-          className="result-title"
           style={{
             fontWeight: "bold",
             textAlign: "center",
-            flex: 1,
-            fontSize: "1.7rem",
             color: darkMode ? "#EAEAEA" : "#0d52bd",
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
           }}
         >
-          CTG Diagnosis Result
+          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
+            CTG Result
+          </span>
         </div>
 
+        {/* Right: Dark Mode Toggle */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{

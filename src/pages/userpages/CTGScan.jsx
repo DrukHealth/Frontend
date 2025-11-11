@@ -120,49 +120,52 @@ export default function CTGScan() {
         theme={darkMode ? "dark" : "light"}
       />
 
-      {/* Navbar */}
+       {/* Navigation Bar */}
       <nav
+        className="navbar"
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "10px 20px",
+          padding: "10px 20px", // Keep original padding for dark mode
           backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "92px",
-          borderBottomLeftRadius: "16px",
-          borderBottomRightRadius: "16px",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
+          height: "90px",
         }}
       >
+        {/* Left: Logo - Extreme left with no spacing */}
         <div
           onClick={() => navigate("/home")}
-          style={{
-            cursor: "pointer",
-            display: "flex",
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
             alignItems: "center",
+            marginLeft: "-30px", // Negative margin to counteract navbar padding
           }}
         >
-          <img
-            src="/Latestlogo.png"
-            alt="Druk eHealth Logo"
-            style={{ height: "115px" }}
+          <img 
+            src="/Latestlogo.png" 
+            alt="Druk eHealth Logo" 
+            style={{ height: "115px" }} 
           />
         </div>
 
+        {/* Center: Title */}
         <div
           style={{
-            fontSize: "1.8rem",
             fontWeight: "bold",
-            flex: 1,
             textAlign: "center",
+            color: darkMode ? "#EAEAEA" : "#0d52bd",
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
           }}
         >
-          CTG Scan
+          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
+            CTG Scan          </span>
         </div>
 
+        {/* Right: Dark Mode Toggle - Keep previous spacing */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
@@ -265,12 +268,12 @@ export default function CTGScan() {
                 justifyContent: "center",
               }}
             >
-              <button
+              {/* <button
                 onClick={handleCapture}
                 style={primaryButtonStyle(darkMode)}
               >
                 Scan CTG Record 
-              </button>
+              </button> */}
               <label htmlFor="fileUpload" style={primaryButtonStyle(darkMode)}>
                 Upload CTG Record
               </label>
@@ -367,3 +370,4 @@ const actionButtonsContainer = {
   gap: "1rem",
   justifyContent: "center",
 };
+

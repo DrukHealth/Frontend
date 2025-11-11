@@ -8,6 +8,8 @@ import Home from "./pages/userpages/Home.jsx";
 import CTGScan from "./pages/userpages/CTGScan.jsx";
 import Diagnosis from "./pages/userpages/Diagnosis.jsx";
 import Result from "./pages/userpages/Result.jsx";
+import ComingSoon from "./pages/userpages/comingsoon.jsx";
+
 
 // === Admin Pages ===
 import LoginPage from "./pages/adminpages/LoginPage.jsx";
@@ -26,6 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/ctg-scan" element={<CTGScan />} />
       <Route path="/diagnosis" element={<Diagnosis />} />
       <Route path="/result" element={<Result />} />
+       <Route path="/guidelines" element={<ComingSoon />} />
+      <Route path="/otg" element={<ComingSoon />} />
+
 
       {/* ==== ADMIN ROUTES ==== */}
       <Route path="/login" element={<LoginPage />} />

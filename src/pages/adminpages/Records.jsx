@@ -1,56 +1,235 @@
 import { useEffect, useState } from "react";
+import { Loader2, Trash2, Image as ImageIcon } from "lucide-react";
 import "./css/RecordUI.css";
 
 export default function Records({ darkMode }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [popupImage, setPopupImage] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const recordsPerPage = 5;
+  const fastAPI = import.meta.env.VITE_FASTAPI_URL || "http://localhost:8000";
+
+  // -----------------------------
+  // Fetch records (only keep ones with image + features)
+  // -----------------------------
   useEffect(() => {
-    const fetchRecords = async () => {
+    const load = async () => {
       try {
-        const res = await fetch("http://localhost:8000/records");
+        const res = await fetch(`${fastAPI}/records`);
+        if (!res.ok) throw new Error("Failed to fetch records");
         const data = await res.json();
-        setRecords(data.records);
-      } catch (err) {
-        console.error("Failed to fetch records:", err);
+
+        // Raw records from backend
+        const raw = data.records || [];
+
+        // ✅ Keep ONLY records that have BOTH imageUrl AND non-empty features
+        const filtered = raw.filter((r) => {
+          const hasImage = !!r.imageUrl;
+          const hasFeatures =
+            r.features && Object.keys(r.features || {}).length > 0;
+          return hasImage && hasFeatures;
+        });
+
+        // ✅ Sort newest → oldest by timestamp
+        const sorted = filtered.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+        );
+
+        setRecords(sorted);
+      } catch (e) {
+        console.error(e);
+        setError("⚠️ Unable to load CTG records.");
       } finally {
         setLoading(false);
       }
     };
-    fetchRecords();
-  }, []);
 
-  if (loading) return <p>Loading records...</p>;
-  if (!records.length) return <p>No records found yet.</p>;
+    load();
+  }, [fastAPI]);
 
+  // -----------------------------
+  // Delete a record
+  // -----------------------------
+  const handleDelete = async (id) => {
+    if (!id) return;
+    try {
+      const res = await fetch(`${fastAPI}/records/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+
+      // Remove from UI
+      setRecords((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  };
+
+  // -----------------------------
+  // Pagination logic
+  // -----------------------------
+  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const currentRecords = records.slice(
+    startIndex,
+    startIndex + recordsPerPage
+  );
+
+  // -----------------------------
+  // Loading / error states
+  // -----------------------------
+  if (loading)
+    return (
+      <div className="loading-container">
+        <Loader2 className="spinner" />
+        <p>Loading CTG Records...</p>
+      </div>
+    );
+
+  if (error) return <p className="error">{error}</p>;
+  if (!records.length)
+    return <p className="no-records">No CTG scan records found yet.</p>;
+
+  // -----------------------------
+  // Render
+  // -----------------------------
   return (
     <div className={`records-container ${darkMode ? "dark-mode" : ""}`}>
-      <h2>CTG Scan Records</h2>
+      <h2>📊 CTG Scan Records</h2>
+
       <div className="table-wrapper">
         <table className="records-table">
           <thead>
             <tr>
-              <th>Timestamp</th>
-              <th>Label</th>
-              {/* Dynamically get all feature names from the first record */}
-              {Object.keys(records[0].features).map((feature) => (
-                <th key={feature}>{feature}</th>
-              ))}
+              <th>#</th>
+              <th>Timestamp (Bhutan Time)</th>
+              <th>Detected Class</th>
+              <th>Image</th>
+              {/* dynamically render feature columns */}
+              {records[0]?.features &&
+                Object.keys(records[0].features).map((f) => (
+                  <th key={f}>{f}</th>
+                ))}
+              <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {records.map((rec, idx) => (
-              <tr key={idx}>
-                <td>{new Date(rec.timestamp).toLocaleString()}</td>
-                <td>{rec.label}</td>
-                {Object.values(rec.features).map((val, i) => (
-                  <td key={i}>{val}</td>
-                ))}
+            {currentRecords.map((r, i) => (
+              <tr key={r.id}>
+                {/* Global index across pages */}
+                <td>{startIndex + i + 1}</td>
+
+                {/* Timestamp */}
+                <td>
+                  {r.timestamp
+                    ? new Date(r.timestamp).toLocaleString("en-BT", {
+                        timeZone: "Asia/Thimphu",
+                      })
+                    : "N/A"}
+                </td>
+
+                {/* CTG label */}
+                <td
+                  className={`label-cell ${
+                    r.ctgDetected === "Normal"
+                      ? "label-normal"
+                      : r.ctgDetected === "Suspect"
+                      ? "label-suspect"
+                      : "label-pathologic"
+                  }`}
+                >
+                  {r.ctgDetected || "N/A"}
+                </td>
+
+                {/* Image */}
+                <td>
+                  {r.imageUrl ? (
+                    <div
+                      className="thumb-overlay"
+                      onClick={() => setPopupImage(r.imageUrl)}
+                    >
+                      <img
+                        src={r.imageUrl}
+                        alt="CTG"
+                        className="thumb-img"
+                      />
+                      <div className="overlay-icon">
+                        <ImageIcon size={16} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="no-thumb">No Image</div>
+                  )}
+                </td>
+
+                {/* Features */}
+                {r.features &&
+                  Object.values(r.features).map((v, j) => (
+                    <td key={j}>{Number(v).toFixed(2)}</td>
+                  ))}
+
+                {/* Delete */}
+                <td>
+                  <button
+                    onClick={() => setConfirmDeleteId(r.id)}
+                    className="delete-btn flex items-center gap-1"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          onClick={() => setCurrentPage((p) => p - 1)}
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+        <span>
+          {currentPage}/{totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage((p) => p + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Delete confirmation modal */}
+      {confirmDeleteId && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <p>Delete this record?</p>
+            <div className="modal-buttons">
+              <button onClick={() => handleDelete(confirmDeleteId)}>Yes</button>
+              <button onClick={() => setConfirmDeleteId(null)}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full image popup */}
+      {popupImage && (
+        <div className="image-popup" onClick={() => setPopupImage(null)}>
+          <span className="close-btn">×</span>
+          <img src={popupImage} alt="Full CTG" />
+        </div>
+      )}
     </div>
   );
 }
