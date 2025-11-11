@@ -22,12 +22,10 @@ import {
   Cell,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Records from "./Records";
 import Management from "./Management";
 import "./css/dashboard.css";
-import api from "../api";
-
+import { nodeAPI, fastAPI } from "../../api";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -45,29 +43,36 @@ export default function Dashboard() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const COLORS = ["#4d79ff", "#ffa64d", "#ff4d4d"];
 
- // Fetch FastAPI analysis
-useEffect(() => {
-  api.get("/analysis") // this will automatically use BASE_URL from .env
-    .then(res => {
-      setData(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      setError(err.message);
-      setLoading(false);
-    });
-}, []);
+  // ✅ Fetch CTG AI analysis data (FastAPI backend)
+  useEffect(() => {
+    const fetchAnalysis = async () => {
+      try {
+        const res = await fastAPI.get("/api/analysis"); // ✅ use FastAPI instance
+        setData(res.data);
+      } catch (err) {
+        console.error("Error fetching CTG analysis:", err);
+        setError("Failed to fetch CTG analysis");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalysis();
+  }, []);
 
-// Fetch scan statistics from Node.js backend
-useEffect(() => {
-  api.get("/scans/stats")
-    .then(res => setScanStats(res.data))
-    .catch(err => console.error(err));
-}, []);
-
+  // ✅ Fetch scan statistics (Node.js backend)
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await nodeAPI.get("/scans/stats"); // ✅ use Node API instance
+        setScanStats(res.data);
+      } catch (err) {
+        console.error("Error fetching scan stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const pieData = [
     { name: "Normal", value: scanStats.nspStats.Normal },
@@ -186,7 +191,7 @@ useEffect(() => {
                 <div className="chart-section">
                   <h4>Predictions Over Time</h4>
                   <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={data.predictions}>
+                    <LineChart data={data?.predictions || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis />
@@ -215,6 +220,7 @@ useEffect(() => {
                         strokeWidth={2}
                         dot={false}
                       />
+                      <Legend />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -234,18 +240,11 @@ useEffect(() => {
                         labelLine={false}
                       >
                         {pieData.map((entry, index) => (
-                          <Cell
-                            key={index}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                          <Cell key={index} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="top"
-                        align="right"
-                      />
+                      <Legend layout="vertical" verticalAlign="top" align="right" />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>

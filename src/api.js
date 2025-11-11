@@ -1,13 +1,23 @@
 import axios from "axios";
 
-// ✅ Use Vite environment variable, fallback to localhost if not defined
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+// 🧠 Use environment variables for flexibility
+const NODE_API_BASE_URL = import.meta.env.VITE_NODE_API_BASE_URL || "http://localhost:5000/api";
+const FASTAPI_BASE_URL = import.meta.env.VITE_FASTAPI_BASE_URL || "http://127.0.0.1:8000";
 
-const api = axios.create({
-  baseURL: BASE_URL,
+// 🟢 Create separate axios instances
+export const nodeAPI = axios.create({
+  baseURL: NODE_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export default api;
+export const fastAPI = axios.create({
+  baseURL: FASTAPI_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// 🧩 Default export — Node API (most routes come from Node backend)
+export default nodeAPI;
