@@ -1,50 +1,47 @@
 import React, { useState, useEffect } from "react";
-import {
-  Home,
-  FileText,
-  Settings,
-  FileSearch,
-  User,
-  Plus,
-  Edit,
-  Trash2,
-  X,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Edit, Trash2, X } from "lucide-react";
 import "./css/management.css";
 
 export default function Management() {
   const [admins, setAdmins] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const navigate = useNavigate();
+  // Base API URL - adjust according to your actual backend URL
+  const API_BASE_URL = "http://localhost:5000/api/manage";
 
-  // Fetch admins on component mount
   useEffect(() => {
     fetchAdmins();
   }, []);
 
   const fetchAdmins = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/management");
-
-      if (response.ok) {
-        const result = await response.json();
-        setAdmins(result.data);
+      const response = await fetch(API_BASE_URL);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setAdmins(result.data || []);
       } else {
-        console.error("Failed to fetch admins");
-        alert("Failed to load admins. Please check if the server is running.");
+        console.error("Failed to fetch admins:", result.message);
+        setAdmins([]);
       }
     } catch (error) {
       console.error("Error fetching admins:", error);
-      alert(
-        "Error connecting to server. Please make sure the backend is running on port 5000."
-      );
+      alert("Failed to fetch admins. Please check your connection.");
+      setAdmins([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,20 +55,28 @@ export default function Management() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const url = editingAdmin
-        ? `http://localhost:5000/api/management/${editingAdmin._id}`
-        : "http://localhost:5000/api/management/register";
+        ? `${API_BASE_URL}/${editingAdmin.id || editingAdmin._id}`
+        : `${API_BASE_URL}/register`;
 
       const method = editingAdmin ? "PUT" : "POST";
+
+      const payload = { ...formData };
+      
+      // For update, don't send password if it's empty
+      if (editingAdmin && !payload.password) {
+        delete payload.password;
+      }
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -92,6 +97,8 @@ export default function Management() {
     } catch (error) {
       console.error("Error saving admin:", error);
       alert("Error saving admin. Please check your connection.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,14 +111,15 @@ export default function Management() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (adminId) => {
     if (!window.confirm("Are you sure you want to delete this admin?")) {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/management/${id}`,
+        `${API_BASE_URL}/${adminId}`,
         {
           method: "DELETE",
         }
@@ -127,7 +135,9 @@ export default function Management() {
       }
     } catch (error) {
       console.error("Error deleting admin:", error);
-      alert("Error deleting admin");
+      alert("Error deleting admin. Please check your connection.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,99 +147,78 @@ export default function Management() {
     setShowModal(false);
   };
 
+  // Helper function to get admin ID (handles both _id and id)
+  const getAdminId = (admin) => {
+    return admin.id || admin._id;
+  };
+
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="logo-section">
-          <div className="logo-circle">
-            <img src="/logo.png" alt="Logo" className="logo-img" />
-          </div>
-          <h2 className="logo-text">Dashboard</h2>
+    <div className="management-container">
+      <section className="management-section">
+        <div className="section-header">
+          <h1>Admin Management</h1>
+          <button 
+            className="add-button" 
+            onClick={() => setShowModal(true)}
+            disabled={loading}
+          >
+            <Plus size={18} />
+            Add Admin
+          </button>
         </div>
 
-        <nav className="nav-menu">
-          <div className="nav-item" onClick={() => navigate("/dashboard")}>
-            <Home size={18} /> <span>Home</span>
-          </div>
-          <div className="nav-item">
-            <FileText size={18} /> <span>Records</span>
-          </div>
-          <div className="nav-item active">
-            <Settings size={18} /> <span>Management</span>
-          </div>
-          <div className="nav-item">
-            <FileSearch size={18} /> <span>Record Log</span>
-          </div>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="header">
-          <div className="admin-profile">
-            <span>Admin Panel</span>
-            <User size={20} />
-          </div>
-        </header>
-
-        <section className="management-section">
-          <div className="section-header">
-            <h1>Admin Management</h1>
-            <button className="add-button" onClick={() => setShowModal(true)}>
-              <Plus size={18} />
-              Add Admin
-            </button>
-          </div>
-
-          <div className="admins-table-container">
-            {admins.length === 0 ? (
-              <div className="empty-state">
-                <p>No admins found. Click "Add Admin" to create the first one.</p>
-              </div>
-            ) : (
-              <div className="admins-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Created At</th>
-                      <th>Updated At</th>
-                      <th>Actions</th>
+        <div className="admins-table-container">
+          {loading ? (
+            <div className="loading-state">
+              <p>Loading admins...</p>
+            </div>
+          ) : !admins || admins.length === 0 ? (
+            <div className="empty-state">
+              <p>No admins found. Click "Add Admin" to create the first one.</p>
+            </div>
+          ) : (
+            <div className="admins-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {admins.map((admin) => (
+                    <tr key={getAdminId(admin)}>
+                      <td className="email-cell">{admin.email}</td>
+                      <td>{new Date(admin.createdAt).toLocaleDateString()}</td>
+                      <td>{new Date(admin.updatedAt).toLocaleDateString()}</td>
+                      <td className="actions">
+                        <button
+                          className="edit-btn"
+                          onClick={() => handleEdit(admin)}
+                          title="Edit admin"
+                          disabled={loading}
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(getAdminId(admin))}
+                          title="Delete admin"
+                          disabled={loading}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {admins.map((admin) => (
-                      <tr key={admin._id}>
-                        <td className="email-cell">{admin.email}</td>
-                        <td>{new Date(admin.createdAt).toLocaleDateString()}</td>
-                        <td>{new Date(admin.updatedAt).toLocaleDateString()}</td>
-                        <td className="actions">
-                          <button
-                            className="edit-btn"
-                            onClick={() => handleEdit(admin)}
-                            title="Edit admin"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            className="delete-btn"
-                            onClick={() => handleDelete(admin._id)}
-                            title="Delete admin"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </section>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-        {/* Add/Edit Modal */}
         {showModal && (
           <div className="modal-overlay">
             <div className="modal">
@@ -250,6 +239,7 @@ export default function Management() {
                     onChange={handleInputChange}
                     required
                     placeholder="Enter admin email"
+                    disabled={loading}
                   />
                 </div>
 
@@ -267,6 +257,7 @@ export default function Management() {
                         ? "Leave blank to keep current password"
                         : "Enter password (min 6 characters)"
                     }
+                    disabled={loading}
                   />
                 </div>
 
@@ -275,18 +266,23 @@ export default function Management() {
                     type="button"
                     onClick={resetForm}
                     className="cancel-btn"
+                    disabled={loading}
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="save-btn">
-                    {editingAdmin ? "Update" : "Create"} Admin
+                  <button 
+                    type="submit" 
+                    className="save-btn"
+                    disabled={loading}
+                  >
+                    {loading ? "Processing..." : editingAdmin ? "Update" : "Create"} Admin
                   </button>
                 </div>
               </form>
             </div>
           </div>
         )}
-      </main>
+      </section>
     </div>
   );
 }
