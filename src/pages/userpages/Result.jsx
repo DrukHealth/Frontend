@@ -1,5 +1,3 @@
-
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./css/Result.css";
@@ -7,66 +5,49 @@ import "./css/Result.css";
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Data passed from CTGScan.jsx
   const imageFile = location.state?.imageFile;
+  const imagePreviewState = location.state?.imagePreview;
+  const resultData = location.state?.result;
 
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [label, setLabel] = useState("");
-  const [features, setFeatures] = useState({});
+  const [imagePreview, setImagePreview] = useState(imagePreviewState || null);
+  const [label, setLabel] = useState(resultData?.label || "");
+  const [features, setFeatures] = useState(resultData?.features || {});
   const [darkMode, setDarkMode] = useState(false);
-  const [isNonCTG, setIsNonCTG] = useState(false);
+  const [loading, setLoading] = useState(!resultData);
 
-  // -----------------------------
-  // Send image to backend for prediction
-  // -----------------------------
+  // Handle cases where user opens result page directly
   useEffect(() => {
-    if (!imageFile) return;
+    if (!imageFile || !resultData) {
+      setLoading(false);
+      return;
+    }
 
-    setImagePreview(URL.createObjectURL(imageFile));
+    // Preview from state
+    if (!imagePreview) {
+      setImagePreview(URL.createObjectURL(imageFile));
+    }
 
-    const sendForPrediction = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("file", imageFile);
+    // Load prediction from state
+    setLabel(resultData.label);
+    setFeatures(resultData.features);
+    setLoading(false);
+  }, [imageFile, resultData]);
 
-        const res = await fetch("http://localhost:8000/predict/", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        setLabel(data.label || "Unknown");
-        setFeatures(data.features || {});
-        setIsNonCTG(data.label?.toLowerCase().includes("non ctg"));
-      } catch (err) {
-        console.error("Prediction failed:", err);
-        alert("Prediction failed! Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    sendForPrediction();
-  }, [imageFile]);
-
-  // -----------------------------
-  // If user lands here without uploading image
-  // -----------------------------
-  if (!imageFile) {
+  // If user came without image or prediction
+  if (!imageFile || !resultData) {
     return (
       <div
-        className={`no-image ${darkMode ? "dark-mode" : ""}`}
+        className="no-image"
         style={{
-          backgroundColor: darkMode ? "#121212" : "#FFFFFF",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          textAlign: "center",
+          paddingTop: "5rem",
           minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
         }}
       >
-        <p>No image provided. Please go back to the scan page.</p>
+        <p>No CTG data found. Please scan again.</p>
         <button onClick={() => navigate("/ctg-scan")} className="return-btn">
           Return to CTG Scan
         </button>
@@ -74,9 +55,6 @@ export default function Result() {
     );
   }
 
-  // -----------------------------
-  // Main UI
-  // -----------------------------
   return (
     <div
       className="result-container"
@@ -99,40 +77,28 @@ export default function Result() {
           height: "90px",
         }}
       >
-        {/* Left: Logo - Extreme left with no spacing */}
         <div
           onClick={() => navigate("/home")}
-          style={{ 
-            cursor: "pointer", 
-            display: "flex", 
-            alignItems: "center",
-            marginLeft: "-30px",
-          }}
+          style={{ cursor: "pointer", marginLeft: "-30px" }}
         >
-          <img 
-            src="/Latestlogo.png" 
-            alt="Druk eHealth Logo" 
-            style={{ height: "115px" }} 
+          <img
+            src="/Latestlogo.png"
+            alt="Druk eHealth Logo"
+            style={{ height: "115px" }}
           />
         </div>
 
-        {/* Center: Title */}
         <div
           style={{
             fontWeight: "bold",
-            textAlign: "center",
-            color: darkMode ? "#EAEAEA" : "#0d52bd",
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
           }}
         >
-          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
-            CTG Result
-          </span>
+          <span style={{ fontSize: "1.8rem" }}>CTG Result</span>
         </div>
 
-        {/* Right: Dark Mode Toggle */}
         <div style={{ display: "flex", alignItems: "center" }}>
           <label
             style={{
@@ -153,12 +119,12 @@ export default function Result() {
                 position: "absolute",
                 cursor: "pointer",
                 top: 0,
+                bottom: 0,
                 left: 0,
                 right: 0,
-                bottom: 0,
                 backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
                 borderRadius: "34px",
+                transition: "0.4s",
               }}
             >
               <span
@@ -169,8 +135,8 @@ export default function Result() {
                   left: darkMode ? "26px" : "4px",
                   bottom: "4px",
                   backgroundColor: "white",
-                  transition: "0.4s",
                   borderRadius: "50%",
+                  transition: "0.4s",
                 }}
               ></span>
             </span>
@@ -180,12 +146,14 @@ export default function Result() {
 
       {/* Main Body */}
       <div className="result-body fade-in">
+        {/* Image Preview */}
         {imagePreview && (
           <div className="preview">
             <img src={imagePreview} alt="CTG Preview" className="preview-img" />
           </div>
         )}
 
+        {/* Prediction */}
         {loading ? (
           <p className="analyzing-text">🔍 Analyzing image...</p>
         ) : (
@@ -205,8 +173,8 @@ export default function Result() {
           </div>
         )}
 
-        {/* Feature Table */}
-        {!loading && !isNonCTG && Object.keys(features).length > 0 && (
+        {/* Features Table */}
+        {!loading && features && Object.keys(features).length > 0 && (
           <div className="feature-section">
             <h3>Extracted Features</h3>
             <div className="table-wrapper">
@@ -221,7 +189,7 @@ export default function Result() {
                   {Object.entries(features).map(([key, value]) => (
                     <tr key={key}>
                       <td>{key}</td>
-                      <td>{value}</td>
+                      <td>{Number(value).toFixed(3)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -230,11 +198,9 @@ export default function Result() {
           </div>
         )}
 
-        {!loading && (
-          <button onClick={() => navigate("/ctg-scan")} className="return-btn">
-            Return to CTG Scan
-          </button>
-        )}
+        <button onClick={() => navigate("/ctg-scan")} className="return-btn">
+          Return to CTG Scan
+        </button>
       </div>
 
       {/* Footer */}
@@ -246,10 +212,10 @@ export default function Result() {
         }}
       >
         <p>
-          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.
+          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health.
+          All rights reserved.
         </p>
       </footer>
     </div>
   );
 }
-

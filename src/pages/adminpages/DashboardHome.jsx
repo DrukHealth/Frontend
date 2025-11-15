@@ -7,6 +7,12 @@ import {
 
 const COLORS = ["#4d79ff", "#ffcc00", "#ff4d4d"]; // Normal, Suspect, Pathological
 
+// ===============================
+// 🔗 Deployed API URLs
+// ===============================
+const NODE_API = "https://backend-drukhealth.onrender.com/api";
+const FASTAPI = "https://fastapi-backend-yrc0.onrender.com";
+
 export default function Dashboard() {
   const [scanStats, setScanStats] = useState({});
   const [analysisData, setAnalysisData] = useState({ predictions: [] });
@@ -24,23 +30,30 @@ export default function Dashboard() {
   const totalCases = pieData.reduce((sum, item) => sum + item.value, 0);
 
   useEffect(() => {
-    // Fetch scan stats
-    fetch("http://localhost:8000/api/scans/stats")
-      .then(res => res.json())
-      .then(data => setScanStats(data))
-      .catch(err => console.error(err));
+    // -------------------------------
+    // 🟦 Fetch scan stats (Node.js)
+    // -------------------------------
+    fetch(`${NODE_API}/scans/stats`)
+      .then((res) => res.json())
+      .then((data) => setScanStats(data))
+      .catch((err) => console.error("Node stats error:", err));
 
-    // Fetch line chart predictions
-    fetch("http://localhost:8000/api/analysis")
-      .then(res => res.json())
-      .then(data => setAnalysisData(data))
-      .catch(err => console.error(err));
+    // -------------------------------
+    // 🟣 Fetch predictions (FastAPI)
+    // -------------------------------
+    fetch(`${FASTAPI}/api/analysis`)
+      .then((res) => res.json())
+      .then((data) => setAnalysisData(data))
+      .catch((err) => console.error("FastAPI analysis error:", err));
 
-    // Fetch weekly NSP distribution
-    fetch("http://localhost:8000/api/analysis/weekly-nsp")
-      .then(res => res.json())
-      .then(data => setWeeklyNSP(data))
-      .catch(err => console.error(err));
+    // -------------------------------
+    // 🟣 Fetch weekly NSP (FastAPI)
+    // (If you have this route)
+    // -------------------------------
+    fetch(`${FASTAPI}/api/analysis/weekly-nsp`)
+      .then((res) => res.json())
+      .then((data) => setWeeklyNSP(data))
+      .catch((err) => console.error("FastAPI weekly NSP error:", err));
   }, []);
 
   // --- Custom Pie Label ---
@@ -101,6 +114,7 @@ export default function Dashboard() {
           <p style={{ textAlign: "center", marginBottom: "8px" }}>
             Total Classifications: <strong>{totalCases}</strong>
           </p>
+
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
@@ -117,13 +131,21 @@ export default function Dashboard() {
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
+
               <Tooltip
-                formatter={(value, name, props) => {
-                  const percent = totalCases ? ((value / totalCases) * 100).toFixed(1) : 0;
+                formatter={(value, name) => {
+                  const percent = totalCases
+                    ? ((value / totalCases) * 100).toFixed(1)
+                    : 0;
                   return [`${value} (${percent}%)`, name];
                 }}
               />
-              <Legend layout="vertical" verticalAlign="top" align="right" />
+
+              <Legend
+                layout="vertical"
+                verticalAlign="top"
+                align="right"
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

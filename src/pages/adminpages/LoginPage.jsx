@@ -13,6 +13,13 @@ const LoginPage = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const handleForgotPassword = () => navigate("/forgot-password");
 
+  // ================================
+  // 🚀 Render Backend URL
+  // ================================
+  const NODE_API =
+    import.meta.env.VITE_NODE_BACKEND ||
+    "https://backend-drukhealth.onrender.com";
+
   const handleLogin = async () => {
     if (!email || !password) {
       alert("Please enter both email and password");
@@ -22,11 +29,12 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // ✅ Super admin vs normal admin
+      // Determine login type
       const isSuperAdmin = email.endsWith("@zhiwa-ctg.app");
+
       const endpoint = isSuperAdmin
-        ? "http://localhost:5000/auth/login"
-        : "http://localhost:5000/api/management/login";
+        ? `${NODE_API}/auth/login`
+        : `${NODE_API}/api/manage/login`;
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -36,16 +44,21 @@ const LoginPage = () => {
 
       const data = await response.json();
 
-      // ✅ Check for token
       if (response.ok && data.token) {
+        // SUPER ADMIN LOGIN
         if (isSuperAdmin) {
           localStorage.setItem("superAdminToken", data.token);
           localStorage.setItem("superAdminEmail", data.email || email);
+
           alert("Super Admin Login Successful ✅");
           navigate("/dashboard");
-        } else {
+        }
+
+        // NORMAL ADMIN LOGIN
+        else {
           localStorage.setItem("adminToken", data.token);
           localStorage.setItem("adminEmail", data.data?.email || email);
+
           alert("Admin Login Successful ✅");
           navigate("/management");
         }

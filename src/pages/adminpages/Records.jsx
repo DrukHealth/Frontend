@@ -11,22 +11,27 @@ export default function Records({ darkMode }) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const recordsPerPage = 5;
-  const fastAPI = import.meta.env.VITE_FASTAPI_URL || "http://localhost:8000";
+
+  // ================================
+  // 🚀 FASTAPI DEPLOYED BACKEND
+  // ================================
+  const fastAPI =
+    import.meta.env.VITE_FASTAPI_URL ||
+    "https://fastapi-backend-yrc0.onrender.com";
 
   // -----------------------------
-  // Fetch records (only keep ones with image + features)
+  // Fetch records (only ones with image + features)
   // -----------------------------
   useEffect(() => {
     const load = async () => {
       try {
         const res = await fetch(`${fastAPI}/records`);
         if (!res.ok) throw new Error("Failed to fetch records");
-        const data = await res.json();
 
-        // Raw records from backend
+        const data = await res.json();
         const raw = data.records || [];
 
-        // ✅ Keep ONLY records that have BOTH imageUrl AND non-empty features
+        // Keep only valid records
         const filtered = raw.filter((r) => {
           const hasImage = !!r.imageUrl;
           const hasFeatures =
@@ -34,7 +39,6 @@ export default function Records({ darkMode }) {
           return hasImage && hasFeatures;
         });
 
-        // ✅ Sort newest → oldest by timestamp
         const sorted = filtered.sort(
           (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
         );
@@ -60,9 +64,9 @@ export default function Records({ darkMode }) {
       const res = await fetch(`${fastAPI}/records/${id}`, {
         method: "DELETE",
       });
+
       if (!res.ok) throw new Error("Delete failed");
 
-      // Remove from UI
       setRecords((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {
       console.error(err);
@@ -94,6 +98,7 @@ export default function Records({ darkMode }) {
     );
 
   if (error) return <p className="error">{error}</p>;
+
   if (!records.length)
     return <p className="no-records">No CTG scan records found yet.</p>;
 
@@ -112,7 +117,6 @@ export default function Records({ darkMode }) {
               <th>Timestamp (Bhutan Time)</th>
               <th>Detected Class</th>
               <th>Image</th>
-              {/* dynamically render feature columns */}
               {records[0]?.features &&
                 Object.keys(records[0].features).map((f) => (
                   <th key={f}>{f}</th>
@@ -124,10 +128,8 @@ export default function Records({ darkMode }) {
           <tbody>
             {currentRecords.map((r, i) => (
               <tr key={r.id}>
-                {/* Global index across pages */}
                 <td>{startIndex + i + 1}</td>
 
-                {/* Timestamp */}
                 <td>
                   {r.timestamp
                     ? new Date(r.timestamp).toLocaleString("en-BT", {
@@ -136,7 +138,6 @@ export default function Records({ darkMode }) {
                     : "N/A"}
                 </td>
 
-                {/* CTG label */}
                 <td
                   className={`label-cell ${
                     r.ctgDetected === "Normal"
@@ -149,7 +150,6 @@ export default function Records({ darkMode }) {
                   {r.ctgDetected || "N/A"}
                 </td>
 
-                {/* Image */}
                 <td>
                   {r.imageUrl ? (
                     <div
@@ -170,13 +170,11 @@ export default function Records({ darkMode }) {
                   )}
                 </td>
 
-                {/* Features */}
                 {r.features &&
                   Object.values(r.features).map((v, j) => (
                     <td key={j}>{Number(v).toFixed(2)}</td>
                   ))}
 
-                {/* Delete */}
                 <td>
                   <button
                     onClick={() => setConfirmDeleteId(r.id)}
@@ -199,9 +197,11 @@ export default function Records({ darkMode }) {
         >
           Prev
         </button>
+
         <span>
           {currentPage}/{totalPages}
         </span>
+
         <button
           onClick={() => setCurrentPage((p) => p + 1)}
           disabled={currentPage === totalPages}
@@ -210,7 +210,7 @@ export default function Records({ darkMode }) {
         </button>
       </div>
 
-      {/* Delete confirmation modal */}
+      {/* Delete confirmation */}
       {confirmDeleteId && (
         <div className="modal-overlay">
           <div className="modal-box">

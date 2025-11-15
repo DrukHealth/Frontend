@@ -12,8 +12,10 @@ export default function Management() {
     password: "",
   });
 
-  // Base API URL - adjust according to your actual backend URL
-  const API_BASE_URL = "http://localhost:5000/api/manage";
+  // ===============================
+  // 🚀 DEPLOYED BACKEND URL (Node.js)
+  // ===============================
+  const API_BASE_URL = "https://backend-drukhealth.onrender.com/api/manage";
 
   useEffect(() => {
     fetchAdmins();
@@ -23,13 +25,13 @@ export default function Management() {
     setLoading(true);
     try {
       const response = await fetch(API_BASE_URL);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         setAdmins(result.data || []);
       } else {
@@ -65,7 +67,7 @@ export default function Management() {
       const method = editingAdmin ? "PUT" : "POST";
 
       const payload = { ...formData };
-      
+
       // For update, don't send password if it's empty
       if (editingAdmin && !payload.password) {
         delete payload.password;
@@ -106,7 +108,7 @@ export default function Management() {
     setEditingAdmin(admin);
     setFormData({
       email: admin.email,
-      password: "", // Don't pre-fill password for security
+      password: "", // Do not pre-fill password
     });
     setShowModal(true);
   };
@@ -118,12 +120,9 @@ export default function Management() {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/${adminId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/${adminId}`, {
+        method: "DELETE",
+      });
 
       const result = await response.json();
 
@@ -147,7 +146,6 @@ export default function Management() {
     setShowModal(false);
   };
 
-  // Helper function to get admin ID (handles both _id and id)
   const getAdminId = (admin) => {
     return admin.id || admin._id;
   };
@@ -157,8 +155,8 @@ export default function Management() {
       <section className="management-section">
         <div className="section-header">
           <h1>Admin Management</h1>
-          <button 
-            className="add-button" 
+          <button
+            className="add-button"
             onClick={() => setShowModal(true)}
             disabled={loading}
           >
@@ -270,12 +268,16 @@ export default function Management() {
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="save-btn"
                     disabled={loading}
                   >
-                    {loading ? "Processing..." : editingAdmin ? "Update" : "Create"} Admin
+                    {loading
+                      ? "Processing..."
+                      : editingAdmin
+                      ? "Update"
+                      : "Create Admin"}
                   </button>
                 </div>
               </form>
