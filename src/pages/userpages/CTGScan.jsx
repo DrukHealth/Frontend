@@ -37,6 +37,7 @@ export default function CTGScan() {
       setImagePreview(URL.createObjectURL(file));
     }
   };
+  
 
   const handleProceed = async () => {
     if (!imageFile) {
