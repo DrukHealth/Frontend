@@ -4,19 +4,16 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import image1 from "../../assets/image1.svg";
+import { MdDarkMode, MdLightMode } from "react-icons/md"; // Home-style toggle icons
 
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [capturing, setCapturing] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
-  // ============================
-  // 🔥 FINAL BACKEND URLS
-  // ============================
   const NODE_API =
     import.meta.env.VITE_NODE_BACKEND ||
     "https://backend-drukhealth.onrender.com/api";
@@ -37,7 +34,6 @@ export default function CTGScan() {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-  
 
   const handleProceed = async () => {
     if (!imageFile) {
@@ -48,9 +44,6 @@ export default function CTGScan() {
     try {
       setLoading(true);
 
-      // -------------------------
-      // Step 1: Send to FastAPI → get prediction
-      // -------------------------
       const formData = new FormData();
       formData.append("file", imageFile);
 
@@ -60,9 +53,6 @@ export default function CTGScan() {
 
       const predictionData = fastApiRes.data;
 
-      // -------------------------
-      // Step 2: Save image + record in Node.js
-      // -------------------------
       const nodeData = new FormData();
       nodeData.append("ctgImage", imageFile);
 
@@ -111,85 +101,54 @@ export default function CTGScan() {
           backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "90px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <div
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", marginLeft: "-30px" }}
-        >
+        <div onClick={() => navigate("/home")} style={{ cursor: "pointer", marginLeft: "-30px" }}>
           <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
 
-        <div
-          style={{
-            fontWeight: "bold",
-            textAlign: "center",
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-        >
+        <div style={{ fontWeight: "bold", textAlign: "center", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
           <span style={{ fontSize: "1.8rem" }}>CTG Scan</span>
+        </div>
+
+        {/* Home-style Sun/Moon Toggle */}
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer", fontSize: "1.5rem" }} onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? <MdLightMode /> : <MdDarkMode />}
         </div>
       </nav>
 
       <div style={{ flex: 1, textAlign: "center", paddingTop: "2rem" }}>
-     {!imagePreview && (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: "2rem",
-      gap: "1.5rem",
-    }}
-  >
-    <img
-      src={image1}
-      alt="Scan Icon"
-      style={{ width: "280px", height: "280px" }}
-    />
-
-    <label
-      htmlFor="fileUpload"
-      style={{
-        backgroundColor: "#679ADC",
-        color: "white",
-        padding: "14px 28px",
-        borderRadius: "12px",
-        cursor: "pointer",
-        fontSize: "1rem",
-        fontWeight: "600",
-        textAlign: "center",
-        width: "fit-content",
-        minWidth: "200px",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-      }}
-    >
-      Upload CTG Record
-    </label>
-
-    <input
-      type="file"
-      id="fileUpload"
-      accept="image/*"
-      style={{ display: "none" }}
-      onChange={handleUpload}
-    />
-  </div>
-)}
-
-
+        {!imagePreview && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: "2rem", gap: "1.5rem" }}>
+            <img src={image1} alt="Scan Icon" style={{ width: "280px", height: "280px" }} />
+            <label
+              htmlFor="fileUpload"
+              style={{
+                backgroundColor: "#679ADC",
+                color: "white",
+                padding: "14px 28px",
+                borderRadius: "12px",
+                cursor: "pointer",
+                fontSize: "1rem",
+                fontWeight: "600",
+                textAlign: "center",
+                width: "fit-content",
+                minWidth: "200px",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+              }}
+            >
+              Upload CTG Record
+            </label>
+            <input type="file" id="fileUpload" accept="image/*" style={{ display: "none" }} onChange={handleUpload} />
+          </div>
+        )}
 
         {imagePreview && (
           <>
-            <img
-              src={imagePreview}
-              alt="Preview"
-              style={{ width: "90%", maxWidth: "420px", borderRadius: "10px" }}
-            />
-
+            <img src={imagePreview} alt="Preview" style={{ width: "90%", maxWidth: "420px", borderRadius: "10px" }} />
             <div style={{ marginTop: "2rem", display: "flex", gap: "1rem", justifyContent: "center" }}>
               <button
                 onClick={handleProceed}
@@ -203,7 +162,6 @@ export default function CTGScan() {
               >
                 {loading ? "Diagnosing..." : "Diagnose"}
               </button>
-
               <button
                 onClick={handleReturn}
                 style={{

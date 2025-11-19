@@ -153,8 +153,11 @@
 // }
 
 
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaHeartbeat, FaBookMedical, FaHospital } from "react-icons/fa";
+import { MdDarkMode, MdLightMode } from "react-icons/md"; // Dark/light mode toggle
 import "./css/Home.css";
 
 export default function Home() {
@@ -185,21 +188,12 @@ export default function Home() {
           height: "90px",
         }}
       >
-        {/* Left: Logo - Extreme left with no spacing */}
+        {/* Left: Logo */}
         <div
           onClick={() => navigate("/home")}
-          style={{ 
-            cursor: "pointer", 
-            display: "flex", 
-            alignItems: "center",
-            marginLeft: "-30px",
-          }}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", marginLeft: "-30px" }}
         >
-          <img 
-            src="/Latestlogo.png" 
-            alt="Druk eHealth Logo" 
-            style={{ height: "115px" }} 
-          />
+          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
 
         {/* Center: Title */}
@@ -213,78 +207,41 @@ export default function Home() {
             transform: "translateX(-50%)",
           }}
         >
-          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
+          <span className="title" style={{ fontSize: "1.8rem" }}>
             Druk <span className="e-letter">e</span>Health
           </span>
         </div>
 
         {/* Right: Dark Mode Toggle */}
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
-                borderRadius: "34px",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  transition: "0.4s",
-                  borderRadius: "50%",
-                }}
-              ></span>
-            </span>
-          </label>
+        <div style={{ display: "flex", alignItems: "center", fontSize: "1.5rem", cursor: "pointer" }}>
+          <span onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? <MdLightMode /> : <MdDarkMode />}
+          </span>
         </div>
       </nav>
 
       {/* Services Section */}
       <section className="services">
-        <h2
-          className="services-title"
-          style={{ color: darkMode ? "#EAEAEA" : "#0d52bd" }}
-        >
+        <h2 className="services-title" style={{ color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
           Our Services
         </h2>
 
         <div className="services-grid">
           <div className="service-card" onClick={() => navigate("/ctg-scan")}>
+            {/* Icons will always have fixed color */}
+            <FaHeartbeat size={40} color="#0d52bd" />
             <h3>CTG Scan</h3>
             <p>Monitor fetal health and contractions with real-time analysis.</p>
           </div>
 
           <div className="service-card" onClick={() => navigate("/guidelines")}>
+            <FaBookMedical size={40} color="#0d52bd" />
             <h3>Guidelines</h3>
             <p>Access medical and pregnancy care guidelines instantly.</p>
           </div>
 
           <div className="service-card" onClick={() => navigate("/otg")}>
+            <FaHospital size={40} color="#0d52bd" />
             <h3>OTG</h3>
             <p>On-the-go medical assistance for remote healthcare support.</p>
           </div>
@@ -294,10 +251,7 @@ export default function Home() {
       {/* Footer */}
       <footer
         className={`footer ${darkMode ? "dark" : ""}`}
-        style={{
-          backgroundColor: darkMode ? "#222" : "#e2edfb",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
-        }}
+        style={{ backgroundColor: darkMode ? "#222" : "#e2edfb", color: darkMode ? "#EAEAEA" : "#0d52bd" }}
       >
         <p>
           © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.

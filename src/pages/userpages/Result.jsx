@@ -547,6 +547,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./css/Result.css";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 
 export default function Result() {
   const location = useLocation();
@@ -561,7 +562,7 @@ export default function Result() {
   const [features, setFeatures] = useState(resultData?.features || {});
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(!resultData);
-  const [source, setSource] = useState(resultData?.source || "ctg"); // "ctg" or "nyckel"
+  const [source, setSource] = useState(resultData?.source || "ctg");
 
   useEffect(() => {
     if (!imageFile || !resultData) {
@@ -569,15 +570,17 @@ export default function Result() {
       return;
     }
 
-    if (!imagePreview) {
-      setImagePreview(URL.createObjectURL(imageFile));
-    }
-
+    if (!imagePreview) setImagePreview(URL.createObjectURL(imageFile));
     setLabel(resultData.label);
     setFeatures(resultData.features);
     setSource(resultData.source || "ctg");
     setLoading(false);
   }, [imageFile, resultData]);
+
+  useEffect(() => {
+    document.body.style.backgroundColor = darkMode ? "#121212" : "#FFFFFF";
+    document.body.style.color = darkMode ? "#EAEAEA" : "#0d52bd";
+  }, [darkMode]);
 
   if (!imageFile || !resultData) {
     return (
@@ -598,12 +601,21 @@ export default function Result() {
     );
   }
 
-  // Color based on label value
+  const displayLabel =
+    source === "nyckel" ? "Non-CTG Detected" : label || "No result";
+
   const labelColor =
-    label === "Normal" ? "#28a745" :
-    label === "Suspect" ? "#ffc107" :
-    label === "Pathologic" ? "#dc3545" :
-    "#0d52bd"; // default
+    source === "nyckel"
+      ? "#6c757d"
+      : label === "Normal"
+      ? "#28a745"
+      : label === "Suspect"
+      ? "#ffc107"
+      : label === "Pathologic"
+      ? "#dc3545"
+      : "#0d52bd";
+
+  const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
 
   return (
     <div
@@ -627,72 +639,22 @@ export default function Result() {
           height: "90px",
         }}
       >
-        <div
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", marginLeft: "-30px" }}
-        >
-          <img
-            src="/Latestlogo.png"
-            alt="Druk eHealth Logo"
-            style={{ height: "115px" }}
-          />
+        <div onClick={() => navigate("/home")} style={{ cursor: "pointer", marginLeft: "-30px" }}>
+          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
 
-        <div
-          style={{
-            fontWeight: "bold",
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-        >
+        <div style={{ fontWeight: "bold", position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
           <span style={{ fontSize: "1.8rem" }}>
-            {source === "nyckel" ? "" : "Prediction Result"}
+            {source === "nyckel" ? "Non-CTG Scan" : "CTG Result"}
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                borderRadius: "34px",
-                transition: "0.4s",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  borderRadius: "50%",
-                  transition: "0.4s",
-                }}
-              ></span>
-            </span>
-          </label>
+        {/* Home-style Dark Mode Toggle */}
+        <div
+          style={{ display: "flex", alignItems: "center", cursor: "pointer", fontSize: "1.5rem" }}
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? <MdLightMode /> : <MdDarkMode />}
         </div>
       </nav>
 
@@ -705,36 +667,35 @@ export default function Result() {
         )}
 
         {loading ? (
-          <p className="analyzing-text">🔍 Analyzing image...</p>
+          <p className="analyzing-text">🔍 Processing scan...</p>
         ) : (
           <div
             style={{
               margin: "1.5rem 0",
-              fontWeight: "900",      // extra bold
-              fontSize: "2rem",       // bigger font
+              fontWeight: "900",
+              fontSize: "2rem",
               color: labelColor,
-              textAlign: "center"     // center it for better visibility
+              textAlign: "center",
             }}
           >
-            {label || "No result"}
+            {displayLabel}
           </div>
         )}
 
-
+        {/* Features Table */}
         {!loading && features && Object.keys(features).length > 0 && (
           <div className="feature-section">
-            {/* <h3>Extracted Features</h3> */}
-            <div className="table-wrapper">
+            <div className={`table-wrapper ${darkMode ? "dark-mode" : "light-mode"}`}>
               <table className="feature-table">
                 <thead>
-                  <tr>
+                  <tr style={{ color: tableTextColor }}>
                     <th>Feature</th>
                     <th>Value</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Object.entries(features).map(([key, value]) => (
-                    <tr key={key}>
+                    <tr key={key} style={{ color: tableTextColor }}>
                       <td>{key}</td>
                       <td>{Number(value).toFixed(3)}</td>
                     </tr>
@@ -744,6 +705,26 @@ export default function Result() {
             </div>
           </div>
         )}
+
+        {/* Return Button */}
+        <div style={{ textAlign: "center", margin: "2rem 0" }}>
+          <button
+            onClick={() => navigate("/ctg-scan")}
+            className="return-btn"
+            style={{
+              padding: "0.7rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: "bold",
+              cursor: "pointer",
+              borderRadius: "8px",
+              backgroundColor: "#0d52bd",
+              color: "white",
+              border: "none",
+            }}
+          >
+            Return to Scan
+          </button>
+        </div>
       </div>
 
       {/* Footer */}
@@ -755,8 +736,7 @@ export default function Result() {
         }}
       >
         <p>
-          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health.
-          All rights reserved.
+          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>Health. All rights reserved.
         </p>
       </footer>
     </div>

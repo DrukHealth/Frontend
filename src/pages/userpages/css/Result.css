@@ -108,11 +108,25 @@
 /* Dark mode */
 .result-container.dark-mode .feature-table {
   background-color: #1a1a1a;
-  color: #fff;
+  color: #341cb9;
   border: 1px solid #555;
 }
 .result-container.dark-mode .feature-table th {
   background-color: #222;
+}
+
+.table-wrapper.dark-mode table,
+.table-wrapper.dark-mode th,
+.table-wrapper.dark-mode td {
+  color: #0d52bd;
+  border-color: #555; /* optional for dark mode table borders */
+}
+
+.table-wrapper.light-mode table,
+.table-wrapper.light-mode th,
+.table-wrapper.light-mode td {
+  color: #0d52bd;
+  border-color: #ccc; /* optional for light mode table borders */
 }
 
 /* ========================================

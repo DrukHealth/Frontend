@@ -22,11 +22,11 @@ export default function Landing() {
   return (
     <div className="landing-container">
       {/* Header with Login Button */}
-      <div className="landing-header">
+      {/* <div className="landing-header">
         <button onClick={handleLoginClick} className="login-btn">
           Login
         </button>
-      </div>
+      </div> */}
 
       {/* Logo and Title */}
       <img src="/logo.png" alt="Druk eHealth Logo" className="logo animated" />
