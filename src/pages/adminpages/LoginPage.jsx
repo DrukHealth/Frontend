@@ -1,24 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import "./css/LoginPage.css";
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const handleForgotPassword = () => navigate("/forgot-password");
-
-  // ================================
-  // 🚀 Render Backend URL
-  // ================================
+  const LOCAL_BACKEND = "http://localhost:1000";
+  const DEPLOYED_BACKEND = "https://backend-drukhealth.onrender.com";
   const NODE_API =
-    import.meta.env.VITE_NODE_BACKEND ||
-    "https://backend-drukhealth.onrender.com";
+    window.location.hostname === "localhost" ? LOCAL_BACKEND : DEPLOYED_BACKEND;
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -29,38 +23,40 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Determine login type
-      const isSuperAdmin = email.endsWith("@zhiwa-ctg.app");
-
-      const endpoint = isSuperAdmin
-        ? `${NODE_API}/auth/login`
-        : `${NODE_API}/api/manage/login`;
-
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${NODE_API}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        alert("Login failed — server returned unexpected response.");
+        setLoading(false);
+        return;
+      }
 
       if (response.ok && data.token) {
-        // SUPER ADMIN LOGIN
-        if (isSuperAdmin) {
-          localStorage.setItem("superAdminToken", data.token);
-          localStorage.setItem("superAdminEmail", data.email || email);
+        const expiry = Date.now() + 30 * 60 * 1000;
+        localStorage.setItem("tokenExpiry", expiry);
 
+        const role = data.data?.role;
+
+        if (role === "superadmin") {
+          localStorage.setItem("superAdminToken", data.token);
+          localStorage.setItem("superAdminEmail", data.data.email || email);
           alert("Super Admin Login Successful ✅");
           navigate("/dashboard");
-        }
-
-        // NORMAL ADMIN LOGIN
-        else {
+        } else if (role === "admin") {
           localStorage.setItem("adminToken", data.token);
-          localStorage.setItem("adminEmail", data.data?.email || email);
-
+          localStorage.setItem("adminEmail", data.data.email || email);
           alert("Admin Login Successful ✅");
           navigate("/management");
+        } else {
+          alert("Unknown user role. Contact administrator.");
         }
       } else {
         alert(data.message || "Invalid email or password");
@@ -72,6 +68,19 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkSession = () => {
+      const expiry = localStorage.getItem("tokenExpiry");
+      if (expiry && Date.now() > Number(expiry)) {
+        localStorage.clear();
+        alert("⚠️ Session expired. Please log in again.");
+        navigate("/login");
+      }
+    };
+    const interval = setInterval(checkSession, 60000);
+    return () => clearInterval(interval);
+  }, [navigate]);
 
   return (
     <div className="login-container">
@@ -86,7 +95,7 @@ const LoginPage = () => {
 
       <div className="login-right">
         <div className="login-box">
-          <h1>Welcome Again!</h1>
+          <h1>Welcome Back!</h1>
 
           <div className="input-group">
             <FaEnvelope className="input-icon" />
@@ -102,22 +111,27 @@ const LoginPage = () => {
           <div className="input-group">
             <FaLock className="input-icon" />
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <span className="toggle-password" onClick={togglePasswordVisibility}>
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
+            {/* Eye icon removed entirely */}
           </div>
 
-          <button className="login-btn" onClick={handleLogin} disabled={loading}>
+          <button
+            className="login-btn"
+            onClick={handleLogin}
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "LOG IN"}
           </button>
 
-          <div className="forgot" onClick={handleForgotPassword}>
+          <div
+            className="forgot"
+            onClick={() => navigate("/forgot-password")}
+          >
             Forgot Password?
           </div>
         </div>

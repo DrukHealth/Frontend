@@ -1,8 +1,15 @@
+// src/pages/adminpages/Records.jsx
 import { useEffect, useState } from "react";
 import { Loader2, Trash2, Image as ImageIcon } from "lucide-react";
+import useSessionTimeout from "../../hooks/useSessionTimeout";
 import "./css/RecordUI.css";
 
 export default function Records({ darkMode }) {
+  // -----------------------------
+  // Auto logout if session expired
+  // -----------------------------
+  useSessionTimeout();
+
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,9 +19,9 @@ export default function Records({ darkMode }) {
 
   const recordsPerPage = 5;
 
-  // ================================
-  // 🚀 FASTAPI DEPLOYED BACKEND
-  // ================================
+  // -----------------------------
+  // FASTAPI DEPLOYED BACKEND
+  // -----------------------------
   const fastAPI =
     import.meta.env.VITE_FASTAPI_URL ||
     "https://fastapi-backend-yrc0.onrender.com";
@@ -64,7 +71,6 @@ export default function Records({ darkMode }) {
       const res = await fetch(`${fastAPI}/records/${id}`, {
         method: "DELETE",
       });
-
       if (!res.ok) throw new Error("Delete failed");
 
       setRecords((prev) => prev.filter((r) => r.id !== id));
@@ -118,9 +124,7 @@ export default function Records({ darkMode }) {
               <th>Detected Class</th>
               <th>Image</th>
               {records[0]?.features &&
-                Object.keys(records[0].features).map((f) => (
-                  <th key={f}>{f}</th>
-                ))}
+                Object.keys(records[0].features).map((f) => <th key={f}>{f}</th>)}
               <th>Actions</th>
             </tr>
           </thead>
@@ -156,11 +160,7 @@ export default function Records({ darkMode }) {
                       className="thumb-overlay"
                       onClick={() => setPopupImage(r.imageUrl)}
                     >
-                      <img
-                        src={r.imageUrl}
-                        alt="CTG"
-                        className="thumb-img"
-                      />
+                      <img src={r.imageUrl} alt="CTG" className="thumb-img" />
                       <div className="overlay-icon">
                         <ImageIcon size={16} />
                       </div>
@@ -171,9 +171,7 @@ export default function Records({ darkMode }) {
                 </td>
 
                 {r.features &&
-                  Object.values(r.features).map((v, j) => (
-                    <td key={j}>{Number(v).toFixed(2)}</td>
-                  ))}
+                  Object.values(r.features).map((v, j) => <td key={j}>{Number(v).toFixed(2)}</td>)}
 
                 <td>
                   <button
@@ -191,10 +189,7 @@ export default function Records({ darkMode }) {
 
       {/* Pagination */}
       <div className="pagination">
-        <button
-          onClick={() => setCurrentPage((p) => p - 1)}
-          disabled={currentPage === 1}
-        >
+        <button onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 1}>
           Prev
         </button>
 
@@ -202,10 +197,7 @@ export default function Records({ darkMode }) {
           {currentPage}/{totalPages}
         </span>
 
-        <button
-          onClick={() => setCurrentPage((p) => p + 1)}
-          disabled={currentPage === totalPages}
-        >
+        <button onClick={() => setCurrentPage((p) => p + 1)} disabled={currentPage === totalPages}>
           Next
         </button>
       </div>

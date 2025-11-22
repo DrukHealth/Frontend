@@ -4,6 +4,7 @@ import {
   PieChart, Pie, Cell, Legend,
   BarChart, Bar, ResponsiveContainer
 } from "recharts";
+import useSessionTimeout from "../hooks/useSessionTimeout"; 
 
 const COLORS = ["#4d79ff", "#ffcc00", "#ff4d4d"]; // Normal, Suspect, Pathological
 
@@ -14,6 +15,8 @@ const NODE_API = "https://backend-drukhealth.onrender.com/api";
 const FASTAPI = "https://fastapi-backend-yrc0.onrender.com";
 
 export default function Dashboard() {
+  useSessionTimeout(); // ✅ auto logout if session expired
+
   const [scanStats, setScanStats] = useState({});
   const [analysisData, setAnalysisData] = useState({ predictions: [] });
   const [weeklyNSP, setWeeklyNSP] = useState([]);
@@ -48,7 +51,6 @@ export default function Dashboard() {
 
     // -------------------------------
     // 🟣 Fetch weekly NSP (FastAPI)
-    // (If you have this route)
     // -------------------------------
     fetch(`${FASTAPI}/api/analysis/weekly-nsp`)
       .then((res) => res.json())

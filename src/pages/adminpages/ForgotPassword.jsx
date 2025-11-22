@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/ForgotPassword.css";
 
-
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,10 +19,9 @@ export default function ForgotPassword() {
     }
 
     setLoading(true);
-    console.log("🔍 Sending OTP request for email:", trimmedEmail);
 
     try {
-      const res = await fetch("http://localhost:5001/auth/forgot-password", {
+      const res = await fetch("http://localhost:1000/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmedEmail }),
@@ -32,8 +30,9 @@ export default function ForgotPassword() {
       const data = await res.json();
       console.log("📥 Response:", res.status, data);
 
-      if (!res.ok) setError(data.message || "❌ Failed to send OTP");
-      else {
+      if (!res.ok || !data.success) {
+        setError(data.message || "❌ Failed to send OTP");
+      } else {
         alert("✅ OTP has been sent to your email!");
         navigate("/forgot-password-verify", { state: { email: trimmedEmail } });
       }
@@ -51,7 +50,7 @@ export default function ForgotPassword() {
         <div className="logo-container">
           <img src="/logo2.png" alt="Druk Health Logo" className="logo" />
           <div className="brand-name">
-            DRUK H<span className="e-letter">E</span>ALTH
+            Druk <span className="e-letter">e</span>Health
           </div>
         </div>
       </div>
@@ -73,7 +72,11 @@ export default function ForgotPassword() {
 
           {error && <p className="error-message">{error}</p>}
 
-          <button onClick={handleSubmit} className="submit-btn" disabled={loading}>
+          <button
+            onClick={handleSubmit}
+            className="submit-btn"
+            disabled={loading}
+          >
             {loading ? "Sending..." : "Send OTP"}
           </button>
         </div>

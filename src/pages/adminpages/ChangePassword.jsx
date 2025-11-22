@@ -1,79 +1,69 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./css/ChangePassword.css";
 
 export default function ChangePassword() {
-  const [oldPassword, setOldPassword] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  /* ----------------------------------------------------
-     🧩 Handle Password Change
-  ---------------------------------------------------- */
+  // Email from OTP verification flow
+  const resetEmail = location.state?.email || null;
+
+  useEffect(() => {
+    if (!resetEmail) {
+      alert("⚠️ Email not found. Please start from OTP verification page.");
+      navigate("/forgot-password");
+    }
+  }, [resetEmail, navigate]);
+
   const handleChangePassword = async () => {
     setError("");
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      setError("⚠️ Please fill in all fields");
+    if (!newPassword || !confirmPassword) {
+      setError("⚠️ Please fill in all required fields.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("❌ New passwords do not match");
-      return;
-    }
-
-    // ✅ Get token (from either super admin or admin)
-    const token =
-      localStorage.getItem("superAdminToken") ||
-      localStorage.getItem("adminToken");
-
-    if (!token) {
-      alert("⚠️ Session expired. Please log in again.");
-      navigate("/login");
+      setError("❌ New passwords do not match.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/auth/change-password", {
+      const endpoint = "http://localhost:1000/auth/reset-password";
+      const body = { email: resetEmail, newPassword };
+
+      const res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ Important
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.message || "❌ Failed to change password");
+        setError(data.message || "❌ Failed to reset password");
       } else {
-        alert("✅ Password changed successfully!");
-        // Optional: clear tokens to force re-login
-        localStorage.removeItem("adminToken");
-        localStorage.removeItem("superAdminToken");
+        alert("✅ Password reset successfully!");
         navigate("/login");
       }
     } catch (err) {
-      console.error("⚠️ Error changing password:", err);
+      console.error("⚠️ Error:", err);
       setError("⚠️ Server error. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ----------------------------------------------------
-     💻 UI
-  ---------------------------------------------------- */
   return (
     <div className="change-container">
-      {/* LEFT PANEL */}
       <div className="change-left-panel">
         <img src="/logo2.png" alt="Druk eHealth Logo" className="change-logo" />
         <div className="change-brand-name">
@@ -81,23 +71,12 @@ export default function ChangePassword() {
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
       <div className="change-right-panel">
         <div className="change-form-container">
-          <h1 className="change-title">Change Password</h1>
+          <h1 className="change-title">Reset Password</h1>
           <p className="change-subtitle">
-            Enter your current password and choose a new one.
+            Enter a new password for your account.
           </p>
-
-          <div className="change-input-wrapper">
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              className="change-input"
-            />
-          </div>
 
           <div className="change-input-wrapper">
             <input
