@@ -1,15 +1,8 @@
-// src/pages/adminpages/Records.jsx
 import { useEffect, useState } from "react";
 import { Loader2, Trash2, Image as ImageIcon } from "lucide-react";
-import useSessionTimeout from "../../hooks/useSessionTimeout";
 import "./css/RecordUI.css";
 
 export default function Records({ darkMode }) {
-  // -----------------------------
-  // Auto logout if session expired
-  // -----------------------------
-  useSessionTimeout();
-
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,16 +12,14 @@ export default function Records({ darkMode }) {
 
   const recordsPerPage = 5;
 
-  // -----------------------------
-  // FASTAPI DEPLOYED BACKEND
-  // -----------------------------
+  // ================================
+  // 🚀 FASTAPI DEPLOYED BACKEND
+  // ================================
   const fastAPI =
     import.meta.env.VITE_FASTAPI_URL ||
     "https://fastapi-backend-yrc0.onrender.com";
 
-  // -----------------------------
-  // Fetch records (only ones with image + features)
-  // -----------------------------
+  // Fetch records
   useEffect(() => {
     const load = async () => {
       try {
@@ -62,18 +53,18 @@ export default function Records({ darkMode }) {
     load();
   }, [fastAPI]);
 
-  // -----------------------------
   // Delete a record
-  // -----------------------------
   const handleDelete = async (id) => {
     if (!id) return;
     try {
       const res = await fetch(`${fastAPI}/records/${id}`, {
         method: "DELETE",
       });
+
       if (!res.ok) throw new Error("Delete failed");
 
       setRecords((prev) => prev.filter((r) => r.id !== id));
+      setCurrentPage(1);
     } catch (err) {
       console.error(err);
       alert("Delete failed");
@@ -82,9 +73,7 @@ export default function Records({ darkMode }) {
     }
   };
 
-  // -----------------------------
   // Pagination logic
-  // -----------------------------
   const totalPages = Math.ceil(records.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const currentRecords = records.slice(
@@ -92,13 +81,25 @@ export default function Records({ darkMode }) {
     startIndex + recordsPerPage
   );
 
-  // -----------------------------
+  // Get class name for styling
+  const getClassName = (ctgDetected) => {
+    switch (ctgDetected) {
+      case "Normal":
+        return "normal";
+      case "Suspect":
+        return "suspect";
+      case "Pathologic":
+        return "pathologic";
+      default:
+        return "normal";
+    }
+  };
+
   // Loading / error states
-  // -----------------------------
   if (loading)
     return (
       <div className="loading-container">
-        <Loader2 className="spinner" />
+        <Loader2 className="spinner" size={32} />
         <p>Loading CTG Records...</p>
       </div>
     );
@@ -108,13 +109,13 @@ export default function Records({ darkMode }) {
   if (!records.length)
     return <p className="no-records">No CTG scan records found yet.</p>;
 
-  // -----------------------------
-  // Render
-  // -----------------------------
   return (
     <div className={`records-container ${darkMode ? "dark-mode" : ""}`}>
-      <h2>📊 CTG Scan Records</h2>
+      <div className="records-header">
+        <h2>📊 CTG Scan Records</h2>
+      </div>
 
+      {/* Desktop Table View */}
       <div className="table-wrapper">
         <table className="records-table">
           <thead>
@@ -124,7 +125,9 @@ export default function Records({ darkMode }) {
               <th>Detected Class</th>
               <th>Image</th>
               {records[0]?.features &&
-                Object.keys(records[0].features).map((f) => <th key={f}>{f}</th>)}
+                Object.keys(records[0].features).map((f) => (
+                  <th key={f}>{f}</th>
+                ))}
               <th>Actions</th>
             </tr>
           </thead>
@@ -143,13 +146,7 @@ export default function Records({ darkMode }) {
                 </td>
 
                 <td
-                  className={`label-cell ${
-                    r.ctgDetected === "Normal"
-                      ? "label-normal"
-                      : r.ctgDetected === "Suspect"
-                      ? "label-suspect"
-                      : "label-pathologic"
-                  }`}
+                  className={`label-cell label-${getClassName(r.ctgDetected)}`}
                 >
                   {r.ctgDetected || "N/A"}
                 </td>
@@ -160,7 +157,11 @@ export default function Records({ darkMode }) {
                       className="thumb-overlay"
                       onClick={() => setPopupImage(r.imageUrl)}
                     >
-                      <img src={r.imageUrl} alt="CTG" className="thumb-img" />
+                      <img
+                        src={r.imageUrl}
+                        alt="CTG"
+                        className="thumb-img"
+                      />
                       <div className="overlay-icon">
                         <ImageIcon size={16} />
                       </div>
@@ -171,12 +172,14 @@ export default function Records({ darkMode }) {
                 </td>
 
                 {r.features &&
-                  Object.values(r.features).map((v, j) => <td key={j}>{Number(v).toFixed(2)}</td>)}
+                  Object.values(r.features).map((v, j) => (
+                    <td key={j}>{Number(v).toFixed(2)}</td>
+                  ))}
 
                 <td>
                   <button
                     onClick={() => setConfirmDeleteId(r.id)}
-                    className="delete-btn flex items-center gap-1"
+                    className="delete-btn"
                   >
                     <Trash2 size={14} /> Delete
                   </button>
@@ -187,17 +190,92 @@ export default function Records({ darkMode }) {
         </table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="records-cards">
+        {currentRecords.map((r, i) => (
+          <div key={r.id} className="record-card">
+            <div className="card-header">
+              <span className="card-number">#{startIndex + i + 1}</span>
+              <span className="card-timestamp">
+                {r.timestamp
+                  ? new Date(r.timestamp).toLocaleString("en-BT", {
+                      timeZone: "Asia/Thimphu",
+                    })
+                  : "N/A"}
+              </span>
+            </div>
+
+            <div className="card-content">
+              <div className="card-image">
+                {r.imageUrl ? (
+                  <div
+                    className="thumb-overlay"
+                    onClick={() => setPopupImage(r.imageUrl)}
+                  >
+                    <img
+                      src={r.imageUrl}
+                      alt="CTG"
+                      className="thumb-img"
+                    />
+                    <div className="overlay-icon">
+                      <ImageIcon size={14} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="no-thumb">No Image</div>
+                )}
+              </div>
+
+              <div className="card-details">
+                <div className={`card-class ${getClassName(r.ctgDetected)}`}>
+                  {r.ctgDetected || "N/A"}
+                </div>
+                
+                <div className="card-features">
+                  {r.features &&
+                    Object.entries(r.features).map(([key, value], index) => (
+                      <div key={index} className="feature-item">
+                        <span className="feature-name">{key}:</span>
+                        <span className="feature-value">
+                          {Number(value).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="card-actions">
+              <button
+                onClick={() => setConfirmDeleteId(r.id)}
+                className="delete-btn"
+              >
+                <Trash2 size={14} /> Delete Record
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Pagination */}
       <div className="pagination">
-        <button onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 1}>
+        <button
+          className="pagination-btn"
+          onClick={() => setCurrentPage((p) => p - 1)}
+          disabled={currentPage === 1}
+        >
           Prev
         </button>
 
-        <span>
-          {currentPage}/{totalPages}
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages}
         </span>
 
-        <button onClick={() => setCurrentPage((p) => p + 1)} disabled={currentPage === totalPages}>
+        <button
+          className="pagination-btn"
+          onClick={() => setCurrentPage((p) => p + 1)}
+          disabled={currentPage === totalPages}
+        >
           Next
         </button>
       </div>
@@ -206,10 +284,14 @@ export default function Records({ darkMode }) {
       {confirmDeleteId && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <p>Delete this record?</p>
+            <p>Are you sure you want to delete this record?</p>
             <div className="modal-buttons">
-              <button onClick={() => handleDelete(confirmDeleteId)}>Yes</button>
-              <button onClick={() => setConfirmDeleteId(null)}>No</button>
+              <button onClick={() => handleDelete(confirmDeleteId)}>
+                Yes, Delete
+              </button>
+              <button onClick={() => setConfirmDeleteId(null)}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>

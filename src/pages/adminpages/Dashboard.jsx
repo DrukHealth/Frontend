@@ -1,4 +1,4 @@
-// Dashboard.jsx (Updated with session handling)
+// Dashboard.jsx (Updated for deployed API)
 
 import React, { useEffect, useState } from "react";
 import {
@@ -27,18 +27,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Records from "./Records";
 import Management from "./Management";
-import useSessionTimeout from "../../hooks/useSessionTimeout";
 import "./css/dashboard.css";
 
 // =====================================
 //  🚀 API CONFIG — CHANGE THESE
 // =====================================
 const NODE_API = "https://backend-drukhealth.onrender.com/api";
-const FASTAPI_URL = "https://fastapi-backend-yrc0.onrender.com";
+const FASTAPI_URL = "https://fastapi-backend-yrc0.onrender.com"; 
+// 👉 Replace with your actual FASTAPI URL
 
 export default function Dashboard() {
-  useSessionTimeout(); 
-
   const navigate = useNavigate();
   const [scanStats, setScanStats] = useState({
     daily: 0,
@@ -59,12 +57,6 @@ export default function Dashboard() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // ✅ Session info
-  const [session, setSession] = useState({
-    user: { name: "Admin" },
-    email: "admin@example.com",
-  });
 
   const COLORS = ["#4d79ff", "#ffcc00", "#ff4d4d"];
 
@@ -108,6 +100,7 @@ export default function Dashboard() {
         console.error("Node backend error:", err);
       }
     };
+
     fetchStats();
   }, []);
 
@@ -196,7 +189,7 @@ export default function Dashboard() {
           </button>
 
           <div className="admin-profile" onClick={openAdminDialog}>
-            <span>{session.user.name}</span>
+            <span>Admin</span>
             <User size={20} />
           </div>
         </header>
@@ -205,32 +198,15 @@ export default function Dashboard() {
         <div className="page-content fade-in" key={activeNav}>
           {activeNav === "Dashboard" && (
             <>
-              
-              <div className="session-info">
-                {/* Logged in as <span>{session.user.name}</span> ({session.email}) */}
-              </div>
-
               <h2 className="section-title">Fetal Health Data Analysis</h2>
 
               {/* Stats */}
               <section className="stats-section">
                 <div className="stats-grid">
-                  <div className="stat-card">
-                    <h4>Today’s Scans</h4>
-                    <p>{scanStats.daily}</p>
-                  </div>
-                  <div className="stat-card">
-                    <h4>This Week</h4>
-                    <p>{scanStats.weekly}</p>
-                  </div>
-                  <div className="stat-card">
-                    <h4>This Month</h4>
-                    <p>{scanStats.monthly}</p>
-                  </div>
-                  <div className="stat-card">
-                    <h4>This Year</h4>
-                    <p>{scanStats.yearly}</p>
-                  </div>
+                  <div className="stat-card"><h4>Today’s Scans</h4><p>{scanStats.daily}</p></div>
+                  <div className="stat-card"><h4>This Week</h4><p>{scanStats.weekly}</p></div>
+                  <div className="stat-card"><h4>This Month</h4><p>{scanStats.monthly}</p></div>
+                  <div className="stat-card"><h4>This Year</h4><p>{scanStats.yearly}</p></div>
                 </div>
               </section>
 
@@ -245,27 +221,9 @@ export default function Dashboard() {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="N"
-                        stroke="#4d79ff"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="S"
-                        stroke="#ffcc00"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="P"
-                        stroke="#ff4d4d"
-                        strokeWidth={2}
-                        dot={false}
-                      />
+                      <Line type="monotone" dataKey="N" stroke="#4d79ff" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="S" stroke="#ffcc00" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="P" stroke="#ff4d4d" strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -284,18 +242,11 @@ export default function Dashboard() {
                         labelLine
                       >
                         {pieData.map((entry, index) => (
-                          <Cell
-                            key={index}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                          <Cell key={index} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend
-                        layout="vertical"
-                        verticalAlign="top"
-                        align="right"
-                      />
+                      <Legend layout="vertical" verticalAlign="top" align="right" />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -311,17 +262,12 @@ export default function Dashboard() {
         {showAdminDialog && (
           <div className="admin-dialog-overlay">
             <div className="admin-dialog">
-              <button className="close-btn" onClick={closeAdminDialog}>
-                ×
-              </button>
+              <button className="close-btn" onClick={closeAdminDialog}>×</button>
               <User size={60} className="profile-icon" />
-              <h2>{session.user.name}</h2>
-              <p>{session.email}</p>
+              <h2>Admin</h2>
+              <p>admin@example.com</p>
               <div className="admin-dialog-buttons">
-                <button
-                  className="reset-password-btn"
-                  onClick={handleChangePassword}
-                >
+                <button className="reset-password-btn" onClick={handleChangePassword}>
                   Re-set Password
                 </button>
               </div>
@@ -336,12 +282,8 @@ export default function Dashboard() {
               <h3>Confirm Logout</h3>
               <p>Are you sure you want to logout?</p>
               <div className="dialog-buttons">
-                <button className="confirm-btn" onClick={confirmLogout}>
-                  Yes
-                </button>
-                <button className="cancel-btn" onClick={cancelLogout}>
-                  Cancel
-                </button>
+                <button className="confirm-btn" onClick={confirmLogout}>Yes</button>
+                <button className="cancel-btn" onClick={cancelLogout}>Cancel</button>
               </div>
             </div>
           </div>

@@ -1,49 +1,42 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/ChangePassword.css";
 
-export default function ChangePassword() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
+export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Email from OTP verification flow
-  const resetEmail = location.state?.email || null;
+  // Get email from OTP verification
+  const email = location.state?.email || "";
 
-  useEffect(() => {
-    if (!resetEmail) {
-      alert("⚠️ Email not found. Please start from OTP verification page.");
-      navigate("/forgot-password");
-    }
-  }, [resetEmail, navigate]);
+  if (!email) {
+    navigate("/forgot-password");
+  }
 
-  const handleChangePassword = async () => {
+  const handleResetPassword = async () => {
     setError("");
 
     if (!newPassword || !confirmPassword) {
-      setError("⚠️ Please fill in all required fields.");
+      setError("⚠️ Please fill in all fields");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("❌ New passwords do not match.");
+      setError("❌ Passwords do not match");
       return;
     }
 
     setLoading(true);
 
     try {
-      const endpoint = "http://localhost:1000/auth/reset-password";
-      const body = { email: resetEmail, newPassword };
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("http://localhost:1000/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ email, newPassword }),
       });
 
       const data = await res.json();
@@ -55,8 +48,8 @@ export default function ChangePassword() {
         navigate("/login");
       }
     } catch (err) {
-      console.error("⚠️ Error:", err);
-      setError("⚠️ Server error. Please try again later.");
+      console.error("⚠️ Error resetting password:", err);
+      setError("⚠️ Server error. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -64,6 +57,7 @@ export default function ChangePassword() {
 
   return (
     <div className="change-container">
+      {/* LEFT PANEL */}
       <div className="change-left-panel">
         <img src="/logo2.png" alt="Druk eHealth Logo" className="change-logo" />
         <div className="change-brand-name">
@@ -71,11 +65,12 @@ export default function ChangePassword() {
         </div>
       </div>
 
+      {/* RIGHT PANEL */}
       <div className="change-right-panel">
         <div className="change-form-container">
           <h1 className="change-title">Reset Password</h1>
           <p className="change-subtitle">
-            Enter a new password for your account.
+            Enter your new password.
           </p>
 
           <div className="change-input-wrapper">
@@ -101,11 +96,11 @@ export default function ChangePassword() {
           {error && <p className="error-message">{error}</p>}
 
           <button
-            onClick={handleChangePassword}
+            onClick={handleResetPassword}
             className="change-btn"
             disabled={loading}
           >
-            {loading ? "Updating..." : "Update Password"}
+            {loading ? "Updating..." : "Reset Password"}
           </button>
         </div>
       </div>

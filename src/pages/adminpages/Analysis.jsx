@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
-import useSessionTimeout from "../hooks/useSessionTimeout"; // import the hook
 
 export default function Analysis() {
-  useSessionTimeout(); // auto logout if session expired
-
   const [data, setData] = useState(null);
 
   useEffect(() => {
