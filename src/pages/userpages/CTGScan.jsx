@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -6,12 +6,18 @@ import "react-toastify/dist/ReactToastify.css";
 import image1 from "../../assets/image1.svg";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 
+// ⬇️ Import GLOBAL theme
+import { ThemeContext } from "./ThemeContext";
+
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // ⬇️ Use global theme
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const darkMode = theme === "dark";
 
   const NODE_API =
     import.meta.env.VITE_NODE_BACKEND ||
@@ -21,16 +27,7 @@ export default function CTGScan() {
     import.meta.env.VITE_FASTAPI_BACKEND ||
     "https://fastapi-backend-yrc0.onrender.com";
 
-  useEffect(() => {
-    // Soft, light dark mode
-    if (darkMode) {
-      document.body.style.backgroundColor = "#2B2F3A"; // soft dark blue-gray
-      document.body.style.color = "#E0E0E0"; // light text
-    } else {
-      document.body.style.backgroundColor = "#FFFFFF";
-      document.body.style.color = "#0d52bd";
-    }
-  }, [darkMode]);
+  // ⬇️ Remove local body styling — ThemeContext already handles global colors.
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -95,7 +92,7 @@ export default function CTGScan() {
         backgroundColor: darkMode ? "#2B2F3A" : "#FFFFFF",
         color: darkMode ? "#E0E0E0" : "#0d52bd",
         minHeight: "100vh",
-        transition: "all 0.3s ease", // smooth transition
+        transition: "all 0.3s ease",
       }}
     >
       <ToastContainer
@@ -108,7 +105,7 @@ export default function CTGScan() {
         className="navbar"
         style={{
           padding: "10px 20px",
-          backgroundColor: darkMode ? "#3A3F4A" : "#e2edfb", // soft dark navbar
+          backgroundColor: darkMode ? "#3A3F4A" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "90px",
           display: "flex",
@@ -140,7 +137,7 @@ export default function CTGScan() {
           <span style={{ fontSize: "1.8rem" }}>CTG Scan</span>
         </div>
 
-        {/* Sun/Moon Dark Mode Toggle */}
+        {/* GLOBAL dark mode toggle */}
         <div
           style={{
             display: "flex",
@@ -148,7 +145,7 @@ export default function CTGScan() {
             cursor: "pointer",
             fontSize: "1.5rem",
           }}
-          onClick={() => setDarkMode(!darkMode)}
+          onClick={toggleTheme}
         >
           {darkMode ? <MdLightMode /> : <MdDarkMode />}
         </div>
@@ -181,7 +178,6 @@ export default function CTGScan() {
                 cursor: "pointer",
                 fontSize: "1rem",
                 fontWeight: "600",
-                textAlign: "center",
                 width: "fit-content",
                 minWidth: "200px",
                 boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
@@ -206,6 +202,7 @@ export default function CTGScan() {
               alt="Preview"
               style={{ width: "90%", maxWidth: "420px", borderRadius: "10px" }}
             />
+
             <div
               style={{
                 marginTop: "2rem",
@@ -231,6 +228,7 @@ export default function CTGScan() {
               >
                 {loading ? "Diagnosing..." : "Diagnose"}
               </button>
+
               <button
                 onClick={handleReturn}
                 style={{

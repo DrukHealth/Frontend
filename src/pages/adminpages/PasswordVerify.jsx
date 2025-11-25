@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./css/ForgotPassword.css";
 
@@ -10,12 +10,19 @@ export default function ForgotPasswordVerify() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // If email missing → redirect back
+  // 🌐 Central API base URL
+  // const API = "http://localhost:5000";
+  const API = "https://backend-drukhealth.onrender.com";
+
+  // Extract email safely from navigation state
   const email = location.state?.email || "";
 
-  if (!email) {
-    navigate("/forgot-password");
-  }
+  // Prevent redirect inside render → useEffect instead
+  useEffect(() => {
+    if (!email) {
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [email, navigate]);
 
   const handleVerify = async () => {
     if (!otp.trim()) {
@@ -27,13 +34,22 @@ export default function ForgotPasswordVerify() {
     setError("");
 
     try {
-      const res = await fetch("https://backend-drukhealth.onrender.com/auth/verify-otp", {
+      const res = await fetch(`${API}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp: otp.trim() }),
       });
 
-      const data = await res.json();
+      let data = null;
+
+      // safe JSON parsing
+      try {
+        data = await res.json();
+      } catch (err) {
+        console.error("JSON Parse Error:", err);
+        setError("⚠️ Invalid server response.");
+        return;
+      }
 
       if (!res.ok) {
         setError(data.message || "❌ Invalid OTP.");
@@ -46,7 +62,7 @@ export default function ForgotPasswordVerify() {
 
     } catch (err) {
       console.error("❌ OTP Verify Error:", err);
-      setError("⚠️ Server error. Try again later.");
+      setError("⚠️ Network or server error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -54,6 +70,7 @@ export default function ForgotPasswordVerify() {
 
   return (
     <div className="container">
+      {/* LEFT PANEL */}
       <div className="left-panel">
         <div className="logo-container">
           <img src="/logo2.png" alt="Druk Health Logo" className="logo" />
@@ -63,11 +80,12 @@ export default function ForgotPasswordVerify() {
         </div>
       </div>
 
+      {/* RIGHT PANEL */}
       <div className="right-panel">
         <div className="form-container">
           <h1 className="title">Verify OTP</h1>
           <p className="subtitle">
-            Enter the OTP you received. <strong>{email}</strong>
+            Enter the OTP sent to <strong>{email}</strong>
           </p>
 
           <div className="input-wrapper">

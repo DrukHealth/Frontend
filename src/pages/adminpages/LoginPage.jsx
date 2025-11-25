@@ -12,6 +12,7 @@ const LoginPage = () => {
 
   // ⭐ Your deployed backend URL
   const NODE_API = "https://backend-drukhealth.onrender.com";
+  // const NODE_API = "http://localhost:5000";
 
   const handleLogin = async () => {
     if (!email || !password) {

@@ -9,6 +9,10 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // 🌐 Central API URL
+  // const API = "http://localhost:5000";
+  const API = "https://backend-drukhealth.onrender.com";
+
   /**
    * 🔹 Handle OTP Request
    */
@@ -25,34 +29,35 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://backend-drukhealth.onrender.com/auth/forgot-password", {
+      const res = await fetch(`${API}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmedEmail }),
       });
 
-      // ⚠️ Safely parse JSON
-      let data;
+      // Try parsing JSON safely
+      let data = null;
       try {
         data = await res.json();
-      } catch {
-        setError(
-          "⚠️ Server error or incorrect backend URL. Check if the server is running on port 1000."
-        );
+      } catch (jsonErr) {
+        console.error("JSON parse error:", jsonErr);
+        setError("⚠️ Server returned invalid JSON. Check backend logs.");
         return;
       }
 
+      // Error from backend
       if (!res.ok) {
         setError(data.message || "❌ Failed to send OTP");
         return;
       }
 
-      // ✅ Success
+      // SUCCESS 🎉
       alert("✅ OTP has been sent to your email!");
       navigate("/forgot-password-verify", { state: { email: trimmedEmail } });
+
     } catch (err) {
       console.error("❌ Error sending OTP:", err);
-      setError("⚠️ Server error. Try again later.");
+      setError("⚠️ Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +80,7 @@ export default function ForgotPassword() {
         <div className="form-container">
           <h1 className="title">Forgot Password</h1>
           <p className="subtitle">
-            Enter your registered  email to receive an OTP.
+            Enter your registered admin email to receive an OTP.
           </p>
 
           <div className="input-wrapper">

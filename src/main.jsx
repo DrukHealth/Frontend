@@ -10,36 +10,44 @@ import Diagnosis from "./pages/userpages/Diagnosis.jsx";
 import Result from "./pages/userpages/Result.jsx";
 import ComingSoon from "./pages/userpages/comingsoon.jsx";
 
-
 // === Admin Pages ===
 import LoginPage from "./pages/adminpages/LoginPage.jsx";
 import ForgotPassword from "./pages/adminpages/ForgotPassword.jsx";
 import ForgotPasswordVerify from "./pages/adminpages/PasswordVerify.jsx";
 import ChangePassword from "./pages/adminpages/ChangePassword.jsx";
 import Dashboard from "./pages/adminpages/Dashboard.jsx";
-import Management from "./pages/adminpages/Management.jsx"; // ✅ Capital M
-import Records from "./pages/adminpages/Records.jsx"
+import Management from "./pages/adminpages/Management.jsx";
+import Records from "./pages/adminpages/Records.jsx";
+
+// === Theme Context Provider ===
+import { ThemeProvider } from "./pages/userpages/ThemeContext";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <Routes>
-      {/* ==== USER ROUTES ==== */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/ctg-scan" element={<CTGScan />} />
-      <Route path="/diagnosis" element={<Diagnosis />} />
-      <Route path="/result" element={<Result />} />
-       <Route path="/guidelines" element={<ComingSoon />} />
-      <Route path="/otg" element={<ComingSoon />} />
+  <React.StrictMode>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
 
+          {/* ==== USER ROUTES ==== */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/ctg-scan" element={<CTGScan />} />
+          <Route path="/diagnosis" element={<Diagnosis />} />
+          <Route path="/result" element={<Result />} />
+          <Route path="/guidelines" element={<ComingSoon />} />
+          <Route path="/otg" element={<ComingSoon />} />
 
-      {/* ==== ADMIN ROUTES ==== */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/forgot-password-verify" element={<ForgotPasswordVerify />} />
-      <Route path="/change-password" element={<ChangePassword />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/management" element={<Management />} />
-      <Route path="/records"element={<Records/>}/>
-    </Routes>
-  </BrowserRouter>
+          {/* ==== ADMIN ROUTES ==== */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password-verify" element={<ForgotPasswordVerify />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/management" element={<Management />} />
+          <Route path="/records" element={<Records />} />
+
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+  </React.StrictMode>
 );
