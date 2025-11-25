@@ -258,22 +258,30 @@ export default function Dashboard() {
           {activeNav === "Management" && <Management />}
         </div>
 
-        {/* Admin Dialog */}
-        {showAdminDialog && (
-          <div className="admin-dialog-overlay">
-            <div className="admin-dialog">
-              <button className="close-btn" onClick={closeAdminDialog}>×</button>
-              <User size={60} className="profile-icon" />
-              <h2>Admin</h2>
-              <p>admin@example.com</p>
-              <div className="admin-dialog-buttons">
-                <button className="reset-password-btn" onClick={handleChangePassword}>
-                  Re-set Password
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+       {showAdminDialog && (
+  <div className="admin-dialog-overlay">
+    <div className="admin-dialog">
+      <button className="close-btn" onClick={closeAdminDialog}>×</button>
+      
+      <User size={60} className="profile-icon" />
+
+      <h2 style={{ textTransform: "capitalize" }}>
+        {localStorage.getItem("adminRole")?.replace("_", " ") || "Admin"}
+      </h2>
+
+      <p>
+        {localStorage.getItem("adminEmail") || "No email found"}
+      </p>
+
+      <div className="admin-dialog-buttons">
+        <button className="reset-password-btn" onClick={handleChangePassword}>
+          Re-set Password
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
         {/* Logout Dialog */}
         {showLogoutDialog && (

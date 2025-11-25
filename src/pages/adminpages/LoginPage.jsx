@@ -9,6 +9,8 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // ⭐ Your deployed backend URL
   const NODE_API = "https://backend-drukhealth.onrender.com";
 
   const handleLogin = async () => {
@@ -29,10 +31,8 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // 🔐 FIXED: Store token under both keys for compatibility
+        // ⭐ Store everything properly for later usage
         localStorage.setItem("adminToken", data.token);
-        localStorage.setItem("token", data.token);
-
         localStorage.setItem("adminEmail", data.data.email);
         localStorage.setItem("adminRole", data.data.role);
 
@@ -46,9 +46,9 @@ const LoginPage = () => {
       } else {
         alert(data.message || "Invalid email or password");
       }
-    } catch (err) {
-      console.error("❌ Login error:", err);
-      alert("Server error — please check backend connection.");
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      alert("Unable to reach the server. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -76,9 +76,9 @@ const LoginPage = () => {
             <input
               type="email"
               placeholder="Email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
 
@@ -87,9 +87,9 @@ const LoginPage = () => {
             <input
               type="password"
               placeholder="Password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 
@@ -98,11 +98,9 @@ const LoginPage = () => {
           </button>
 
           <div className="forgot-password-container">
-            <div className="forgot-password-link">
-              <span onClick={() => navigate("/forgot-password")}>
-                Forgot Password?
-              </span>
-            </div>
+            <span onClick={() => navigate("/forgot-password")}>
+              Forgot Password?
+            </span>
           </div>
         </div>
       </div>
