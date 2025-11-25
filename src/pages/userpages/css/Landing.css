@@ -69,7 +69,7 @@ html, body {
 }
 
 .e-letter {
-  color: #f8e71c; /* yellow */
+  color:  #00FFFF; /* yellow */
   transform: rotate(-12deg);
   display: inline-block;
 }

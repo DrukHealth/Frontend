@@ -1,24 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import "./css/LoginPage.css";
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-
-  const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const handleForgotPassword = () => navigate("/forgot-password");
-
-  // ================================
-  // 🚀 Render Backend URL
-  // ================================
-  const NODE_API =
-    import.meta.env.VITE_NODE_BACKEND ||
-    "https://backend-drukhealth.onrender.com";
+  const NODE_API = "https://backend-drukhealth.onrender.com";
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -29,14 +20,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Determine login type
-      const isSuperAdmin = email.endsWith("@zhiwa-ctg.app");
-
-      const endpoint = isSuperAdmin
-        ? `${NODE_API}/auth/login`
-        : `${NODE_API}/api/manage/login`;
-
-      const response = await fetch(endpoint, {
+      const response = await fetch(`${NODE_API}/api/manage/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -44,24 +28,21 @@ const LoginPage = () => {
 
       const data = await response.json();
 
-      if (response.ok && data.token) {
-        // SUPER ADMIN LOGIN
-        if (isSuperAdmin) {
-          localStorage.setItem("superAdminToken", data.token);
-          localStorage.setItem("superAdminEmail", data.email || email);
+      if (response.ok && data.success) {
+        // 🔐 FIXED: Store token under both keys for compatibility
+        localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("token", data.token);
 
-          alert("Super Admin Login Successful ✅");
-          navigate("/dashboard");
-        }
+        localStorage.setItem("adminEmail", data.data.email);
+        localStorage.setItem("adminRole", data.data.role);
 
-        // NORMAL ADMIN LOGIN
-        else {
-          localStorage.setItem("adminToken", data.token);
-          localStorage.setItem("adminEmail", data.data?.email || email);
+        alert(
+          `Login Successful! Welcome ${
+            data.data.role === "super_admin" ? "Super Admin" : "Admin"
+          } ✅`
+        );
 
-          alert("Admin Login Successful ✅");
-          navigate("/management");
-        }
+        navigate("/dashboard");
       } else {
         alert(data.message || "Invalid email or password");
       }
@@ -75,6 +56,7 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
+      {/* Logo Section */}
       <div className="login-left">
         <div className="logo-box">
           <img src="/logo2.png" alt="logo" />
@@ -84,9 +66,10 @@ const LoginPage = () => {
         </div>
       </div>
 
+      {/* Form Section */}
       <div className="login-right">
         <div className="login-box">
-          <h1>Welcome Again!</h1>
+          <h1>Welcome Back!</h1>
 
           <div className="input-group">
             <FaEnvelope className="input-icon" />
@@ -102,23 +85,24 @@ const LoginPage = () => {
           <div className="input-group">
             <FaLock className="input-icon" />
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <span className="toggle-password" onClick={togglePasswordVisibility}>
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
           </div>
 
           <button className="login-btn" onClick={handleLogin} disabled={loading}>
             {loading ? "Logging in..." : "LOG IN"}
           </button>
 
-          <div className="forgot" onClick={handleForgotPassword}>
-            Forgot Password?
+          <div className="forgot-password-container">
+            <div className="forgot-password-link">
+              <span onClick={() => navigate("/forgot-password")}>
+                Forgot Password?
+              </span>
+            </div>
           </div>
         </div>
       </div>

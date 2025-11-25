@@ -1,76 +1,60 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./css/ChangePassword.css";
 
-export default function ChangePassword() {
-  const [oldPassword, setOldPassword] = useState("");
+export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
-  /* ----------------------------------------------------
-     🧩 Handle Password Change
-  ---------------------------------------------------- */
-  const handleChangePassword = async () => {
+  // Get email from OTP verification
+  const email = location.state?.email || "";
+
+  if (!email) {
+    navigate("/forgot-password");
+  }
+
+  const handleResetPassword = async () => {
     setError("");
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       setError("⚠️ Please fill in all fields");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("❌ New passwords do not match");
-      return;
-    }
-
-    // ✅ Get token (from either super admin or admin)
-    const token =
-      localStorage.getItem("superAdminToken") ||
-      localStorage.getItem("adminToken");
-
-    if (!token) {
-      alert("⚠️ Session expired. Please log in again.");
-      navigate("/login");
+      setError("❌ Passwords do not match");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/auth/change-password", {
+      const res = await fetch("http://localhost:1000/auth/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ Important
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.message || "❌ Failed to change password");
+        setError(data.message || "❌ Failed to reset password");
       } else {
-        alert("✅ Password changed successfully!");
-        // Optional: clear tokens to force re-login
-        localStorage.removeItem("adminToken");
-        localStorage.removeItem("superAdminToken");
+        alert("✅ Password reset successfully!");
         navigate("/login");
       }
     } catch (err) {
-      console.error("⚠️ Error changing password:", err);
-      setError("⚠️ Server error. Please try again later.");
+      console.error("⚠️ Error resetting password:", err);
+      setError("⚠️ Server error. Try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ----------------------------------------------------
-     💻 UI
-  ---------------------------------------------------- */
   return (
     <div className="change-container">
       {/* LEFT PANEL */}
@@ -84,20 +68,10 @@ export default function ChangePassword() {
       {/* RIGHT PANEL */}
       <div className="change-right-panel">
         <div className="change-form-container">
-          <h1 className="change-title">Change Password</h1>
+          <h1 className="change-title">Reset Password</h1>
           <p className="change-subtitle">
-            Enter your current password and choose a new one.
+            Enter your new password.
           </p>
-
-          <div className="change-input-wrapper">
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              className="change-input"
-            />
-          </div>
 
           <div className="change-input-wrapper">
             <input
@@ -122,11 +96,11 @@ export default function ChangePassword() {
           {error && <p className="error-message">{error}</p>}
 
           <button
-            onClick={handleChangePassword}
+            onClick={handleResetPassword}
             className="change-btn"
             disabled={loading}
           >
-            {loading ? "Updating..." : "Update Password"}
+            {loading ? "Updating..." : "Reset Password"}
           </button>
         </div>
       </div>
