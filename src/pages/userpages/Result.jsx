@@ -64,9 +64,9 @@ export default function Result() {
   } else {
     displayLabel = label || "CTG classification unavailable";
 
-    if (label === "Reassuring") labelColor = "#28a745";
-    else if (label === "Non-Reassuring") labelColor = "#ffc107";
-    else if (label === "Abnormal") labelColor = "#dc3545";
+    if (label === "Normal") labelColor = "#28a745";
+    else if (label === "Suspicoius") labelColor = "#ffc107";
+    else if (label === "Pathological") labelColor = "#dc3545";
   }
 
   const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
