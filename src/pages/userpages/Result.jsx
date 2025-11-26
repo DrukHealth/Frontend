@@ -2,46 +2,34 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import "./css/Result.css";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
-
-// ⬇️ Import global theme
 import { ThemeContext } from "./ThemeContext";
 
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ⬇️ Use global theme
   const { theme, toggleTheme } = useContext(ThemeContext);
   const darkMode = theme === "dark";
 
-  const imageFile = location.state?.imageFile;
-  const imagePreviewState = location.state?.imagePreview;
-  const resultData = location.state?.result;
+  const imageFile = location.state?.imageFile || null;
+  const imagePreviewState = location.state?.imagePreview || null;
+  const resultData = location.state?.result || null;
 
-  const [imagePreview, setImagePreview] = useState(imagePreviewState || null);
-  const [label, setLabel] = useState(resultData?.label || "");
-  const [features, setFeatures] = useState(resultData?.features || {});
-  const [loading, setLoading] = useState(!resultData);
+  // Extract backend response safely
+  const isCTG = resultData?.isCTG ?? null;
+  const label = resultData?.label || "";
+  const backendMessage = resultData?.message || "";
+  const features = isCTG ? resultData?.features || {} : {};
 
-  const source = resultData?.source || "ctg";
+  const [imagePreview, setImagePreview] = useState(imagePreviewState);
 
   useEffect(() => {
-    if (!imageFile || !resultData) {
-      setLoading(false);
-      return;
-    }
-
-    if (!imagePreview) {
+    if (imageFile && !imagePreview) {
       setImagePreview(URL.createObjectURL(imageFile));
     }
+  }, [imageFile, imagePreview]);
 
-    setLabel(resultData.label);
-    setFeatures(resultData.features);
-    setLoading(false);
-  }, [imageFile, resultData]);
-
-  // ❗ Remove local body styling — ThemeContext handles this.
-
+  // Block page if no data passed here
   if (!imageFile || !resultData) {
     return (
       <div
@@ -61,20 +49,25 @@ export default function Result() {
     );
   }
 
-  // ----- COLOR LOGIC -----
-  const displayLabel =
-    source === "nyckel" ? "Non-CTG Detected" : label || "No result";
+  // Title + Label logic
+  const titleText = isCTG === false ? "Non-CTG Scan" : "CTG Result";
 
-  const labelColor =
-    source === "nyckel"
-      ? "#6c757d"
-      : label === "Normal"
-      ? "#28a745"
-      : label === "Suspect"
-      ? "#ffc107"
-      : label === "Pathologic"
-      ? "#dc3545"
-      : "#0d52bd";
+  let displayLabel = "";
+  let labelColor = darkMode ? "#EAEAEA" : "#0d52bd";
+
+  if (isCTG === false) {
+    displayLabel = "❌ Non-CTG image detected — cannot diagnose as CTG.";
+    if (backendMessage) {
+      displayLabel += ` (${backendMessage})`;
+    }
+    labelColor = "#6c757d"; // Neutral grey
+  } else {
+    displayLabel = label || "CTG classification unavailable";
+
+    if (label === "Reassuring") labelColor = "#28a745";
+    else if (label === "Non-Reassuring") labelColor = "#ffc107";
+    else if (label === "Abnormal") labelColor = "#dc3545";
+  }
 
   const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
 
@@ -96,14 +89,11 @@ export default function Result() {
           alignItems: "center",
           padding: "10px 20px",
           backgroundColor: darkMode ? "#222" : "#e2edfb",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "90px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
-        <div
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", marginLeft: "-30px" }}
-        >
+        <div onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
           <img
             src="/Latestlogo.png"
             alt="Druk eHealth Logo"
@@ -119,19 +109,11 @@ export default function Result() {
             transform: "translateX(-50%)",
           }}
         >
-          <span style={{ fontSize: "1.8rem" }}>
-            {source === "nyckel" ? "Non-CTG Scan" : "CTG Result"}
-          </span>
+          <span style={{ fontSize: "1.8rem" }}>{titleText}</span>
         </div>
 
-        {/* GLOBAL DARK MODE TOGGLE */}
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            fontSize: "1.6rem",
-          }}
+          style={{ fontSize: "1.6rem", cursor: "pointer" }}
           onClick={toggleTheme}
         >
           {darkMode ? <MdLightMode /> : <MdDarkMode />}
@@ -146,64 +128,50 @@ export default function Result() {
           </div>
         )}
 
-        {/* LABEL */}
-        {loading ? (
-          <p className="analyzing-text">🔍 Processing scan...</p>
-        ) : (
-          <div
-            style={{
-              margin: "1.5rem 0",
-              fontWeight: "900",
-              fontSize: "2rem",
-              color: labelColor,
-              textAlign: "center",
-            }}
-          >
-            {displayLabel}
-          </div>
-        )}
+        {/* MAIN LABEL */}
+        <div
+          style={{
+            margin: "1.5rem 0",
+            fontWeight: "900",
+            fontSize: "1.8rem",
+            color: labelColor,
+            textAlign: "center",
+            maxWidth: "90%",
+          }}
+        >
+          {displayLabel}
+        </div>
 
-        {/* FEATURES TABLE */}
-        {!loading && features && Object.keys(features).length > 0 && (
-          <div className="feature-section">
-            <div
-              className={`table-wrapper ${darkMode ? "dark-mode" : "light-mode"}`}
-            >
-              <table className="feature-table">
-                <thead>
-                  <tr style={{ color: tableTextColor }}>
-                    <th>Feature</th>
-                    <th>Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(features).map(([key, value]) => (
-                    <tr key={key} style={{ color: tableTextColor }}>
-                      <td>{key}</td>
-                      <td>{Number(value).toFixed(3)}</td>
+        {/* CTG ONLY → SHOW TABLE */}
+        {isCTG === true &&
+          Object.keys(features).length > 0 && (
+            <div className="feature-section">
+              <div className="table-wrapper">
+                <table className="feature-table">
+                  <thead>
+                    <tr style={{ color: tableTextColor }}>
+                      <th>Feature</th>
+                      <th>Value</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {Object.entries(features).map(([key, value]) => (
+                      <tr key={key} style={{ color: tableTextColor }}>
+                        <td>{key}</td>
+                        <td>{Number(value).toFixed(3)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* RETURN BUTTON */}
         <div style={{ textAlign: "center", margin: "2rem 0" }}>
           <button
             onClick={() => navigate("/ctg-scan")}
             className="return-btn"
-            style={{
-              padding: "0.7rem 1.5rem",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              cursor: "pointer",
-              borderRadius: "8px",
-              backgroundColor: "#0d52bd",
-              color: "white",
-              border: "none",
-            }}
           >
             Return to Scan
           </button>
