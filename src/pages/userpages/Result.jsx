@@ -15,12 +15,10 @@ export default function Result() {
   const imagePreviewState = location.state?.imagePreview || null;
   const resultData = location.state?.result || null;
 
-  // Extract backend response safely
   const isCTG = resultData?.isCTG ?? null;
   const label = resultData?.label || "";
   const backendMessage = resultData?.message || "";
   const features = isCTG ? resultData?.features || {} : {};
-
   const [imagePreview, setImagePreview] = useState(imagePreviewState);
 
   useEffect(() => {
@@ -29,7 +27,6 @@ export default function Result() {
     }
   }, [imageFile, imagePreview]);
 
-  // Block page if no data passed here
   if (!imageFile || !resultData) {
     return (
       <div
@@ -49,24 +46,28 @@ export default function Result() {
     );
   }
 
-  // Title + Label logic
   const titleText = isCTG === false ? "Non-CTG Scan" : "CTG Result";
 
+  // ===============================
+  // ⭐ COLOR MAPPING FOR LABEL
+  // ===============================
+  const COLORS = {
+    Normal: "#28a745",
+    Suspicious: "#ffc107",
+    Pathological: "#dc3545",
+    Default: darkMode ? "#EAEAEA" : "#0d52bd",
+    NonCTG: "#6c757d",
+  };
+
   let displayLabel = "";
-  let labelColor = darkMode ? "#EAEAEA" : "#0d52bd";
+  let labelColor = COLORS.Default;
 
   if (isCTG === false) {
-    displayLabel = "❌ Non-CTG image detected — cannot diagnose as CTG.";
-    if (backendMessage) {
-      displayLabel += ` (${backendMessage})`;
-    }
-    labelColor = "#6c757d"; // Neutral grey
+    displayLabel = `❌ Non-CTG image detected. ${backendMessage || ""}`;
+    labelColor = COLORS.NonCTG;
   } else {
     displayLabel = label || "CTG classification unavailable";
-
-    if (label === "Normal") labelColor = "#28a745";
-    else if (label === "Suspicoius") labelColor = "#ffc107";
-    else if (label === "Pathological") labelColor = "#dc3545";
+    labelColor = COLORS[label] || COLORS.Default;
   }
 
   const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
@@ -142,37 +143,33 @@ export default function Result() {
           {displayLabel}
         </div>
 
-        {/* CTG ONLY → SHOW TABLE */}
-        {isCTG === true &&
-          Object.keys(features).length > 0 && (
-            <div className="feature-section">
-              <div className="table-wrapper">
-                <table className="feature-table">
-                  <thead>
-                    <tr style={{ color: tableTextColor }}>
-                      <th>Feature</th>
-                      <th>Value</th>
+        {/* FEATURES TABLE */}
+        {isCTG === true && Object.keys(features).length > 0 && (
+          <div className="feature-section">
+            <div className="table-wrapper">
+              <table className="feature-table">
+                <thead>
+                  <tr style={{ color: tableTextColor }}>
+                    <th>Feature</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(features).map(([key, value]) => (
+                    <tr key={key} style={{ color: tableTextColor }}>
+                      <td>{key}</td>
+                      <td>{Number(value).toFixed(3)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(features).map(([key, value]) => (
-                      <tr key={key} style={{ color: tableTextColor }}>
-                        <td>{key}</td>
-                        <td>{Number(value).toFixed(3)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
+        )}
 
         {/* RETURN BUTTON */}
         <div style={{ textAlign: "center", margin: "2rem 0" }}>
-          <button
-            onClick={() => navigate("/ctg-scan")}
-            className="return-btn"
-          >
+          <button onClick={() => navigate("/ctg-scan")} className="return-btn">
             Return to Scan
           </button>
         </div>
