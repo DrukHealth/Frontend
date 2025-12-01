@@ -1,17 +1,74 @@
 /* ==========================
+   MATCH HOME PAGE HEADER
+========================== */
+.navbar {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.nav-left {
+  position: absolute;
+  left: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  height: 55px;
+  width: auto;
+}
+
+.nav-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: #0d52bd;
+}
+
+.e-letter {
+  color: hsl(238, 77%, 52%);
+  transform: rotate(-12deg);
+  display: inline-block;
+}
+
+/* Footer e-letter color fix */
+.footer .e-letter {
+  color: inherit !important;
+}
+
+
+/* Dark background for result body */
+.result-container.dark-mode .result-body {
+  background-color: #121212 !important;
+  color: #eaeaea !important;
+}
+
+/* Dark-mode card for CTG table */
+.result-container.dark-mode .feature-table {
+  background-color: #1e1e1e !important;
+  border-color: #444 !important;
+}
+
+.result-container.dark-mode .feature-table td {
+  background-color: #1e1e1e !important;
+  color: #eaeaea !important;
+}
+
+
+/* ==========================
    RESULT PAGE MAIN STYLES
 ========================== */
 
 .result-body {
   flex-grow: 1;
-  display: flex;               /* ← DESKTOP FIX (back to normal) */
+  display: flex;  
   flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 50px 20px;
   animation: fadeIn 0.8s ease-in-out;
   font-family: "Altoss Sans", sans-serif;
-  overflow: visible;           /* ensure children visible */
+  overflow: visible;
 }
 
 /* Preview Image */
@@ -79,7 +136,6 @@
   table-layout: auto;
 }
 
-/* Header styling */
 .feature-table th {
   background-color: #0d52bd;
   color: #fff !important;
@@ -88,7 +144,6 @@
   white-space: nowrap;
 }
 
-/* Align columns */
 .feature-table th:first-child,
 .feature-table td:first-child {
   text-align: left;
@@ -99,7 +154,6 @@
   text-align: right;
 }
 
-/* Table body */
 .feature-table td {
   padding: 12px;
   border-bottom: 1px solid #ccc;
@@ -127,7 +181,7 @@
 }
 
 /* ==========================
-   TABLET VIEW (600–900px)
+   TABLET VIEW
 ========================== */
 
 @media (max-width: 900px) and (min-width: 650px) {
@@ -157,14 +211,12 @@
 }
 
 /* ==========================
-   MOBILE VIEW (<600px)
+   MOBILE VIEW
 ========================== */
 
 @media (max-width: 800px) {
-
-  /* Keep layout simple on mobile */
   .result-body {
-    display: block; /* ← only mobile gets this */
+    display: block;
   }
 
   .table-wrapper {
@@ -204,16 +256,23 @@
 }
 
 /* ==========================
-   FOOTER
+   FOOTER (MATCH HOME)
 ========================== */
 
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #e2edfb;
+  color: #0d52bd;
   text-align: center;
   padding: 18px 10px;
   font-size: 0.95rem;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
 }
 
 /* ==========================

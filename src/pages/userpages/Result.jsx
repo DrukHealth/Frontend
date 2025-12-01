@@ -73,15 +73,14 @@ export default function Result() {
   const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
 
   return (
-    <div
-      className="result-container"
-      style={{
-        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
-        color: darkMode ? "#EAEAEA" : "#0d52bd",
-        minHeight: "100vh",
-      }}
-    >
-      {/* NAVBAR */}
+   <div
+  className={`result-container ${darkMode ? "dark-mode" : ""}`}
+  style={{
+    backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+  }}
+>
+
+ {/* Navigation Bar */}
       <nav
         className="navbar"
         style={{
@@ -90,36 +89,46 @@ export default function Result() {
           alignItems: "center",
           padding: "10px 20px",
           backgroundColor: darkMode ? "#222" : "#e2edfb",
-          height: "90px",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          height: "90px",
         }}
       >
-        <div onClick={() => navigate("/home")} style={{ cursor: "pointer" }}>
-          <img
-            src="/Latestlogo.png"
-            alt="Druk eHealth Logo"
-            style={{ height: "115px" }}
-          />
+        {/* Left: Logo */}
+        <div
+          onClick={() => navigate("/home")}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", marginLeft: "-30px" }}
+        >
+          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
         </div>
 
+        {/* Center: Title */}
         <div
           style={{
             fontWeight: "bold",
+            textAlign: "center",
+            color: darkMode ? "#EAEAEA" : "#0d52bd",
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
           }}
         >
-          <span style={{ fontSize: "1.8rem" }}>{titleText}</span>
+          <span className="title" style={{ fontSize: "1.8rem" }}>
+            CTG Result</span>
         </div>
 
-        <div
-          style={{ fontSize: "1.6rem", cursor: "pointer" }}
-          onClick={toggleTheme}
-        >
-          {darkMode ? <MdLightMode /> : <MdDarkMode />}
+        {/* Right: Dark Mode Toggle */}
+        <div style={{ display: "flex", alignItems: "center", fontSize: "1.5rem", cursor: "pointer" }}>
+         <span onClick={toggleTheme}>
+  {darkMode ? (
+    <MdLightMode style={{ color: "#FFFFFF" }} />
+  ) : (
+    <MdDarkMode style={{ color: "#0d52bd" }} />
+  )}
+</span>
+
         </div>
       </nav>
+
 
       {/* BODY */}
       <div className="result-body fade-in">

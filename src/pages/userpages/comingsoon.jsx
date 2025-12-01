@@ -1,9 +1,12 @@
-import { useState } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { ThemeContext } from "./ThemeContext";
 
 export default function ComingSoon() {
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const darkMode = theme === "dark";
 
   return (
     <div
@@ -27,26 +30,27 @@ export default function ComingSoon() {
           backgroundColor: darkMode ? "#222" : "#e2edfb",
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
           height: "90px",
+          position: "relative",
         }}
       >
-        {/* Left: Logo - Extreme left with no spacing */}
+        {/* Left: Logo */}
         <div
           onClick={() => navigate("/home")}
-          style={{ 
-            cursor: "pointer", 
-            display: "flex", 
+          style={{
+            cursor: "pointer",
+            display: "flex",
             alignItems: "center",
             marginLeft: "-30px",
           }}
         >
-          <img 
-            src="/Latestlogo.png" 
-            alt="Druk eHealth Logo" 
-            style={{ height: "115px" }} 
+          <img
+            src="/Latestlogo.png"
+            alt="Druk eHealth Logo"
+            style={{ height: "115px" }}
           />
         </div>
 
-        {/* Center: Title - Now with "Coming Soon" text */}
+        {/* Center Title */}
         <div
           style={{
             fontWeight: "bold",
@@ -57,57 +61,27 @@ export default function ComingSoon() {
             transform: "translateX(-50%)",
           }}
         >
-          <span className="title" style={{fontSize: "1.8rem",color: darkMode ? "#EAEAEA" : "#0d52bd" }}>
+          <span className="title" style={{ fontSize: "1.8rem" }}>
+            Druk <span className="e-letter">e</span>Health
           </span>
         </div>
 
-        {/* Right: Dark Mode Toggle */}
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <label
-            style={{
-              position: "relative",
-              display: "inline-block",
-              width: "50px",
-              height: "26px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              style={{ opacity: 0, width: 0, height: 0 }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                cursor: "pointer",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: darkMode ? "#444" : "#ccc",
-                transition: "0.4s",
-                borderRadius: "34px",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  height: "18px",
-                  width: "18px",
-                  left: darkMode ? "26px" : "4px",
-                  bottom: "4px",
-                  backgroundColor: "white",
-                  transition: "0.4s",
-                  borderRadius: "50%",
-                }}
-              ></span>
-            </span>
-          </label>
+        {/* Right: Dark Mode Toggle (same as home page) */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontSize: "1.5rem",
+            cursor: "pointer",
+          }}
+        >
+          <span onClick={toggleTheme}>
+            {darkMode ? <MdLightMode /> : <MdDarkMode />}
+          </span>
         </div>
       </nav>
 
-      {/* Coming Soon Content */}
+      {/* Coming Soon Section */}
       <div
         style={{
           flex: 1,
@@ -119,19 +93,17 @@ export default function ComingSoon() {
           padding: "2rem",
         }}
       >
-        <div style={{
-          fontSize: "4rem",
-          fontWeight: "bold",
-          marginBottom: "2rem",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
-        }}>
-                    Coming Soon!
-
+        <div
+          style={{
+            fontSize: "4rem",
+            fontWeight: "bold",
+            marginBottom: "2rem",
+            color: darkMode ? "#EAEAEA" : "#0d52bd",
+          }}
+        >
+          Coming Soon!
         </div>
-    
-        
-    
-        
+
         <button
           onClick={() => navigate("/home")}
           style={{

@@ -47,7 +47,7 @@
 }
 
 .e-letter {
-  color:  #00FFFF; /* yellow */
+  color:  hsl(238, 77%, 52%); /* yellow */
   transform: rotate(-12deg);
   display: inline-block;
 }
@@ -119,6 +119,12 @@
     padding: 20px;
   }
 }
+
+.footer .e-letter {
+  color: inherit !important;   /* match footer text color */
+  transform: none;             /* optional: remove tilt if you want */
+}
+
 
 /* Footer */
 .footer {
