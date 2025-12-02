@@ -11,14 +11,17 @@ export default function Landing() {
 
       <div className="landing-content">
         <img
-          src="/Latestlogo.png"
+          src="/logo.png"
           alt="Druk eHealth Logo"
           className="logo animated"
         />
 
-        <h1 className="title animated delay-1">
-          Druk <span className="e-letter">e</span>Health
-        </h1>
+      <h1 className="title animated delay-1">
+        <span style={{ color: "white" }}>Druk </span>
+        <span className="e-letter" style={{ color: "#ffc400" }}>e</span>
+        <span style={{ color: "white" }}>Health</span>
+      </h1>
+
 
         <button
           onClick={() => navigate("/home")}

@@ -21,13 +21,41 @@ export default function Diagnosis() {
     <div className="diagnosis-container">
      {/* Navbar */}
 <nav className="navbar">
-  <div
-    className="nav-left"
-    onClick={() => navigate("/home")}
-    style={{ cursor: "pointer" }}
-  >
-    <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
-  </div>
+        <div
+          onClick={() => navigate("/home")}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            marginLeft: "-30px",
+          }}
+        >
+          <img
+            src={darkMode ? "/logo2.png" : "/Latestlogo.png"}
+            alt="Druk eHealth Logo"
+            style={{
+              height: "115px",
+              filter: darkMode
+                ? "drop-shadow(0px 0px 8px rgba(255,255,255,0.3))"
+                : "none",
+              transition: "0.3s ease",
+            }}
+          />
+        </div>
+              {/* RIGHT: Dark Mode Toggle */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    fontSize: "1.7rem",
+                    cursor: "pointer",
+                    color: darkMode ? "#ffc400" : "#0d52bd",
+                  }}
+                >
+                  <span onClick={toggleTheme}>
+                    {darkMode ? <MdLightMode /> : <MdDarkMode />}
+                  </span>
+                </div>
 
 </nav>
 

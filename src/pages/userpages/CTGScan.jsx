@@ -131,12 +131,23 @@ export default function CTGScan() {
       >
         <div
           onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", marginLeft: "-30px" }}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            marginLeft: "-30px",
+          }}
         >
           <img
-            src="/Latestlogo.png"
+            src={darkMode ? "/logo2.png" : "/Latestlogo.png"}
             alt="Druk eHealth Logo"
-            style={{ height: "115px" }}
+            style={{
+              height: "115px",
+              filter: darkMode
+                ? "drop-shadow(0px 0px 8px rgba(255,255,255,0.3))"
+                : "none",
+              transition: "0.3s ease",
+            }}
           />
         </div>
 
@@ -152,12 +163,20 @@ export default function CTGScan() {
           CTG Scan
         </div>
 
-        <div
-          style={{ cursor: "pointer", fontSize: "1.5rem" }}
-          onClick={toggleTheme}
-        >
-          {darkMode ? <MdLightMode /> : <MdDarkMode />}
-        </div>
+              {/* RIGHT: Dark Mode Toggle */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    fontSize: "1.7rem",
+                    cursor: "pointer",
+                    color: darkMode ? "#ffc400" : "#0d52bd",
+                  }}
+                >
+                  <span onClick={toggleTheme}>
+                    {darkMode ? <MdLightMode /> : <MdDarkMode />}
+                  </span>
+                </div>
       </nav>
 
       {/* MAIN CONTENT */}

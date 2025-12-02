@@ -55,30 +55,52 @@ export default function ComingSoon() {
           style={{
             fontWeight: "bold",
             textAlign: "center",
-            color: darkMode ? "#EAEAEA" : "#0d52bd",
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
           }}
         >
-          <span className="title" style={{ fontSize: "1.8rem" }}>
-            Druk <span className="e-letter">e</span>Health
+          <span
+            className="title"
+            style={{
+              fontSize: "1.8rem",
+              textShadow: darkMode
+                ? "0 0 8px rgba(255,255,255,0.25)"
+                : "0px 3px 6px rgba(0,0,0,0.35)",
+            }}
+          >
+            <span style={{ color: darkMode ? "#FFFFFF" : "#0d52bd" }}>
+              Druk{" "}
+            </span>
+            <span
+              className="e-letter"
+              style={{
+                color: "#ffc400",
+                filter: "drop-shadow(0 0 4px rgba(255,215,0,0.6))",
+              }}
+            >
+              e
+            </span>
+            <span style={{ color: darkMode ? "#FFFFFF" : "#0d52bd" }}>
+              Health
+            </span>
           </span>
         </div>
 
-        {/* Right: Dark Mode Toggle (same as home page) */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-          }}
-        >
-          <span onClick={toggleTheme}>
-            {darkMode ? <MdLightMode /> : <MdDarkMode />}
-          </span>
-        </div>
+              {/* RIGHT: Dark Mode Toggle */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    fontSize: "1.7rem",
+                    cursor: "pointer",
+                    color: darkMode ? "#ffc400" : "#0d52bd",
+                  }}
+                >
+                  <span onClick={toggleTheme}>
+                    {darkMode ? <MdLightMode /> : <MdDarkMode />}
+                  </span>
+                </div>
       </nav>
 
       {/* Coming Soon Section */}

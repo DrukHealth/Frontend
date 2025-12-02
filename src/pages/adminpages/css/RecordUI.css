@@ -926,3 +926,62 @@
     animation: none;
   }
 }
+
+.selected-row {
+  background-color: #d0e7ff; /* light blue */
+}
+
+.selected-card {
+  border: 2px solid #4d79ff;
+  background-color: #e6f0ff;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bulk-delete-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.action-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.records-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  margin-top: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sort-dropdown{
+  padding: 5px;
+}
+
+.header-right button{
+  padding: 5px;
+  box-shadow: #2a2a2a;
+}
+
+

@@ -55,7 +55,7 @@ body {
 
 .logo-e {
   font-style: italic;
-  color: #00FFFF; /* yellow */
+  color: #fca400; /* yellow */
 }
 
 /* Navigation */
@@ -783,4 +783,33 @@ body {
     top: 0;
     z-index: 800;
   }
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  
+  font-size: 28px;        /* Bigger X */
+  font-weight: bold;
+  color: white;
+  
+  background: #923939;    /* Red button */
+  border: none;
+  border-radius: 50%;     /* Circle */
+  
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #d93636;     /* Slightly darker red on hover */
+  transform: scale(1.05);
 }

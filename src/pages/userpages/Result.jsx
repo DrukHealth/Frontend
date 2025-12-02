@@ -19,6 +19,7 @@ export default function Result() {
   const label = resultData?.label || "";
   const backendMessage = resultData?.message || "";
   const features = isCTG ? resultData?.features || {} : {};
+
   const [imagePreview, setImagePreview] = useState(imagePreviewState);
 
   useEffect(() => {
@@ -30,12 +31,11 @@ export default function Result() {
   if (!imageFile || !resultData) {
     return (
       <div
-        className="no-image"
         style={{
           textAlign: "center",
           paddingTop: "5rem",
           minHeight: "100vh",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          color: darkMode ? "#f5f5f7" : "#0d52bd",
         }}
       >
         <p>No scan data found. Please try again.</p>
@@ -46,17 +46,13 @@ export default function Result() {
     );
   }
 
-  const titleText = isCTG === false ? "Non-CTG Scan" : "CTG Result";
-
-  // ===============================
-  // ⭐ COLOR MAPPING FOR LABEL
-  // ===============================
+  // ===== LABEL COLORS =====
   const COLORS = {
-    Normal: "#28a745",
-    Suspicious: "#ffc107",
-    Pathological: "#dc3545",
-    Default: darkMode ? "#EAEAEA" : "#0d52bd",
-    NonCTG: "#6c757d",
+    Normal: "#4ade80", // green
+    Suspicious: "#facc15", // yellow
+    Pathological: "#f87171", // red
+    Default: darkMode ? "#ffffff" : "#0d52bd",
+    NonCTG: "#9ca3af",
   };
 
   let displayLabel = "";
@@ -70,115 +66,171 @@ export default function Result() {
     labelColor = COLORS[label] || COLORS.Default;
   }
 
-  const tableTextColor = darkMode ? "#EAEAEA" : "#0d52bd";
+  const tableText = darkMode ? "#f0f0f0" : "#0d52bd";
 
   return (
-   <div
-  className={`result-container ${darkMode ? "dark-mode" : ""}`}
-  style={{
-    backgroundColor: darkMode ? "#121212" : "#FFFFFF",
-  }}
->
-
- {/* Navigation Bar */}
+    <div
+      className="result-container"
+      style={{
+        background: darkMode
+          ? "linear-gradient(180deg, #0d0d0d, #1a1a1a)"
+          : "#ffffff",
+        minHeight: "100vh",
+        transition: "0.3s ease",
+      }}
+    >
+      {/* NAVBAR */}
       <nav
-        className="navbar"
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
           padding: "10px 20px",
-          backgroundColor: darkMode ? "#222" : "#e2edfb",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          backgroundColor: darkMode ? "rgba(30,30,30,0.9)" : "#e2edfb",
+          backdropFilter: darkMode ? "blur(6px)" : "none",
           height: "90px",
+          boxShadow: darkMode
+            ? "0 2px 10px rgba(255,255,255,0.05)"
+            : "0 2px 4px rgba(0,0,0,0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "relative",
         }}
       >
-        {/* Left: Logo */}
+        {/* LOGO */}
         <div
           onClick={() => navigate("/home")}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", marginLeft: "-30px" }}
+          style={{ cursor: "pointer", marginLeft: "-30px" }}
         >
-          <img src="/Latestlogo.png" alt="Druk eHealth Logo" style={{ height: "115px" }} />
+          <img
+            src={darkMode ? "/logo2.png" : "/Latestlogo.png"}
+            style={{
+              height: "115px",
+              filter: darkMode
+                ? "drop-shadow(0 0 10px rgba(255,255,255,0.3))"
+                : "none",
+            }}
+          />
         </div>
 
-        {/* Center: Title */}
+        {/* TITLE */}
         <div
           style={{
             fontWeight: "bold",
-            textAlign: "center",
-            color: darkMode ? "#EAEAEA" : "#0d52bd",
+            fontSize: "1.8rem",
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
+            color: darkMode ? "#ffffff" : "#0d52bd",
+            textShadow: darkMode
+              ? "0px 0px 10px rgba(255,255,255,0.2)"
+              : "none",
           }}
         >
-          <span className="title" style={{ fontSize: "1.8rem" }}>
-            CTG Result</span>
+          CTG Result
         </div>
 
-        {/* Right: Dark Mode Toggle */}
-        <div style={{ display: "flex", alignItems: "center", fontSize: "1.5rem", cursor: "pointer" }}>
-         <span onClick={toggleTheme}>
-  {darkMode ? (
-    <MdLightMode style={{ color: "#FFFFFF" }} />
-  ) : (
-    <MdDarkMode style={{ color: "#0d52bd" }} />
-  )}
-</span>
-
-        </div>
+             {/* RIGHT: Dark Mode Toggle */}
+               <div
+                 style={{
+                   display: "flex",
+                   alignItems: "center",
+                   fontSize: "1.7rem",
+                   cursor: "pointer",
+                   color: darkMode ? "#ffc400" : "#0d52bd",
+                 }}
+               >
+                 <span onClick={toggleTheme}>
+                   {darkMode ? <MdLightMode /> : <MdDarkMode />}
+                 </span>
+               </div>
       </nav>
-
 
       {/* BODY */}
       <div className="result-body fade-in">
+
+        {/* PREVIEW IMAGE */}
         {imagePreview && (
-          <div className="preview">
-            <img src={imagePreview} alt="Scan Preview" className="preview-img" />
+          <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+            <img
+              src={imagePreview}
+              className="preview-img"
+              style={{
+                width: "92%",
+                maxWidth: "450px",
+                borderRadius: "12px",
+                boxShadow: darkMode
+                  ? "0 0 20px rgba(255,255,255,0.08)"
+                  : "0 0 10px rgba(0,0,0,0.2)",
+              }}
+            />
           </div>
         )}
 
-        {/* MAIN LABEL */}
-        <div
+        {/* LABEL */}
+        <h2
           style={{
-            margin: "1.5rem 0",
-            fontWeight: "900",
-            fontSize: "1.8rem",
             color: labelColor,
+            fontSize: "2rem",
+            fontWeight: 800,
             textAlign: "center",
-            maxWidth: "90%",
+            marginTop: "1.5rem",
+            textShadow: darkMode
+              ? "0 0 10px rgba(255,255,255,0.15)"
+              : "none",
           }}
         >
           {displayLabel}
-        </div>
+        </h2>
 
         {/* FEATURES TABLE */}
-        {isCTG === true && Object.keys(features).length > 0 && (
-          <div className="feature-section">
-            <div className="table-wrapper">
-              <table className="feature-table">
-                <thead>
-                  <tr style={{ color: tableTextColor }}>
-                    <th>Feature</th>
-                    <th>Value</th>
+        {isCTG && Object.keys(features).length > 0 && (
+          <div
+            style={{
+              margin: "2rem auto",
+              width: "92%",
+              maxWidth: "600px",
+              background: darkMode
+                ? "rgba(255,255,255,0.05)"
+                : "#ffffff",
+              backdropFilter: darkMode ? "blur(10px)" : "none",
+              padding: "1rem",
+              borderRadius: "12px",
+              boxShadow: darkMode
+                ? "0 0 20px rgba(255,255,255,0.06)"
+                : "0 4px 12px rgba(0,0,0,0.1)",
+            }}
+          >
+            <table className="feature-table">
+              <thead>
+                <tr style={{ color: tableText }}>
+                  <th>Feature</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(features).map(([key, value]) => (
+                  <tr key={key} style={{ color: tableText }}>
+                    <td>{key}</td>
+                    <td>{Number(value).toFixed(3)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(features).map(([key, value]) => (
-                    <tr key={key} style={{ color: tableTextColor }}>
-                      <td>{key}</td>
-                      <td>{Number(value).toFixed(3)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {/* RETURN BUTTON */}
-        <div style={{ textAlign: "center", margin: "2rem 0" }}>
-          <button onClick={() => navigate("/ctg-scan")} className="return-btn">
+        {/* BUTTON */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <button
+            onClick={() => navigate("/ctg-scan")}
+            style={{
+              background: darkMode ? "#444" : "#0d52bd",
+              color: "#fff",
+              padding: "12px 28px",
+              borderRadius: "10px",
+              fontWeight: 600,
+              transition: "0.3s ease",
+            }}
+          >
             Return to Scan
           </button>
         </div>
@@ -186,16 +238,15 @@ export default function Result() {
 
       {/* FOOTER */}
       <footer
-        className="footer"
         style={{
-          backgroundColor: darkMode ? "#222" : "#e2edfb",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          background: darkMode ? "#111" : "#e2edfb",
+          color: darkMode ? "#f5f5f5" : "#0d52bd",
+          textAlign: "center",
+          padding: "1rem",
         }}
       >
-        <p>
-          © {new Date().getFullYear()} Druk <span className="e-letter">e</span>
-          Health. All rights reserved.
-        </p>
+        © {new Date().getFullYear()} Druk <span className="e-letter">e</span>
+        Health. All rights reserved.
       </footer>
     </div>
   );
