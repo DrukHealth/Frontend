@@ -61,7 +61,7 @@ export default function CTGScan() {
       // 🔥 NON-CTG HANDLING — STOP HERE, POPUP ONLY
       // --------------------------------------------------
       if (predictionData.isCTG === false) {
-        toast.error("❌ Non-CTG image detected. Please upload a valid CTG graph.");
+        toast.error("❌ Oops! This doesn't look like a clear CTG image. Please try uploading a sharper CTG scan.");
         setLoading(false);
         return; // ❗ STOP — do NOT redirect, do NOT call Node backend
       }

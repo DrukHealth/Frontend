@@ -170,7 +170,7 @@ export default function Result() {
           style={{
             color: labelColor,
             fontSize: "2rem",
-            fontWeight: 800,
+            fontWeight: 600,
             textAlign: "center",
             marginTop: "1.5rem",
             textShadow: darkMode
@@ -199,22 +199,63 @@ export default function Result() {
                 : "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
-            <table className="feature-table">
-              <thead>
-                <tr style={{ color: tableText }}>
-                  <th>Feature</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(features).map(([key, value]) => (
-                  <tr key={key} style={{ color: tableText }}>
-                    <td>{key}</td>
-                    <td>{Number(value).toFixed(3)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+<table
+  className="feature-table"
+  style={{
+    width: "100%",
+    borderCollapse: "collapse",
+    backgroundColor: "transparent",
+  }}
+>
+  <thead>
+    <tr>
+      <th
+        style={{
+          color: darkMode ? "#FFFFFF" : tableText,
+          borderBottom: darkMode ? "1px solid #444" : "1px solid #0d52bd",
+          padding: "12px 8px",
+        }}
+      >
+        Feature
+      </th>
+      <th
+        style={{
+          color: darkMode ? "#FFFFFF" : tableText,
+          borderBottom: darkMode ? "1px solid #444" : "1px solid #0d52bd",
+          padding: "12px 8px",
+        }}
+      >
+        Value
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {Object.entries(features).map(([key, value]) => (
+      <tr key={key}>
+        <td
+          style={{
+            color: darkMode ? "#EAEAEA" : tableText,
+            borderBottom: darkMode ? "1px solid #333" : "1px solid #c6d7f5",
+            padding: "10px 8px",
+          }}
+        >
+          {key}
+        </td>
+        <td
+          style={{
+            color: darkMode ? "#FFFFFF" : tableText,
+            borderBottom: darkMode ? "1px solid #333" : "1px solid #c6d7f5",
+            padding: "10px 8px",
+          }}
+        >
+          {Number(value).toFixed(3)}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
           </div>
         )}
 
