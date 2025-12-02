@@ -59,7 +59,7 @@ const handleProceed = async () => {
     const predictionData = fastApiRes.data;
 
     if (!predictionData.isCTG) {
-      toast.error("❌ This is not a valid CTG image. Please upload a clearer CTG scan.");
+      toast.error("❌ Oops! The uploaded image is not a valid or clear CTG image. Please try again.");
       setLoading(false);
       return;
     }
