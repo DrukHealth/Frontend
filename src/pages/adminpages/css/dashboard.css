@@ -55,7 +55,12 @@ body {
 
 .logo-e {
   font-style: italic;
-  color: #fca400; /* yellow */
+  /* color: #fca400; yellow */
+  color: #ffc400;
+    /* transform: rotate(-12deg);
+  display: inline-block; */
+  padding-right: 1px;
+
 }
 
 /* Navigation */

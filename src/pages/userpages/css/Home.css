@@ -47,7 +47,7 @@
 }
 
 .e-letter {
-  color:  hsl(238, 77%, 52%); /* yellow */
+  /* color:  hsl(238, 77%, 52%); yellow */
   transform: rotate(-12deg);
   display: inline-block;
 }

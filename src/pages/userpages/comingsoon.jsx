@@ -82,9 +82,10 @@ export default function ComingSoon() {
               className="e-letter"
               style={{
                 color: "#ffc400",
-                filter: "drop-shadow(0 0 4px rgba(255,215,0,0.6))",
+                // filter: "drop-shadow(0 0 4px rgba(255,215,0,0.6))",
               }}
             >
+              {/* #fca400 */}
               e
             </span>
             <span style={{ color: darkMode ? "#FFFFFF" : "#0d52bd" }}>

@@ -536,7 +536,7 @@ export default function Dashboard() {
         >
           <img src="/logo.png" alt="Logo" className="logo-img" />
           <span className="logo-text">
-            Druk <span className="logo-e">e</span>Health
+            Druk <br /><span className="logo-e">e</span>Health
           </span>
         </div>
 
