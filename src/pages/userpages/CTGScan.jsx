@@ -21,12 +21,12 @@ export default function CTGScan() {
     import.meta.env.VITE_NODE_BACKEND ||
     "https://backend-drukhealth.onrender.com/api";
 
-  const FASTAPI_API = 
-  import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
+  // const FASTAPI_API = 
+  // import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
 
-  // const FASTAPI_API =
-  //   import.meta.env.VITE_FASTAPI_BACKEND ||
-  //   "http://127.0.0.1:8000";
+  const FASTAPI_API =
+    import.meta.env.VITE_FASTAPI_BACKEND ||
+    "http://127.0.0.1:8000";
 
   // Upload preview
   const handleUpload = (e) => {
@@ -224,15 +224,16 @@ const handleProceed = async () => {
                 marginTop: "1rem",
               }}
             />
-
             <div
               style={{
                 marginTop: "2rem",
                 display: "flex",
                 gap: "1rem",
                 justifyContent: "center",
+                paddingBottom: "120px",  // <-- THE FIX
               }}
             >
+
               <button
                 onClick={handleProceed}
                 disabled={loading}
