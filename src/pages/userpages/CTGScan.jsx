@@ -38,63 +38,56 @@ export default function CTGScan() {
   };
 
   // MAIN SCAN LOGIC
-  const handleProceed = async () => {
-    if (!imageFile) {
-      toast.warn("Please upload or capture an image first.");
+  // MAIN SCAN LOGIC
+const handleProceed = async () => {
+  if (!imageFile) {
+    toast.warn("Please upload or capture an image first.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // Send to FastAPI
+    const formData = new FormData();
+    formData.append("file", imageFile);
+
+    const fastApiRes = await axios.post(`${FASTAPI_API}/predict/`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    const predictionData = fastApiRes.data;
+
+    if (!predictionData.isCTG) {
+      toast.error("❌ This is not a valid CTG image. Please upload a clearer CTG scan.");
+      setLoading(false);
       return;
     }
 
-    try {
-      setLoading(true);
+    // Send to Node backend
+    const nodeData = new FormData();
+    nodeData.append("ctgImage", imageFile);
+    nodeData.append("result", predictionData.label || "Normal");
 
-      const formData = new FormData();
-      formData.append("file", imageFile);
+    await axios.post(`${NODE_API}/postCTG`, nodeData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-      // FastAPI prediction
-      const fastApiRes = await axios.post(`${FASTAPI_API}/predict/`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+    toast.success("Diagnosis complete!");
+
+    setTimeout(() => {
+      navigate("/result", {
+        state: { imageFile, imagePreview, result: predictionData },
       });
+    }, 800);
 
-      const predictionData = fastApiRes.data;
-
-      // --------------------------------------------------
-      // 🔥 NON-CTG HANDLING — STOP HERE, POPUP ONLY
-      // --------------------------------------------------
-      if (predictionData.isCTG === false) {
-        toast.error("❌ Oops! This doesn't look like a clear CTG image. Please try uploading a sharper CTG scan.");
-        setLoading(false);
-        return; // ❗ STOP — do NOT redirect, do NOT call Node backend
-      }
-
-      // --------------------------------------------------
-      // 🟢 TRUE CTG → Save to Node server and redirect
-      // --------------------------------------------------
-      const nodeData = new FormData();
-      nodeData.append("ctgImage", imageFile);
-
-      await axios.post(`${NODE_API}/postCTG`, nodeData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      toast.success("Diagnosis complete!");
-
-      // Redirect to result page
-      setTimeout(() => {
-        navigate("/result", {
-          state: {
-            imageFile,
-            imagePreview,
-            result: predictionData,
-          },
-        });
-      }, 800);
-    } catch (err) {
-      console.error("❌ CTG Scan error:", err);
-      toast.error("Unable to analyze image. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error("❌ CTG Scan error:", err);
+    toast.error("Unable to analyze image. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleReturn = () => {
     setImageFile(null);
