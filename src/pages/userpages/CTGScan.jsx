@@ -268,6 +268,23 @@ export default function CTGScan() {
           </>
         )}
       </div>
+      {/* Footer */}
+      <footer
+        className={`footer ${darkMode ? "dark" : ""}`}
+        style={{
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          textAlign: "center",
+          padding: "18px 10px",
+          fontSize: "0.95rem",
+        }}
+      >
+        <p>
+          © {new Date().getFullYear()} Druk{" "}
+          <span className="e-letter">e</span>Health. All rights reserved.
+        </p>
+      </footer>
     </div>
+    
   );
 }

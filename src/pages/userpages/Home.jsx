@@ -183,22 +183,20 @@ export default function Home() {
       </section>
 
       {/* ===================== FOOTER ===================== */}
+{/* Footer */}
       <footer
         className={`footer ${darkMode ? "dark" : ""}`}
         style={{
-          backgroundColor: darkMode ? "rgba(20,20,20,0.9)" : "#e2edfb",
+          backgroundColor: darkMode ? "#222" : "#e2edfb",
           color: darkMode ? "#EAEAEA" : "#0d52bd",
-          padding: "20px 0",
           textAlign: "center",
-          transition: "0.3s ease",
+          padding: "18px 10px",
+          fontSize: "0.95rem",
         }}
       >
         <p>
           © {new Date().getFullYear()} Druk{" "}
-          <span className="e-letter" style={{ color: "#ffc400" }}>
-            e
-          </span>
-          Health. All rights reserved.
+          <span className="e-letter">e</span>Health. All rights reserved.
         </p>
       </footer>
     </div>

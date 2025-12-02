@@ -44,9 +44,15 @@ export default function ComingSoon() {
           }}
         >
           <img
-            src="/Latestlogo.png"
+            src={darkMode ? "/logo2.png" : "/Latestlogo.png"}
             alt="Druk eHealth Logo"
-            style={{ height: "115px" }}
+            style={{
+              height: "115px",
+              filter: darkMode
+                ? "drop-shadow(0px 0px 8px rgba(255,255,255,0.3))"
+                : "none",
+              transition: "0.3s ease",
+            }}
           />
         </div>
 
@@ -117,13 +123,13 @@ export default function ComingSoon() {
       >
         <div
           style={{
-            fontSize: "4rem",
+            fontSize: "2rem",
             fontWeight: "bold",
             marginBottom: "2rem",
             color: darkMode ? "#EAEAEA" : "#0d52bd",
           }}
         >
-          Coming Soon!
+          Coming Soon...
         </div>
 
         <button

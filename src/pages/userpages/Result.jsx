@@ -23,28 +23,49 @@ export default function Result() {
   const [imagePreview, setImagePreview] = useState(imagePreviewState);
 
   useEffect(() => {
-    if (imageFile && !imagePreview) {
-      setImagePreview(URL.createObjectURL(imageFile));
-    }
-  }, [imageFile, imagePreview]);
+  if (imageFile && !imagePreview) {
+    setImagePreview(URL.createObjectURL(imageFile));
+  }
+}, [imageFile, imagePreview]);
 
-  if (!imageFile || !resultData) {
-    return (
-      <div
+if (!imageFile || !resultData) {
+  return (
+    <div
+      style={{
+        textAlign: "center",
+        paddingTop: "5rem",
+        minHeight: "100vh",
+        backgroundColor: darkMode ? "#121212" : "#FFFFFF",
+        color: darkMode ? "#F5F5F7" : "#0d52bd",
+        transition: "0.3s ease",
+      }}
+    >
+      <p style={{ fontSize: "1.2rem", marginBottom: "1.5rem" }}>
+        No scan data found. Please try again.
+      </p>
+
+      <button
+        onClick={() => navigate("/ctg-scan")}
         style={{
-          textAlign: "center",
-          paddingTop: "5rem",
-          minHeight: "100vh",
-          color: darkMode ? "#f5f5f7" : "#0d52bd",
+          backgroundColor: darkMode ? "#2969d7ff" : "#0d52bd",
+          color: darkMode ? "#FFFFFF" : "#FFFFFF",
+          padding: "12px 22px",
+          borderRadius: "10px",
+          border: "none",
+          cursor: "pointer",
+          fontSize: "1rem",
+          fontWeight: "600",
+          boxShadow: darkMode
+            ? "0 0 10px rgba(255,255,255,0.1)"
+            : "0 2px 8px rgba(0,0,0,0.15)",
+          transition: "0.3s ease",
         }}
       >
-        <p>No scan data found. Please try again.</p>
-        <button onClick={() => navigate("/ctg-scan")} className="return-btn">
-          Return to Scan
-        </button>
-      </div>
-    );
-  }
+        Return to Scan
+      </button>
+    </div>
+  );
+}
 
   // ===== LABEL COLORS =====
   const COLORS = {
@@ -260,34 +281,60 @@ export default function Result() {
         )}
 
         {/* BUTTON */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <button
-            onClick={() => navigate("/ctg-scan")}
-            style={{
-              background: darkMode ? "#444" : "#0d52bd",
-              color: "#fff",
-              padding: "12px 28px",
-              borderRadius: "10px",
-              fontWeight: 600,
-              transition: "0.3s ease",
-            }}
-          >
-            Return to Scan
-          </button>
-        </div>
+{/* BUTTON */}
+<div style={{ textAlign: "center", marginBottom: "2rem" }}>
+  <button
+    onClick={() => navigate("/ctg-scan")}
+    style={{
+      backgroundColor: darkMode ? "#0d52bd" : "#679ADC",
+      color: darkMode ? "#fff" : "#fff",
+      padding: "12px 28px",
+      borderRadius: "10px",
+      fontWeight: "600",
+      border: "none",
+      cursor: "pointer",
+      boxShadow: darkMode
+        ? "0 0 10px rgba(255,255,255,0.08)"
+        : "0 2px 8px rgba(0,0,0,0.25)",
+      transition: "0.25s ease",
+    }}
+    onMouseEnter={(e) => {
+      e.target.style.transform = "scale(1.05)";
+      e.target.style.boxShadow = darkMode
+        ? "0 0 12px rgba(255,255,255,0.15)"
+        : "0 3px 10px rgba(0,0,0,0.35)";
+    }}
+    onMouseLeave={(e) => {
+      e.target.style.transform = "scale(1)";
+      e.target.style.boxShadow = darkMode
+        ? "0 0 10px rgba(255,255,255,0.08)"
+        : "0 2px 8px rgba(0,0,0,0.25)";
+    }}
+  >
+    Return to Scan
+  </button>
+</div>
+
       </div>
 
       {/* FOOTER */}
       <footer
+        className={`footer ${darkMode ? "dark" : ""}`}
         style={{
-          background: darkMode ? "#111" : "#e2edfb",
-          color: darkMode ? "#f5f5f5" : "#0d52bd",
+          backgroundColor: darkMode ? "rgba(20,20,20,0.9)" : "#e2edfb",
+          color: darkMode ? "#EAEAEA" : "#0d52bd",
+          padding: "20px 0",
           textAlign: "center",
-          padding: "1rem",
+          transition: "0.3s ease",
         }}
       >
-        © {new Date().getFullYear()} Druk <span className="e-letter">e</span>
-        Health. All rights reserved.
+        <p>
+          © {new Date().getFullYear()} Druk{" "}
+          <span className="e-letter" style={{ color: "#ffc400" }}>
+            e
+          </span>
+          Health. All rights reserved.
+        </p>
       </footer>
     </div>
   );
