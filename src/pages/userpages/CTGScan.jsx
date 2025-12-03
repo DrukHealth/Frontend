@@ -38,7 +38,6 @@ export default function CTGScan() {
   };
 
   // MAIN SCAN LOGIC
-  // MAIN SCAN LOGIC
 const handleProceed = async () => {
   if (!imageFile) {
     toast.warn("Please upload or capture an image first.");
