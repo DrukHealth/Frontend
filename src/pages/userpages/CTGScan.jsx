@@ -26,7 +26,7 @@ export default function CTGScan() {
 
   // const FASTAPI_API =
   //   import.meta.env.VITE_FASTAPI_BACKEND ||
-  //   "http://127.0.0.1:8000";
+  //   "http://127.0.0.1:9000";
 
   // Upload preview
   const handleUpload = (e) => {
