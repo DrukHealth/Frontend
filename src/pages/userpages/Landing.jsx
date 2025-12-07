@@ -9,6 +9,11 @@ export default function Landing() {
   return (
     <div className="landing-container">
 
+      {/* 🔥 Admin Button (Top Left) */}
+      <button className="admin-btn" onClick={() => setShowModal(true)}>
+        Admin
+      </button>
+
       <div className="landing-content">
         <img
           src="/logo.png"
@@ -16,12 +21,11 @@ export default function Landing() {
           className="logo animated"
         />
 
-      <h1 className="title animated delay-1">
-        <span style={{ color: "white" }}>Druk </span>
-        <span className="e-letter" style={{ color: "#ffc400" }}>e</span>
-        <span style={{ color: "white" }}>Health</span>
-      </h1>
-
+        <h1 className="title animated delay-1">
+          <span style={{ color: "white" }}>Druk </span>
+          <span className="e-letter" style={{ color: "#ffc400" }}>e</span>
+          <span style={{ color: "white" }}>Health</span>
+        </h1>
 
         <button
           onClick={() => navigate("/home")}

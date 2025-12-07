@@ -6,6 +6,29 @@ html, body {
   width: 100%;
 }
 
+/* Admin Button - Top Right */
+.admin-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;   /* <-- moved from left to right */
+  background: white;
+  color: #0d52bd;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: 0.25s ease;
+}
+
+.admin-btn:hover {
+  background: #e6efff;
+  transform: scale(1.05);
+}
+
+
+
 /* ===========================
    PERFECT CENTERED CONTAINER 
 =========================== */

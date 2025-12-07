@@ -642,10 +642,14 @@ export default function Records({ darkMode }) {
 
   const recordsPerPage = 5;
 
-  const fastAPI =
-    import.meta.env.VITE_FASTAPI_URL ||
-    "https://fastapi-backend-yrc0.onrender.com";
+  // const fastAPI =
+  //   import.meta.env.VITE_FASTAPI_URL ||
+  //   "https://fastapi-backend-yrc0.onrender.com";
 
+
+  const fastAPI=
+    import.meta.env.VITE_FASTAPI_URL ||
+    "http://127.0.0.1:9000";
   // Sorting function
   const sortRecords = (data, order) => {
     return [...data].sort((a, b) => {
