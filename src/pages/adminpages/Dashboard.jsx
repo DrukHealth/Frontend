@@ -34,8 +34,8 @@ import "./css/dashboard.css";
 // =====================================
 //  🚀 API CONFIG
 // =====================================
-const NODE_API = "https://backend-drukhealth.onrender.com/api";
-
+// const NODE_API = "https://backend-drukhealth.onrender.com/api"; 
+const NODE_API = "http://localhost:9000/api";
 // const FASTAPI_URL =
 //   import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
 const FASTAPI_URL = "http://127.0.0.1:9000"
