@@ -18,7 +18,9 @@ export default function Management() {
   });
 
   // 🚀 Backend URL
-  const API_BASE_URL = "https://backend-drukhealth.onrender.com/api/manage";
+  // const API_BASE_URL = "https://backend-drukhealth.onrender.com/api/manage";
+
+  const API_BASE_URL = "http://localhost:9000/api/manage";
 
   // Correct token loader (NEW)
   const loadToken = () =>

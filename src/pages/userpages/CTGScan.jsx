@@ -17,16 +17,19 @@ export default function CTGScan() {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const darkMode = theme === "dark";
 
-  const NODE_API =
-    import.meta.env.VITE_NODE_BACKEND ||
-    "https://backend-drukhealth.onrender.com/api";
+  // const NODE_API =
+  //   import.meta.env.VITE_NODE_BACKEND ||
+  //   "https://backend-drukhealth.onrender.com/api";
 
-  const FASTAPI_API = 
-  import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
+ const NODE_API =
+    import.meta.env.VITE_NODE_BACKEND || "http://localhost:9000/api";
 
-  // const FASTAPI_API =
-  //   import.meta.env.VITE_FASTAPI_BACKEND ||
-  //   "http://127.0.0.1:9000";
+  // const FASTAPI_API = 
+  // import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
+
+  const FASTAPI_API =
+    import.meta.env.VITE_FASTAPI_BACKEND ||
+    "http://127.0.0.1:9000";
 
   // Upload preview
   const handleUpload = (e) => {

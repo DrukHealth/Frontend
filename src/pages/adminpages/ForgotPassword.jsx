@@ -10,8 +10,8 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
 
   // 🌐 Central API URL
-  // const API = "http://localhost:9000";
-  const API = "https://backend-drukhealth.onrender.com";
+  const API = "http://localhost:9000";
+  // const API = "https://backend-drukhealth.onrender.com";
 
   /**
    * 🔹 Handle OTP Request

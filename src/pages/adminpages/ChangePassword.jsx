@@ -15,8 +15,8 @@ export default function ResetPassword() {
   const email = location.state?.email || "";
 
   // API base (deployed)
-  // const API = "http://localhost:5000";
-  const API = "https://backend-drukhealth.onrender.com";
+  const API = "http://localhost:9000";
+  // const API = "https://backend-drukhealth.onrender.com";
 
   // DEV avatar local path (uploaded)
   // const devAvatar = "/mnt/data/d1f2734c-2f97-4026-9231-98093c121ab9.png";

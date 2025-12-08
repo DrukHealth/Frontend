@@ -11,8 +11,8 @@ export default function ForgotPasswordVerify() {
   const navigate = useNavigate();
 
   // 🌐 Central API base URL
-  // const API = "http://localhost:9000";
-  const API = "https://backend-drukhealth.onrender.com";
+  const API = "http://localhost:9000";
+  // const API = "https://backend-drukhealth.onrender.com";
 
   // Extract email safely from navigation state
   const email = location.state?.email || "";
