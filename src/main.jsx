@@ -9,7 +9,7 @@ import CTGScan from "./pages/userpages/CTGScan.jsx";
 import Diagnosis from "./pages/userpages/Diagnosis.jsx";
 import Result from "./pages/userpages/Result.jsx";
 import ComingSoon from "./pages/userpages/comingsoon.jsx";
-
+import Guidelines from "./pages/userpages/Guidelines.jsx";
 // === Admin Pages ===
 import LoginPage from "./pages/adminpages/LoginPage.jsx";
 import ForgotPassword from "./pages/adminpages/ForgotPassword.jsx";
@@ -34,7 +34,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ctg-scan" element={<CTGScan />} />
           <Route path="/diagnosis" element={<Diagnosis />} />
           <Route path="/result" element={<Result />} />
-          <Route path="/guidelines" element={<ComingSoon />} />
+          <Route path="/guidelines" element={<Guidelines />} />
           <Route path="/otg" element={<ComingSoon />} />
 
           {/* ==== ADMIN ROUTES ==== */}
@@ -45,7 +45,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/management" element={<Management />} />
           <Route path="/records" element={<Records />} />
-
+          {/* <Route path="/guidelines" element={<Guidelines />} /> */}
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
