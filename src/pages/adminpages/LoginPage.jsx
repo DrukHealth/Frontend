@@ -1,22 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "./css/LoginPage.css";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const navigate = useNavigate();
 
-  // ⭐ Your deployed backend URL
   const NODE_API = "https://backend-drukhealth.onrender.com";
   // const NODE_API = "http://localhost:5000";
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Please enter both email and password");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    setMessage({ type: "", text: "" });
+
+    if (!email.trim() || !password.trim()) {
+      setMessage({
+        type: "error",
+        text: "Please enter both email and password.",
+      });
       return;
     }
 
@@ -26,30 +34,38 @@ const LoginPage = () => {
       const response = await fetch(`${NODE_API}/api/manage/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // ⭐ Store everything properly for later usage
         localStorage.setItem("adminToken", data.token);
         localStorage.setItem("adminEmail", data.data.email);
         localStorage.setItem("adminRole", data.data.role);
 
-        alert(
-          `Login Successful! Welcome ${
+        setMessage({
+          type: "success",
+          text: `Welcome ${
             data.data.role === "super_admin" ? "Super Admin" : "Admin"
-          } ✅`
-        );
+          }. Redirecting...`,
+        });
 
-        navigate("/dashboard");
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 700);
       } else {
-        alert(data.message || "Invalid email or password");
+        setMessage({
+          type: "error",
+          text: data.message || "Invalid email or password.",
+        });
       }
     } catch (error) {
-      console.error("❌ Login error:", error);
-      alert("Unable to reach the server. Please try again later.");
+      console.error("Login error:", error);
+      setMessage({
+        type: "error",
+        text: "Unable to reach the server. Please try again later.",
+      });
     } finally {
       setLoading(false);
     }
@@ -57,54 +73,85 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
-      {/* Logo Section */}
-      <div className="login-left">
-        <div className="logo-box">
-          <img src="/logo2.png" alt="logo" />
-          <h2>
-            Druk <span className="e-letter">e</span>Health
-          </h2>
-        </div>
-      </div>
+      <section className="login-left">
+        <div className="brand-card">
+          <img src="/logo2.png" alt="Druk eHealth logo" />
 
-      {/* Form Section */}
-      <div className="login-right">
-        <div className="login-box">
-          <h1>Welcome Back!</h1>
+          <h2>
+            Druk{" "}
+            <span className="brand-health">
+              <span className="e-letter">e</span>Health
+            </span>
+          </h2>
+
+          <p>
+            Secure fetal health monitoring and clinical data analysis platform.
+          </p>
+        </div>
+      </section>
+
+      <section className="login-right">
+        <form className="login-box" onSubmit={handleLogin}>
+          <div className="login-header">
+            <span className="login-badge">Admin Portal</span>
+            <h1>Welcome Back</h1>
+            <p>Login to continue to your Druk eHealth dashboard.</p>
+          </div>
+
+          {message.text && (
+            <div className={`login-message ${message.type}`}>
+              {message.text}
+            </div>
+          )}
 
           <div className="input-group">
             <FaEnvelope className="input-icon" />
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email address"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
 
           <div className="input-group">
             <FaLock className="input-icon" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
+
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
 
-          <button className="login-btn" onClick={handleLogin} disabled={loading}>
-            {loading ? "Logging in..." : "LOG IN"}
+          <button className="login-btn" type="submit" disabled={loading}>
+            {loading ? <span className="btn-loader"></span> : "Log In"}
           </button>
 
           <div className="forgot-password-container">
-            <span onClick={() => navigate("/forgot-password")}>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              disabled={loading}
+            >
               Forgot Password?
-            </span>
+            </button>
           </div>
-        </div>
-      </div>
+        </form>
+      </section>
     </div>
   );
 };

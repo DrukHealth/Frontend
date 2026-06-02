@@ -1,110 +1,192 @@
-import { useState, useContext } from "react";
+import { useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import image1 from "../../assets/image1.svg";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
+import { getCroppedImg } from "../../utils/cropImage";
+import { rotateImageBlob } from "../../utils/rotateImage";
+
+import image1 from "../../assets/image1_transparent_cropped.png";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import {
+  FaUpload,
+  FaHeartbeat,
+  FaArrowLeft,
+  FaCheckCircle,
+  FaRedo,
+  FaTimes,
+  FaCropAlt,
+} from "react-icons/fa";
 import { ThemeContext } from "./ThemeContext";
+import "./css/CTGScan.css";
 
 export default function CTGScan() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [rawPreview, setRawPreview] = useState(null);
+  const [showCrop, setShowCrop] = useState(false);
+
+  const [crop, setCrop] = useState({
+    unit: "px",
+    x: 40,
+    y: 40,
+    width: 320,
+    height: 200,
+  });
+
+  const imgRef = useRef(null);
   const navigate = useNavigate();
+
   const { theme, toggleTheme } = useContext(ThemeContext);
   const darkMode = theme === "dark";
 
-  // const NODE_API =
-  //   import.meta.env.VITE_NODE_BACKEND ||
-  //   "https://backend-drukhealth.onrender.com/api";
-
- const NODE_API =
+  const NODE_API =
     import.meta.env.VITE_NODE_BACKEND || "http://localhost:9000/api";
 
-  // const FASTAPI_API = 
-  // import.meta.env.VITE_FASTAPI_BACKEND || "https://fastapi-backend-yrc0.onrender.com";
-
   const FASTAPI_API =
-    import.meta.env.VITE_FASTAPI_BACKEND ||
-    "http://127.0.0.1:9000";
+    import.meta.env.VITE_FASTAPI_BACKEND || "http://127.0.0.1:9000";
 
-  // Upload preview
   const handleUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setRawPreview(url);
+
+    setImageFile(null);
+    setImagePreview(null);
+
+    setCrop({
+      unit: "px",
+      x: 40,
+      y: 40,
+      width: 320,
+      height: 200,
+    });
+
+    setShowCrop(true);
   };
 
-  // MAIN SCAN LOGIC
-const handleProceed = async () => {
-  if (!imageFile) {
-    toast.warn("Please upload or capture an image first.");
-    return;
-  }
+  const handleRotate = async (direction = "right") => {
+    if (!rawPreview) return;
 
-  try {
-    setLoading(true);
+    try {
+      const deg = direction === "right" ? 90 : -90;
+      const blob = await rotateImageBlob(rawPreview, deg);
+      const newUrl = URL.createObjectURL(blob);
 
-    // Send to FastAPI
-    const formData = new FormData();
-    formData.append("file", imageFile);
+  
 
-    const fastApiRes = await axios.post(`${FASTAPI_API}/predict/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      setRawPreview(newUrl);
 
-    const predictionData = fastApiRes.data;
-
-    if (!predictionData.isCTG) {
-      toast.error("❌ Oops! The uploaded image is not a valid or clear CTG image. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    // Send to Node backend
-    const nodeData = new FormData();
-    nodeData.append("ctgImage", imageFile);
-    nodeData.append("result", predictionData.label || "Normal");
-
-    await axios.post(`${NODE_API}/postCTG`, nodeData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    toast.success("Diagnosis complete!");
-
-    setTimeout(() => {
-      navigate("/result", {
-        state: { imageFile, imagePreview, result: predictionData },
+      setCrop({
+        unit: "px",
+        x: 40,
+        y: 40,
+        width: 320,
+        height: 200,
       });
-    }, 800);
 
-  } catch (err) {
-    console.error("❌ CTG Scan error:", err);
-    toast.error("Unable to analyze image. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+      toast.info("Image rotated");
+    } catch (err) {
+      console.error(err);
+      toast.error("Rotation failed. Please try again.");
+    }
+  };
 
-  const handleReturn = () => {
+  const handleConfirmCrop = async () => {
+    if (!rawPreview) return toast.warn("No image to crop.");
+    if (!crop?.width || !crop?.height) {
+      return toast.warn("Please select a crop area.");
+    }
+    if (!imgRef.current) return toast.warn("Image not ready yet.");
+
+    try {
+      const blob = await getCroppedImg(rawPreview, crop, imgRef.current);
+
+      const croppedFile = new File([blob], "ctg_cropped.jpg", {
+        type: "image/jpeg",
+      });
+
+      setImageFile(croppedFile);
+      setImagePreview(URL.createObjectURL(croppedFile));
+      setShowCrop(false);
+
+      toast.success("Crop saved. Ready to diagnose.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Cropping failed. Please try again.");
+    }
+  };
+
+  const handleCancelCrop = () => {
+    setShowCrop(false);
+    setRawPreview(null);
     setImageFile(null);
     setImagePreview(null);
   };
 
+  const handleProceed = async () => {
+    if (!imageFile) {
+      toast.warn("Please upload and crop an image first.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      const fastApiRes = await axios.post(`${FASTAPI_API}/predict/`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const predictionData = fastApiRes.data;
+
+      if (!predictionData?.isCTG) {
+        toast.error("Not a valid or clear CTG image. Please try again.");
+        return;
+      }
+
+      const nodeData = new FormData();
+      nodeData.append("ctgImage", imageFile);
+      nodeData.append("result", predictionData.label || "Normal");
+
+      await axios.post(`${NODE_API}/postCTG`, nodeData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Diagnosis complete!");
+
+      setTimeout(() => {
+        navigate("/result", {
+          state: { imageFile, imagePreview, result: predictionData },
+        });
+      }, 800);
+    } catch (err) {
+      console.error("CTG Scan error:", err);
+      toast.error("Unable to analyze image. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReturn = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setRawPreview(null);
+    setShowCrop(false);
+  };
+
   return (
-    <div
-      style={{
-        backgroundColor: darkMode ? "#2B2F3A" : "#FFFFFF",
-        color: darkMode ? "#E0E0E0" : "#0d52bd",
-        minHeight: "100vh",
-        transition: "all 0.3s ease",
-      }}
-    >
+    <div className={`ctg-page ${darkMode ? "dark" : "light"}`}>
       <ToastContainer
         position="top-center"
         autoClose={2000}
@@ -112,175 +194,175 @@ const handleProceed = async () => {
       />
 
       {/* NAVBAR */}
-      <nav
-        className="navbar"
-        style={{
-          padding: "10px 20px",
-          backgroundColor: darkMode ? "#3A3F4A" : "#e2edfb",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          height: "90px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div
-          onClick={() => navigate("/home")}
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            marginLeft: "-30px",
-          }}
-        >
+      <nav className="ctg-navbar">
+        <div className="ctg-logo-box" onClick={() => navigate("/home")}>
           <img
             src={darkMode ? "/logo2.png" : "/Latestlogo.png"}
             alt="Druk eHealth Logo"
-            style={{
-              height: "115px",
-              filter: darkMode
-                ? "drop-shadow(0px 0px 8px rgba(255,255,255,0.3))"
-                : "none",
-              transition: "0.3s ease",
-            }}
+            className="ctg-logo"
           />
         </div>
 
-        <div
-          style={{
-            fontWeight: "bold",
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: "1.8rem",
-          }}
-        >
-          CTG Scan
+        <div className="ctg-nav-title">
+          {/* <FaHeartbeat /> */}
+          <span>CTG Scan</span>
         </div>
 
-              {/* RIGHT: Dark Mode Toggle */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    fontSize: "1.7rem",
-                    cursor: "pointer",
-                    color: darkMode ? "#ffc400" : "#0d52bd",
-                  }}
-                >
-                  <span onClick={toggleTheme}>
-                    {darkMode ? <MdLightMode /> : <MdDarkMode />}
-                  </span>
-                </div>
+        <button
+          className="ctg-theme-toggle"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+        >
+          {darkMode ? <MdLightMode /> : <MdDarkMode />}
+        </button>
       </nav>
 
-      {/* MAIN CONTENT */}
-      <div style={{ textAlign: "center", paddingTop: "2rem" }}>
-        {!imagePreview && (
-          <div
-            style={{
-              marginTop: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              alignItems: "center",
-            }}
-          >
-            <img src={image1} alt="Scan Icon" style={{ width: "260px" }} />
+      {/* CROP MODAL */}
+      {showCrop && rawPreview && (
+        <div className="crop-modal-overlay">
+          <div className="crop-modal">
+            <div className="crop-modal-header">
+              <div>
+                <h3>
+                  <FaCropAlt /> Crop CTG Trace
+                </h3>
+                <p>Drag the corners to select the CTG graph area.</p>
+              </div>
 
-            <label
-              htmlFor="fileUpload"
-              style={{
-                backgroundColor: "#679ADC",
-                color: "white",
-                padding: "14px 28px",
-                borderRadius: "12px",
-                cursor: "pointer",
-                fontSize: "1rem",
-                fontWeight: "600",
-                minWidth: "200px",
-              }}
-            >
-              Upload CTG Record
-            </label>
+              <button className="crop-close-btn" onClick={handleCancelCrop}>
+                <FaTimes />
+              </button>
+            </div>
 
-            <input
-              type="file"
-              id="fileUpload"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleUpload}
-            />
+            <div className="crop-toolbar">
+              <button onClick={() => handleRotate("left")}>⟲ Rotate Left</button>
+              <button onClick={() => handleRotate("right")}>⟳ Rotate Right</button>
+            </div>
+
+            <div className="crop-image-area">
+              <ReactCrop crop={crop} onChange={(next) => setCrop(next)} keepSelection>
+                <img
+                  ref={imgRef}
+                  src={rawPreview}
+                  alt="CTG"
+                  className="crop-image"
+                />
+              </ReactCrop>
+            </div>
+
+            <div className="crop-actions">
+              <button className="cancel-btn" onClick={handleCancelCrop}>
+                Cancel
+              </button>
+
+              <button className="confirm-btn" onClick={handleConfirmCrop}>
+                Confirm Crop
+              </button>
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* MAIN CONTENT */}
+      <main className="ctg-main">
+        {!imagePreview && (
+          <section className="upload-section">
+            <div className="upload-card">
+              <div className="upload-text">
+                <div className="page-badge">
+                  <FaHeartbeat />
+                  <span>Fetal Heart Monitoring</span>
+                </div>
+
+                <h1>Upload CTG Record</h1>
+
+                <p>
+                  Upload a clear CTG image, crop the trace area, and continue to
+                  diagnosis. Make sure the graph is readable for better results.
+                </p>
+
+                <div className="upload-tips">
+                  <div>
+                    <FaCheckCircle />
+                    <span>Use a clear image</span>
+                  </div>
+                  <div>
+                    <FaCheckCircle />
+                    <span>Crop only the CTG trace</span>
+                  </div>
+                  <div>
+                    <FaCheckCircle />
+                    <span>Rotate if the image is sideways</span>
+                  </div>
+                </div>
+
+                <label htmlFor="fileUpload" className="upload-btn">
+                  <FaUpload />
+                  Upload CTG Record
+                </label>
+
+                <input
+                  type="file"
+                  id="fileUpload"
+                  accept="image/*"
+                  onChange={handleUpload}
+                />
+              </div>
+
+              <div className="upload-illustration">
+                <div className="upload-illustration-frame">
+                  <img src={image1} alt="CTG upload illustration" />
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
         {imagePreview && (
-          <>
-            <img
-              src={imagePreview}
-              alt="Preview"
-              style={{
-                width: "90%",
-                maxWidth: "420px",
-                borderRadius: "12px",
-                marginTop: "1rem",
-              }}
-            />
-            <div
-              style={{
-                marginTop: "2rem",
-                display: "flex",
-                gap: "1rem",
-                justifyContent: "center",
-                paddingBottom: "120px",  // <-- THE FIX
-              }}
-            >
+          <section className="preview-section">
+            <div className="preview-card">
+              <div className="preview-header">
+                <div>
+                  <h1>CTG Image Ready</h1>
+                  <p>Review the cropped image before starting diagnosis.</p>
+                </div>
 
-              <button
-                onClick={handleProceed}
-                disabled={loading}
-                style={{
-                  backgroundColor: loading ? "#777" : "#4CAF50",
-                  color: "white",
-                  padding: "10px 20px",
-                  borderRadius: "8px",
-                }}
-              >
-                {loading ? "Diagnosing..." : "Diagnose"}
-              </button>
+                <button className="recrop-btn" onClick={() => setShowCrop(true)}>
+                  <FaRedo />
+                  Re-crop / Rotate
+                </button>
+              </div>
 
-              <button
-                onClick={handleReturn}
-                style={{
-                  backgroundColor: "#E74C3C",
-                  color: "white",
-                  padding: "10px 20px",
-                  borderRadius: "8px",
-                }}
-              >
-                Return
-              </button>
+              <div className="preview-image-wrapper">
+                <img src={imagePreview} alt="Preview" className="preview-image" />
+              </div>
+
+              <div className="preview-actions">
+                <button
+                  className="diagnose-btn"
+                  onClick={handleProceed}
+                  disabled={loading}
+                >
+                  {loading ? "Diagnosing..." : "Diagnose"}
+                </button>
+
+                <button className="return-btn" onClick={handleReturn}>
+                  <FaArrowLeft />
+                  Return
+                </button>
+              </div>
             </div>
-          </>
+          </section>
         )}
-      </div>
-      {/* Footer */}
-      <footer
-        className={`footer ${darkMode ? "dark" : ""}`}
-        style={{
-          backgroundColor: darkMode ? "#222" : "#e2edfb",
-          color: darkMode ? "#EAEAEA" : "#0d52bd",
-          textAlign: "center",
-          padding: "18px 10px",
-          fontSize: "0.95rem",
-        }}
-      >
+      </main>
+
+      {/* FOOTER */}
+      <footer className="ctg-footer">
         <p>
           © {new Date().getFullYear()} Druk{" "}
-          <span className="e-letter">e</span>Health. All rights reserved.
+          <span className="footer-e-letter">e</span>Health. All rights reserved.
         </p>
       </footer>
     </div>
-    
   );
 }
