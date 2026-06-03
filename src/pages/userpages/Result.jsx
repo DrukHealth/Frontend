@@ -11,6 +11,7 @@ import {
   FaCheckCircle,
   FaExclamationTriangle,
   FaSkullCrossbones,
+  FaRedo,
 } from "react-icons/fa";
 import { ThemeContext } from "./ThemeContext";
 
@@ -176,6 +177,16 @@ export default function Result() {
                 qualified healthcare personnel when needed.
               </span>
             </div>
+
+            <div className="result-actions">
+            <button
+              className="another-scan-btn"
+              onClick={() => navigate("/ctg-scan")}
+            >
+              <FaRedo />
+              Another Scan
+            </button>
+          </div>
 
 
           </div>

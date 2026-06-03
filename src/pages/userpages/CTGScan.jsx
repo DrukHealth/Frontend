@@ -265,6 +265,15 @@ export default function CTGScan() {
 
       {/* MAIN CONTENT */}
       <main className="ctg-main">
+        <div className="ctg-back-service-row">
+          <button
+            className="back-service-btn"
+            onClick={() => navigate("/home")}
+          >
+            {/* <FaArrowLeft /> */}
+            Back to Services
+          </button>
+        </div>
         {!imagePreview && (
           <section className="upload-section">
             <div className="upload-card">

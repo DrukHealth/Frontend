@@ -361,6 +361,7 @@
 .preview-img {
   position: absolute;
   inset: 0;
+  max-width: 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -857,6 +858,9 @@
   font-size: 0.95rem;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
+  position: fixed;
+  z-index: 2;
+  bottom: 0;
 }
 
 .light .result-footer {
@@ -1129,5 +1133,65 @@
 
   .result-image-wrapper {
     aspect-ratio: 1 / 1;
+  }
+}
+
+.result-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.another-scan-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 13px 22px;
+  border-radius: 999px;
+
+  font-size: 0.98rem;
+  font-weight: 700;
+
+  background: #003cff;
+  color: #ffffff;
+
+  box-shadow: 0 8px 20px rgba(13, 32, 60, 0.28);
+  transition: all 0.3s ease;
+}
+
+.another-scan-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(168, 134, 26, 0.38);
+  color: #050505;
+  background: #ffb800;
+}
+
+.another-scan-btn svg {
+  font-size: 1rem;
+}
+
+/* Dark mode */
+.result-page.dark .another-scan-btn {
+  background: #ffc400;
+  color: #050505;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .result-actions {
+    justify-content: center;
+  }
+
+  .another-scan-btn {
+    width: 100%;
+    padding: 13px 18px;
   }
 }

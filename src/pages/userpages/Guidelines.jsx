@@ -72,13 +72,14 @@ export default function Guidelines() {
         </p>
 
         <div className="hero-actions">
-          <button onClick={() => navigate("/ctg-scan")}>
-            Start CTG Scan 
-            {/* <FaArrowRight /> */}
-          </button>
 
           <button className="secondary-btn" onClick={() => navigate("/home")}>
             Back to Services
+          </button>
+
+          <button onClick={() => navigate("/ctg-scan")}>
+            Start CTG Scan 
+            {/* <FaArrowRight /> */}
           </button>
         </div>
       </section>
@@ -652,6 +653,14 @@ export default function Guidelines() {
           senior clinical judgement.
         </p>
       </section>
+            {/* FOOTER */}
+      <footer className="ctg-footer">
+        <p>
+          © {new Date().getFullYear()} Druk{" "}
+          <span className="footer-e-letter">e</span>Health. All rights reserved.
+        </p>
+      </footer>
     </div>
+    
   );
 }

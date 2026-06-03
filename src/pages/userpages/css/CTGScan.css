@@ -11,6 +11,9 @@
   font-family: "Poppins", "Inter", "Segoe UI", sans-serif;
   transition: 0.3s ease;
   overflow-x: hidden;
+
+  /* Space for fixed footer */
+  padding-bottom: 72px;
 }
 
 .ctg-page.light {
@@ -34,14 +37,18 @@
 .ctg-navbar {
   height: 90px;
   padding: 10px 32px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   position: sticky;
   top: 0;
   z-index: 1000;
+
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
+
   transition: 0.3s ease;
   overflow: visible;
 }
@@ -61,9 +68,11 @@
   width: 95px;
   height: 80px;
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: visible;
 }
 
@@ -71,6 +80,7 @@
   width: 95px;
   height: 95px;
   object-fit: contain;
+
   transform: scale(1.45);
   transition: transform 0.3s ease, filter 0.3s ease;
 }
@@ -88,12 +98,15 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+
   color: inherit;
   font-size: 1.8rem;
   font-weight: 800;
+
   display: inline-flex;
   align-items: center;
   gap: 10px;
+
   white-space: nowrap;
 }
 
@@ -113,12 +126,16 @@
 .ctg-theme-toggle {
   width: 46px;
   height: 46px;
+
   border: none;
   border-radius: 50%;
+
   display: grid;
   place-items: center;
+
   font-size: 1.45rem;
   cursor: pointer;
+
   transition: 0.3s ease;
 }
 
@@ -145,6 +162,71 @@
 .ctg-main {
   flex: 1;
   width: 100%;
+  padding: 24px 20px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================
+   BACK TO SERVICES BUTTON
+========================= */
+
+.ctg-back-service-row {
+  width: min(1120px, 92%);
+  margin: 0 auto 12px;
+
+  display: flex;
+  justify-content: flex-start;
+
+  position: relative;
+  z-index: 1;
+}
+
+.back-service-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  padding: 12px 22px;
+  border-radius: 999px;
+
+  font-size: 0.95rem;
+  font-weight: 800;
+
+  background: linear-gradient(135deg, #0d52bd, #4d8ddd);
+  color: #ffffff;
+
+  box-shadow: 0 12px 24px rgba(13, 82, 189, 0.24);
+  transition: all 0.3s ease;
+}
+
+.back-service-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 34px #c1970e;
+  background: #ffc400;
+  color: #111827;
+    transition: all 0.3s ease;
+}
+
+.back-service-btn svg {
+  font-size: 0.95rem;
+}
+
+.ctg-page.dark .back-service-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(255, 255, 255, 0.06);
+}
+
+.ctg-page.dark .back-service-btn:hover {
+  background: #ffc400;
+  color: #111827;
+  box-shadow: 0 14px 28px rgba(255, 196, 0, 0.3);
 }
 
 /* =========================
@@ -155,17 +237,20 @@
 .preview-section {
   width: min(1120px, 92%);
   margin: 0 auto;
-  padding: 60px 0 70px;
+  padding: 0 0 40px;
 }
 
 .upload-card {
   min-height: 520px;
+
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   align-items: center;
   gap: 36px;
+
   padding: 42px;
   border-radius: 34px;
+
   position: relative;
   overflow: hidden;
 }
@@ -175,9 +260,11 @@
   position: absolute;
   right: -80px;
   bottom: -80px;
+
   width: 250px;
   height: 250px;
   border-radius: 50%;
+
   background: rgba(103, 154, 220, 0.14);
 }
 
@@ -208,13 +295,17 @@
 
 .page-badge {
   width: fit-content;
+
   display: inline-flex;
   align-items: center;
   gap: 8px;
+
   padding: 9px 15px;
   border-radius: 999px;
+
   font-size: 0.88rem;
   font-weight: 700;
+
   margin-bottom: 18px;
 }
 
@@ -275,17 +366,22 @@
   width: fit-content;
   min-width: 210px;
   height: 50px;
+
   background: linear-gradient(135deg, #0d52bd, #4d8ddd);
   color: #ffffff;
+
   padding: 0 28px;
   border-radius: 999px;
+
   cursor: pointer;
   font-size: 1rem;
   font-weight: 800;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+
   box-shadow: 0 16px 32px rgba(13, 82, 189, 0.25);
   transition: 0.3s ease;
 }
@@ -323,25 +419,33 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+
   margin-bottom: 28px;
 }
 
 .recrop-btn {
   all: unset;
   box-sizing: border-box;
+
   background: #679adc;
   color: #ffffff;
+
   width: 180px;
   height: 46px;
+
   padding: 0 16px;
   border-radius: 999px;
+
   font-size: 0.9rem;
   font-weight: 800;
+
   cursor: pointer;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+
   transition: 0.3s ease;
   white-space: nowrap;
 }
@@ -378,7 +482,6 @@
 
 /* =========================
    PREVIEW ACTION BUTTONS
-   Strong scoped styles to prevent override
 ========================= */
 
 .preview-actions {
@@ -387,6 +490,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+
   margin-top: 8px;
 }
 
@@ -394,19 +498,25 @@
 .preview-actions .return-btn {
   all: unset;
   box-sizing: border-box;
+
   width: 165px;
   height: 48px;
+
   border-radius: 999px;
+
   font-family: "Poppins", "Inter", "Segoe UI", sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1;
+
   cursor: pointer;
   transition: 0.3s ease;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+
   white-space: nowrap;
 }
 
@@ -447,11 +557,15 @@
 .crop-modal-overlay {
   position: fixed;
   inset: 0;
+
   background: rgba(5, 12, 24, 0.72);
+
   z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
   backdrop-filter: blur(8px);
 }
@@ -459,8 +573,10 @@
 .crop-modal {
   width: min(1100px, 98vw);
   height: min(780px, 92vh);
+
   border-radius: 24px;
   overflow: hidden;
+
   display: flex;
   flex-direction: column;
 }
@@ -475,23 +591,28 @@
 
 .crop-modal-header {
   padding: 18px 22px;
+
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 
 .crop-modal-header h3 {
   margin: 0 0 6px;
+
   display: flex;
   align-items: center;
   gap: 10px;
+
   color: inherit;
 }
 
 .crop-modal-header p {
   margin: 0;
+
   font-size: 0.9rem;
   color: #7b8797;
 }
@@ -499,13 +620,18 @@
 .crop-close-btn {
   width: 38px;
   height: 38px;
+
   border: none;
   border-radius: 50%;
+
   background: #eef4ff;
   color: #0d52bd;
+
   cursor: pointer;
+
   display: grid;
   place-items: center;
+
   transition: 0.3s ease;
 }
 
@@ -517,25 +643,33 @@
 
 .crop-toolbar {
   padding: 12px 22px;
+
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+
   border-bottom: 1px solid rgba(128, 128, 128, 0.16);
 }
 
 .crop-toolbar button {
   all: unset;
   box-sizing: border-box;
+
   background: #679adc;
   color: #ffffff;
+
   min-width: 135px;
   height: 40px;
+
   padding: 0 14px;
   border-radius: 999px;
+
   cursor: pointer;
   font-weight: 700;
   text-align: center;
+
   transition: 0.3s ease;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -569,10 +703,12 @@
 
 .crop-actions {
   padding: 14px 22px;
+
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
+
   border-top: 1px solid rgba(128, 128, 128, 0.16);
 }
 
@@ -580,17 +716,23 @@
 .crop-actions .confirm-btn {
   all: unset;
   box-sizing: border-box;
+
   width: 145px;
   height: 44px;
+
   padding: 0 16px;
   border-radius: 999px;
+
   font-size: 0.92rem;
   font-weight: 800;
+
   cursor: pointer;
   transition: 0.3s ease;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   white-space: nowrap;
 }
 
@@ -614,13 +756,21 @@
 ========================= */
 
 .ctg-footer {
-  margin-top: auto;
   width: 100%;
+
   text-align: center;
   padding: 18px 10px;
   font-size: 0.95rem;
+
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 1000;
 }
 
 .light .ctg-footer {
@@ -682,6 +832,10 @@
 ========================= */
 
 @media (max-width: 600px) {
+  .ctg-page {
+    padding-bottom: 64px;
+  }
+
   .ctg-navbar {
     height: 74px;
     padding: 8px 16px;
@@ -713,10 +867,25 @@
     font-size: 1.25rem;
   }
 
+  .ctg-main {
+    padding: 18px 14px 34px;
+  }
+
+  .ctg-back-service-row {
+    width: 100%;
+    margin: 0 auto 12px;
+    justify-content: center;
+  }
+
+  .back-service-btn {
+    width: 100%;
+    padding: 13px 18px;
+  }
+
   .upload-section,
   .preview-section {
-    width: 92%;
-    padding: 38px 0 56px;
+    width: 100%;
+    padding: 0 0 34px;
   }
 
   .upload-card,
@@ -818,3 +987,4 @@
     font-size: 1.7rem;
   }
 }
+
