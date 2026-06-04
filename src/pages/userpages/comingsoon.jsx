@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { FaArrowLeft, FaClock, FaHeartbeat } from "react-icons/fa";
 import { ThemeContext } from "./ThemeContext";
-import "./css/ComingSoon.css";
+import "./css/comingSoon.css";
 
 export default function ComingSoon() {
   const navigate = useNavigate();
