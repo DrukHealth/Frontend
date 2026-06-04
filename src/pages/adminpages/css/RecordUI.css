@@ -984,5 +984,236 @@
   box-shadow: #2a2a2a;
 }
 
+/* ==========================================================
+   KEEP EDIT + DELETE IN ONE ROW INSIDE ACTIONS COLUMN
+========================================================== */
 
+/* Make actions column wider */
+.records-table th:last-child,
+.records-table td:last-child {
+  min-width: 190px;
+  width: 190px;
+}
+
+/* Keep action buttons in one row */
+.action-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+/* Make buttons compact inside table */
+.records-table .edit-btn,
+.records-table .delete-btn,
+.records-table .save-btn,
+.records-table .cancel-btn {
+  padding: 8px 11px;
+  min-height: 36px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+/* Prevent icon/text from breaking */
+.records-table .edit-btn,
+.records-table .delete-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* When editing, keep Save + Cancel also in same row */
+.records-table .save-btn,
+.records-table .cancel-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* On medium screens, allow horizontal scroll instead of stacking */
+@media (max-width: 1024px) {
+  .records-table {
+    min-width: 1050px;
+  }
+
+  .records-table th:last-child,
+  .records-table td:last-child {
+    min-width: 200px;
+    width: 200px;
+  }
+}
+
+/* Mobile card view can still stack nicely */
+@media (max-width: 768px) {
+  .card-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .card-actions .edit-btn,
+  .card-actions .delete-btn,
+  .card-actions .save-btn,
+  .card-actions .cancel-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions .edit-btn,
+  .card-actions .delete-btn,
+  .card-actions .save-btn,
+  .card-actions .cancel-btn {
+    width: 100%;
+  }
+}
+
+/* ==========================================================
+   FIX TABLE EDIT MODE LAYOUT
+   Compact inputs + Save/Cancel in same row
+========================================================== */
+
+/* Give the Actions column enough space */
+.records-table th:last-child,
+.records-table td:last-child {
+  min-width: 220px !important;
+  width: 220px !important;
+  max-width: 220px !important;
+}
+
+/* Keep Save + Cancel in one clean row */
+.records-table .action-checkbox {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+/* Compact table action buttons */
+.records-table .edit-btn,
+.records-table .delete-btn,
+.records-table .save-btn,
+.records-table .cancel-btn {
+  min-width: auto !important;
+  min-height: 38px;
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+  font-size: 0.82rem !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+/* Make Save and Cancel balanced */
+.records-table .save-btn,
+.records-table .cancel-btn {
+  min-width: 86px !important;
+}
+
+/* Fix table edit inputs so they don't overflow */
+.records-table .edit-input,
+.records-table .edit-select {
+  width: 100% !important;
+  max-width: 115px !important;
+  min-width: 75px !important;
+
+  height: 34px;
+  padding: 6px 8px !important;
+
+  border-radius: 8px !important;
+  font-size: 0.86rem !important;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+/* Detected class select needs slightly more width */
+.records-table .label-cell .edit-select {
+  max-width: 135px !important;
+  min-width: 120px !important;
+}
+
+/* Feature value columns */
+.records-table td:has(.edit-input) {
+  padding: 10px 8px !important;
+  overflow: visible !important;
+}
+
+/* Label cell edit mode */
+.records-table td:has(.edit-select) {
+  overflow: visible !important;
+}
+
+/* Make table wider so browser scrolls instead of squeezing */
+.records-table {
+  min-width: 1150px !important;
+}
+
+/* Make wrapper handle scroll smoothly */
+.table-wrapper {
+  overflow-x: auto !important;
+}
+
+/* Better row height while editing */
+.records-table tbody tr {
+  min-height: 86px;
+}
+
+/* On smaller laptop screens, still keep proper horizontal scroll */
+@media (max-width: 1200px) {
+  .records-table {
+    min-width: 1250px !important;
+  }
+
+  .records-table th:last-child,
+  .records-table td:last-child {
+    min-width: 230px !important;
+    width: 230px !important;
+    max-width: 230px !important;
+  }
+}
+
+/* Mobile card edit mode should stay full-width */
+@media (max-width: 768px) {
+  .records-table {
+    min-width: unset !important;
+  }
+
+  .records-cards .edit-input,
+  .records-cards .edit-select {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .records-cards .card-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .records-cards .save-btn,
+  .records-cards .cancel-btn,
+  .records-cards .edit-btn,
+  .records-cards .delete-btn {
+    flex: 1;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .records-cards .card-actions {
+    flex-direction: column;
+  }
+
+  .records-cards .save-btn,
+  .records-cards .cancel-btn,
+  .records-cards .edit-btn,
+  .records-cards .delete-btn {
+    width: 100%;
+  }
+}
 

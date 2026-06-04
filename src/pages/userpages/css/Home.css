@@ -82,7 +82,7 @@ body {
 
 .navbar {
   position: fixed;
-  height: 90px;
+  height: 100px;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -206,7 +206,7 @@ body {
 
 .services {
   flex: 1;
-  padding: 70px 20px 90px;
+  padding: 110px 20px 90px;
   text-align: center;
   position: relative;
   z-index: 1;
